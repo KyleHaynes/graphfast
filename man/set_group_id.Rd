@@ -31,14 +31,14 @@ See examples. Default NULL (all matching columns share one namespace, the origin
 
 \item{return_edges}{Logical. If TRUE, return the record-to-record edge list of all pair connections
 (every pair of \code{id}s that share a value) instead of the data.table. The group-id column is
-still added to \code{dt} by reference. Useful for plotting the linkage with \pkg{visNetwork}.
+still added to \code{dt} by reference. Useful for plotting the linkage with e.g. \pkg{visNetwork}.
 Default FALSE.}
 }
 \value{
 By default the input data.table with a new group ID column added (modified by reference).
-If \code{return_edges = TRUE}, a data.table edge list with columns \code{from}, \code{to}
-(the connected \code{id}s, with \code{from < to}) and \code{value} (the shared value linking
-them); the group-id column is still written to \code{dt} by reference.
+  If \code{return_edges = TRUE}, a data.table edge list with columns \code{from}, \code{to}
+  (the connected \code{id}s, with \code{from < to}) and \code{value} (the shared value linking
+  them); the group-id column is still written to \code{dt} by reference.
 }
 \description{
 Alternative implementation of group ID assignment using data.table melt and edge components.
