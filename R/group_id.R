@@ -22,7 +22,8 @@
 #' 
 #' @examples
 #' # Basic usage with data.frame using exact column names
-#' df <- data.frame(
+#' require(data.table)
+#' df <- data.table(
 #'   phone1 = c("123-456-7890", "987-654-3210", "123-456-7890", "", "555-0123"),
 #'   phone2 = c("", "987-654-3210", "555-1234", "123-456-7890", ""),
 #'   email = c("john@email.com", "jane@email.com", "bob@email.com", "john@email.com", "alice@email.com"),
@@ -32,6 +33,12 @@
 #' # Group by phone columns using regex (default)
 #' group_ids <- group_id(df, cols = "phone", incomparables = c(""))
 #' print(group_ids)
+#' 
+#' # Within a data.table
+#' # Group by phone columns using regex (default)
+#' dt2 <- copy(df)
+#' dt2[, gid := group_id(dt2, cols = "phone", incomparables = c(""))]
+#' print(dt2)
 #' 
 #' # Group by phone columns using exact names
 #' group_ids <- group_id(df, cols = c("phone1", "phone2"), use_regex = FALSE, incomparables = c(""))

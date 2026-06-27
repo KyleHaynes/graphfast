@@ -99,13 +99,13 @@ shortest_paths(edges, matrix(c(1, 4, 1, 5), ncol = 2, byrow = TRUE))
 graph_statistics(edges)$density
 ```
 
-## How the manual is organised
+## How the book is organised
 
-| Page | What you'll find |
-|------|------------------|
+| Chapter | What you'll find |
+|---------|------------------|
 | [Theory](theory.qmd) | The data structures and algorithms, complexity, and the design choices behind the speed. |
 | [Examples](examples.qmd) | Every exported function demonstrated with small, runnable snippets. |
-| [Benchmarks](benchmarks.qmd) | Comparison against `igraph` / `network` / `sna` at 1M, 10M, and 100M edges. |
+| [Benchmarks](benchmarks.qmd) | Live, measured comparison against `igraph` at 1M, 10M, and 100M edges. |
 | [Reference](reference.qmd) | Compact API documentation — signatures, arguments, return values. |
 
 ## At a glance
