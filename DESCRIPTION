@@ -3,7 +3,7 @@ Type: Package
 Title: Fast Graph Connectivity Analysis Using C++
 Version: 0.2.0
 Author: Kyle Haynes
-Maintainer: Kyle Haynes
+Maintainer: Kyle Haynes <kyle@kylehaynes.com.au>
 Description: High-performance graph connectivity analysis for large-scale datasets.
     Uses optimized C++ algorithms via Rcpp to handle hundreds of millions of
     node pairs efficiently. Provides functions for finding connected components,
