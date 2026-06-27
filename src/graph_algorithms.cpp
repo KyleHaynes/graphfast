@@ -51,6 +51,7 @@ public:
 };
 
 //' Find Connected Components
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::List find_components_cpp(const Rcpp::IntegerMatrix& edges, int n_nodes, bool compress = true) {
     UnionFind uf(n_nodes);
@@ -96,6 +97,7 @@ Rcpp::List find_components_cpp(const Rcpp::IntegerMatrix& edges, int n_nodes, bo
 }
 
 //' Check Connectivity
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::LogicalVector are_connected_cpp(const Rcpp::IntegerMatrix& edges, const Rcpp::IntegerMatrix& query_pairs, int n_nodes) {
     UnionFind uf(n_nodes);
@@ -125,6 +127,7 @@ Rcpp::LogicalVector are_connected_cpp(const Rcpp::IntegerMatrix& edges, const Rc
 }
 
 //' Shortest Paths
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::IntegerVector shortest_paths_cpp(const Rcpp::IntegerMatrix& edges, const Rcpp::IntegerMatrix& query_pairs, 
                                       int n_nodes, int max_distance) {
@@ -220,6 +223,7 @@ Rcpp::IntegerVector shortest_paths_cpp(const Rcpp::IntegerMatrix& edges, const R
 }
 
 //' Graph Statistics
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::List graph_stats_cpp(const Rcpp::IntegerMatrix& edges, int n_nodes) {
     std::vector<int> degree(n_nodes, 0);
@@ -269,6 +273,7 @@ Rcpp::List graph_stats_cpp(const Rcpp::IntegerMatrix& edges, int n_nodes) {
 //' @param n_nodes Number of nodes in the graph
 //' @param compress Whether to compress component IDs to consecutive integers
 //' @return List with from_components and to_components vectors
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::List get_edge_components_cpp(const Rcpp::IntegerMatrix& edges, int n_nodes, bool compress = true) {
     UnionFind uf(n_nodes);
@@ -346,9 +351,7 @@ Rcpp::List get_edge_components_cpp(const Rcpp::IntegerMatrix& edges, int n_nodes
 //' phone2 <- c("", "987-654-3210", "555-1234", "123-456-7890", "")
 //' email <- c("john@email.com", "jane@email.com", "bob@email.com", "john@email.com", "alice@email.com")
 //' 
-//' result <- multi_column_group_cpp(list(phone1, phone2, email), 
-//'                                  incomparables = c("", "NA", "Unknown"))
-//'
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::List multi_column_group_cpp(const Rcpp::List& data,
                                   const Rcpp::CharacterVector& incomparables = Rcpp::CharacterVector::create(),
@@ -551,6 +554,7 @@ Rcpp::List multi_column_group_cpp(const Rcpp::List& data,
 //' @param data List of numeric/integer vectors
 //' @param min_group_size Minimum group size to assign group ID
 //' @return List with group_ids, n_groups, group_sizes
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::List multi_column_group_numeric_cpp(const Rcpp::List& data,
                                           int min_group_size = 1) {
@@ -675,6 +679,7 @@ Rcpp::List multi_column_group_numeric_cpp(const Rcpp::List& data,
 //' @param data List of numeric/integer vectors
 //' @param min_group_size Minimum group size to assign group ID
 //' @return List with group_ids, n_groups, group_sizes
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::List ultra_fast_group_numeric_cpp(const Rcpp::List& data,
                                         int min_group_size = 1) {

@@ -22,3 +22,4 @@ src/*.dll
 ^examples$
 ^test_compile\.cpp$
 ^src/Makevars_simple$
+^LICENSE\.md$

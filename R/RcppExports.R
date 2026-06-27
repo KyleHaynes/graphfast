@@ -2,21 +2,25 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #' Find Connected Components
+#' @noRd
 find_components_cpp <- function(edges, n_nodes, compress = TRUE) {
     .Call(`_graphfast_find_components_cpp`, edges, n_nodes, compress)
 }
 
 #' Check Connectivity
+#' @noRd
 are_connected_cpp <- function(edges, query_pairs, n_nodes) {
     .Call(`_graphfast_are_connected_cpp`, edges, query_pairs, n_nodes)
 }
 
 #' Shortest Paths
+#' @noRd
 shortest_paths_cpp <- function(edges, query_pairs, n_nodes, max_distance) {
     .Call(`_graphfast_shortest_paths_cpp`, edges, query_pairs, n_nodes, max_distance)
 }
 
 #' Graph Statistics
+#' @noRd
 graph_stats_cpp <- function(edges, n_nodes) {
     .Call(`_graphfast_graph_stats_cpp`, edges, n_nodes)
 }
@@ -30,6 +34,7 @@ graph_stats_cpp <- function(edges, n_nodes) {
 #' @param n_nodes Number of nodes in the graph
 #' @param compress Whether to compress component IDs to consecutive integers
 #' @return List with from_components and to_components vectors
+#' @noRd
 get_edge_components_cpp <- function(edges, n_nodes, compress = TRUE) {
     .Call(`_graphfast_get_edge_components_cpp`, edges, n_nodes, compress)
 }
@@ -57,9 +62,7 @@ get_edge_components_cpp <- function(edges, n_nodes, compress = TRUE) {
 #' phone2 <- c("", "987-654-3210", "555-1234", "123-456-7890", "")
 #' email <- c("john@email.com", "jane@email.com", "bob@email.com", "john@email.com", "alice@email.com")
 #' 
-#' result <- multi_column_group_cpp(list(phone1, phone2, email), 
-#'                                  incomparables = c("", "NA", "Unknown"))
-#'
+#' @noRd
 multi_column_group_cpp <- function(data, incomparables = as.character( c()), case_sensitive = TRUE, min_group_size = 1L) {
     .Call(`_graphfast_multi_column_group_cpp`, data, incomparables, case_sensitive, min_group_size)
 }
@@ -71,6 +74,7 @@ multi_column_group_cpp <- function(data, incomparables = as.character( c()), cas
 #' @param data List of numeric/integer vectors
 #' @param min_group_size Minimum group size to assign group ID
 #' @return List with group_ids, n_groups, group_sizes
+#' @noRd
 multi_column_group_numeric_cpp <- function(data, min_group_size = 1L) {
     .Call(`_graphfast_multi_column_group_numeric_cpp`, data, min_group_size)
 }
@@ -83,6 +87,7 @@ multi_column_group_numeric_cpp <- function(data, min_group_size = 1L) {
 #' @param data List of numeric/integer vectors
 #' @param min_group_size Minimum group size to assign group ID
 #' @return List with group_ids, n_groups, group_sizes
+#' @noRd
 ultra_fast_group_numeric_cpp <- function(data, min_group_size = 1L) {
     .Call(`_graphfast_ultra_fast_group_numeric_cpp`, data, min_group_size)
 }

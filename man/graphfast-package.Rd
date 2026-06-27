@@ -8,4 +8,8 @@
 \description{
 High-performance graph connectivity analysis for large-scale datasets. Uses optimized C++ algorithms via Rcpp to handle hundreds of millions of node pairs efficiently. Provides functions for finding connected components, shortest paths, connectivity queries, and graph-based entity resolution with minimal memory footprint.
 }
+\author{
+\strong{Maintainer}: Kyle Haynes \email{kyle@kylehaynes.com.au}
+
+}
 \keyword{internal}

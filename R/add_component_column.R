@@ -29,7 +29,8 @@
 #' # Now dt has a 'component' column
 #' 
 #' # Or specify custom column name and don't modify original
-#' dt2 <- add_component_column(dt, from_col = "source", to_col = "target",component_col = "group_id", in_place = FALSE)
+#' dt2 <- add_component_column(dt, from_col = "source", to_col = "target",
+#'                             component_col = "group_id", in_place = FALSE)
 #' dt2
 #' 
 #' # For large datasets, use verbose=TRUE to monitor performance

@@ -26,7 +26,8 @@
 #' df <- data.table(
 #'   phone1 = c("123-456-7890", "987-654-3210", "123-456-7890", "", "555-0123"),
 #'   phone2 = c("", "987-654-3210", "555-1234", "123-456-7890", ""),
-#'   email = c("john@email.com", "jane@email.com", "bob@email.com", "john@email.com", "alice@email.com"),
+#'   email = c("john@email.com", "jane@email.com", "bob@email.com",
+#'             "john@email.com", "alice@email.com"),
 #'   stringsAsFactors = FALSE
 #' )
 #' 
@@ -53,8 +54,9 @@
 #' # Direct list input
 #' phone1 <- c("123-456-7890", "987-654-3210", "123-456-7890", "", "555-0123")
 #' phone2 <- c("", "987-654-3210", "555-1234", "123-456-7890", "")
-#' email <- c("john@email.com", "jane@email.com", "bob@email.com", "john@email.com", "alice@email.com")
-#' 
+#' email <- c("john@email.com", "jane@email.com", "bob@email.com",
+#'            "john@email.com", "alice@email.com")
+#'
 #' group_id(list(phone1, phone2, email), incomparables = c(""))
 #' 
 #' @export
@@ -241,7 +243,8 @@ print.group_id_result <- function(x, ...) {
 #'   dt <- data.table(
 #'     phone1 = c("123-456-7890", "987-654-3210", "123-456-7890", "", "555-0123"),
 #'     phone2 = c("", "987-654-3210", "555-1234", "123-456-7890", ""),
-#'     email = c("john@email.com", "jane@email.com", "bob@email.com", "john@email.com", "alice@email.com")
+#'     email = c("john@email.com", "jane@email.com", "bob@email.com",
+#'               "john@email.com", "alice@email.com")
 #'   )
 #'   
 #'   # Add group IDs based on phone columns using regex

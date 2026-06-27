@@ -30,7 +30,8 @@ if (requireNamespace("data.table", quietly = TRUE)) {
   dt <- data.table(
     phone1 = c("123-456-7890", "987-654-3210", "123-456-7890", "", "555-0123"),
     phone2 = c("", "987-654-3210", "555-1234", "123-456-7890", ""),
-    email = c("john@email.com", "jane@email.com", "bob@email.com", "john@email.com", "alice@email.com")
+    email = c("john@email.com", "jane@email.com", "bob@email.com",
+              "john@email.com", "alice@email.com")
   )
   
   # Add group IDs based on phone columns using regex
