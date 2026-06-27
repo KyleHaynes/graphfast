@@ -9,9 +9,9 @@
 /src/*.o
 /src/*.so
 /src/*.dll
-/man/*.Rd
-/R/RcppExports.R
-/src/RcppExports.cpp
+# NOTE: man/*.Rd, R/RcppExports.R and src/RcppExports.cpp are GENERATED but MUST
+# be committed, otherwise CI / install_github builds a package with no Rd docs and
+# no Rcpp wrappers (R CMD check then fails). Do not re-add them to this ignore list.
 
 # Build artifacts
 *.tar.gz

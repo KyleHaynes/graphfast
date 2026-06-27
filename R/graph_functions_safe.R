@@ -86,8 +86,8 @@ find_connected_components_safe <- function(edges, compress = TRUE, verbose = TRU
   components_mapped <- setNames(result$components, node_mapping$original)
   
   if (verbose) {
-    cat("✓ Success! Found", result$n_components, "components\n")
-    cat("✓ Memory saved:", round(naive_memory_gb - efficient_memory_gb, 2), "GB\n")
+    cat("Success! Found", result$n_components, "components\n")
+    cat("Memory saved:", round(naive_memory_gb - efficient_memory_gb, 2), "GB\n")
   }
   
   return(list(

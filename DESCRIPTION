@@ -19,9 +19,8 @@ Imports:
     methods,
     data.table,
     fastmatch
-LinkingTo: 
+LinkingTo:
     Rcpp
-SystemRequirements: C++11
 RoxygenNote: 7.3.2
 Suggests:
     testthat (>= 3.0.0),

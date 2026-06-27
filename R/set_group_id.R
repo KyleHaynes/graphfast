@@ -1,4 +1,7 @@
 
+# Internal fast %in% alias (fastmatch); not exported, used below for filtering.
+`%finn%` <- fastmatch::`%fin%`
+
 #' Set Group ID Using Edge Components Approach
 #'
 #' Alternative implementation of group ID assignment using data.table melt and edge components.
@@ -28,9 +31,6 @@
 #' )
 #' set_group_id(dt, cols = "phone", var_output_name = "group_id")
 #' print(dt)
-
-`%finn%` <- fastmatch::`%fin%`
-
 #'
 #' @export
 set_group_id <- function(dt, cols = "phone", var_output_name = "gid", incomparables = c(NA, "")) {

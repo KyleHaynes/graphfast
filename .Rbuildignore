@@ -18,3 +18,7 @@ src/*.dll
 ^\.quarto$
 ^_freeze$
 ^benchmark\.R$
+^docs$
+^examples$
+^test_compile\.cpp$
+^src/Makevars_simple$

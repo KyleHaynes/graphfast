@@ -101,7 +101,7 @@ group_ids_exact <- group_id(customers,
                            use_regex = FALSE,
                            incomparables = c(""))
 
-print("Results are identical:", identical(group_ids_regex, group_ids_exact))
+cat("Results are identical:", identical(group_ids_regex, group_ids_exact), "\n")
 ```
 
 ## Graph Analysis

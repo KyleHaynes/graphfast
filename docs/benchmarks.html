@@ -407,36 +407,36 @@ window.Quarto = {
 <tr class="odd">
 <td style="text-align: right;">1e+06</td>
 <td style="text-align: left;">graphfast</td>
-<td style="text-align: right;">0.04</td>
-<td style="text-align: right;">0.04</td>
+<td style="text-align: right;">0.03</td>
+<td style="text-align: right;">0.09</td>
 <td style="text-align: right;">12</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1e+06</td>
 <td style="text-align: left;">igraph</td>
-<td style="text-align: right;">0.09</td>
-<td style="text-align: right;">3.59</td>
+<td style="text-align: right;">0.10</td>
+<td style="text-align: right;">3.44</td>
 <td style="text-align: right;">12</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">1e+07</td>
 <td style="text-align: left;">graphfast</td>
-<td style="text-align: right;">1.13</td>
-<td style="text-align: right;">1.30</td>
+<td style="text-align: right;">0.62</td>
+<td style="text-align: right;">1.22</td>
 <td style="text-align: right;">81</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1e+07</td>
 <td style="text-align: left;">igraph</td>
-<td style="text-align: right;">1.20</td>
-<td style="text-align: right;">42.91</td>
+<td style="text-align: right;">1.09</td>
+<td style="text-align: right;">39.28</td>
 <td style="text-align: right;">81</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">1e+08</td>
 <td style="text-align: left;">graphfast</td>
-<td style="text-align: right;">10.14</td>
-<td style="text-align: right;">16.71</td>
+<td style="text-align: right;">11.30</td>
+<td style="text-align: right;">17.41</td>
 <td style="text-align: right;">910</td>
 </tr>
 </tbody>
@@ -467,17 +467,17 @@ Table&nbsp;4.1
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1M</td>
-<td style="text-align: right;">0.040 s</td>
-<td style="text-align: right;">0.090 s</td>
+<td style="text-align: right;">0.030 s</td>
+<td style="text-align: right;">0.100 s</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">10M</td>
-<td style="text-align: right;">1.130 s</td>
-<td style="text-align: right;">1.200 s</td>
+<td style="text-align: right;">0.620 s</td>
+<td style="text-align: right;">1.090 s</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">100M</td>
-<td style="text-align: right;">10.140 s</td>
+<td style="text-align: right;">11.300 s</td>
 <td style="text-align: right;">—</td>
 </tr>
 </tbody>
@@ -487,7 +487,7 @@ Table&nbsp;4.1
 </figure>
 </div>
 </div>
-<p>On this render <code>graphfast</code> computed components <strong>1.1×–2.2×</strong> faster than <code>igraph</code> across the sizes where both ran.</p>
+<p>On this render <code>graphfast</code> computed components <strong>1.8×–3.3×</strong> faster than <code>igraph</code> across the sizes where both ran.</p>
 <p>Both libraries are near-linear in edges, so the curves are roughly straight on a log–log plot. The gap is the <strong>constant factor</strong> — <code>graphfast</code> avoids constructing and populating a full graph object.</p>
 </section>
 <section id="measured-results-shortest-paths-batch-of-pairs" class="level2" data-number="4.5">
@@ -512,17 +512,17 @@ Table&nbsp;4.2
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1M</td>
-<td style="text-align: right;">0.040 s</td>
-<td style="text-align: right;">3.590 s</td>
+<td style="text-align: right;">0.090 s</td>
+<td style="text-align: right;">3.440 s</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">10M</td>
-<td style="text-align: right;">1.300 s</td>
-<td style="text-align: right;">42.910 s</td>
+<td style="text-align: right;">1.220 s</td>
+<td style="text-align: right;">39.280 s</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">100M</td>
-<td style="text-align: right;">16.710 s</td>
+<td style="text-align: right;">17.410 s</td>
 <td style="text-align: right;">—</td>
 </tr>
 </tbody>
@@ -564,22 +564,22 @@ Table&nbsp;4.2
 <tr class="odd">
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">5e+06</td>
-<td style="text-align: right;">0.93</td>
+<td style="text-align: right;">1.03</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">5</td>
 <td style="text-align: right;">2e+06</td>
-<td style="text-align: right;">0.52</td>
+<td style="text-align: right;">0.61</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">20</td>
 <td style="text-align: right;">5e+05</td>
-<td style="text-align: right;">0.38</td>
+<td style="text-align: right;">0.42</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">100</td>
 <td style="text-align: right;">1e+05</td>
-<td style="text-align: right;">0.34</td>
+<td style="text-align: right;">0.36</td>
 </tr>
 </tbody>
 </table>
@@ -609,7 +609,7 @@ Table&nbsp;4.2
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Bundled single-file benchmark (1e5, 1e6, 1e7 by default)</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"benchmark.R"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>To regenerate the tables on this page, just re-render the book — the chunks above run automatically. Edit the <code>sizes</code> vector in the harness to push to 100M+ (and note your CPU, RAM, OS, R version, and threading, so the figures are comparable). ```</p>
+<p>To regenerate the tables on this page, just re-render the book — the chunks above run automatically. Edit the <code>sizes</code> vector in the harness to push to 100M+ (and note your CPU, RAM, OS, R version, and threading, so the figures are comparable).</p>
 
 
 </section>
