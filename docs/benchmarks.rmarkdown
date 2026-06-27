@@ -280,3 +280,4 @@ source(system.file("benchmark.R", package = "graphfast"))
 To regenerate the tables on this page, just re-render the book — the chunks above
 run automatically. Edit the `sizes` vector in the harness to push to 100M+ (and
 note your CPU, RAM, OS, R version, and threading, so the figures are comparable).
+

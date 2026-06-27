@@ -8,16 +8,17 @@ subtitle: "Every function, demonstrated"
 #| message: false
 #| warning: false
 # Install graphfast from GitHub if it isn't already available...
-if (!requireNamespace("graphfast", quietly = TRUE)) {
-  if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")
-  remotes::install_github("KyleHaynes/graphfast")
-}
+# if (!requireNamespace("graphfast", quietly = TRUE)) {
+#   if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")
+#   remotes::install_github("KyleHaynes/graphfast")
+# }
 
-# ...along with the optional (Suggests) packages these examples use.
-for (pkg in c("data.table", "visNetwork")) {
-  if (!requireNamespace(pkg, quietly = TRUE)) install.packages(pkg)
-}
+# # ...along with the optional (Suggests) packages these examples use.
+# for (pkg in c("data.table", "visNetwork")) {
+#   if (!requireNamespace(pkg, quietly = TRUE)) install.packages(pkg)
+# }
 
+print(.libPaths())
 library(graphfast)
 library(data.table)
 set.seed(1)
@@ -433,8 +434,9 @@ nodes <- data.table(
   email = c("john@email.com", "jane@email.com", "bob@email.com",
             "john@email.com", "123-456-7890")
 )
+nodes[, title := paste0("phone1: ", phone1, "</br>phone2: ", phone2, "</br>email: ", email)]
 
-edges <- set_group_id(dt2, isolate = list(c("phone1", "phone2"), "email"),
+edges <- set_group_id(nodes, isolate = list(c("phone1", "phone2"), "email"),
                       return_edges = TRUE)
 
 visNetwork(nodes, edges, width = "100%", height = "320px") |>
@@ -451,6 +453,7 @@ n_queries <- 100
 query_nodes <- sample(1:100, 2 * n_queries, replace = TRUE)
 batch_queries <- data.table(matrix(query_nodes, ncol = 2))
 batch_queries[, id := 1:.N]
+batch_queries[, title := paste0("V1: ", V1, ", V2: ", V2)]
 
 edges <- set_group_id(batch_queries, "V", return_edges = TRUE)
 
@@ -461,8 +464,6 @@ visNetwork(batch_queries, edges, width = "100%", height = "320px") |>
 ```
 
 
-set_group_id(dt2, isolate = list(c("phone1", "phone2"), "email"),
-             return_edges = TRUE)
 # Putting it together
 
 A realistic `data.table` flow: take an edge list, attach components, and inspect

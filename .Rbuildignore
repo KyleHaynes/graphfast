@@ -17,7 +17,6 @@ src/*.dll
 ^site$
 ^\.quarto$
 ^_freeze$
-^benchmark\.R$
 ^docs$
 ^examples$
 ^test_compile\.cpp$

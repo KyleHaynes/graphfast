@@ -108,6 +108,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+
+<link href="site_libs/vis-9.1.0/vis-network.min.css" rel="stylesheet">
+
+<script src="site_libs/vis-9.1.0/vis-network.min.js"></script>
+
+<script src="site_libs/visNetwork-binding-2.1.4/visNetwork.js"></script>
+
 
 
 </head>
@@ -222,6 +230,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#plotting-the-linkage-with-visnetwork" id="toc-plotting-the-linkage-with-visnetwork" class="nav-link" data-scroll-target="#plotting-the-linkage-with-visnetwork"><span class="header-section-number">7.3.7</span> Plotting the linkage with <code>visNetwork</code></a></li>
   </ul></li>
   </ul></li>
+  <li><a href="#putting-it-together" id="toc-putting-it-together" class="nav-link" data-scroll-target="#putting-it-together"><span class="header-section-number">8</span> Putting it together</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/KyleHaynes/graphfast/blob/main/examples.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/KyleHaynes/graphfast/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -250,63 +259,36 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install graphfast from GitHub if it isn't already available...</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">"graphfast"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">"remotes"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) <span class="fu">install.packages</span>(<span class="st">"remotes"</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"KyleHaynes/graphfast"</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># if (!requireNamespace("graphfast", quietly = TRUE)) {</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   remotes::install_github("KyleHaynes/graphfast")</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># }</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># # ...along with the optional (Suggests) packages these examples use.</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># for (pkg in c("data.table", "visNetwork")) {</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   if (!requireNamespace(pkg, quietly = TRUE)) install.packages(pkg)</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># }</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">.libPaths</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Rcpp       (1.0.14 -&gt; 1.1.1-1.1) [CRAN]
-fastmatch  (1.1-6  -&gt; 1.1-8    ) [CRAN]
-data.table (1.17.0 -&gt; 1.18.4   ) [CRAN]
-
-  There are binary versions available but the source versions are later:
-           binary    source needs_compilation
-Rcpp       1.0.14 1.1.1-1.1              TRUE
-fastmatch   1.1-6     1.1-8              TRUE
-data.table 1.17.0    1.18.4              TRUE
-
-  Binaries will be installed
-package 'Rcpp' successfully unpacked and MD5 sums checked
-package 'fastmatch' successfully unpacked and MD5 sums checked
-package 'data.table' successfully unpacked and MD5 sums checked
-
-The downloaded binary packages are in
-    C:\Users\kyleh\AppData\Local\Temp\RtmpmEKbW5\downloaded_packages
-* checking for file 'C:\Users\kyleh\AppData\Local\Temp\RtmpmEKbW5\remotes11384c4032f5\KyleHaynes-graphfast-d8e04f7/DESCRIPTION' ... OK
-* preparing 'graphfast':
-* checking DESCRIPTION meta-information ... OK
-* cleaning src
-* checking for LF line-endings in source and make files and shell scripts
-* checking for empty or unneeded directories
-Omitted 'LazyData' from DESCRIPTION
-* building 'graphfast_0.2.0.tar.gz'</code></pre>
+<pre><code>[1] "C:/Users/kyleh/AppData/Local/R/win-library/4.5" "C:/Program Files/R/R-4.5.0/library"            </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ...along with the optional (Suggests) packages these examples use.</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (pkg <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"data.table"</span>, <span class="st">"visNetwork"</span>)) {</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(pkg, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) <span class="fu">install.packages</span>(pkg)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in contrib.url(repos, "source"): trying to use CRAN without setting a mirror</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(graphfast)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in library(graphfast): there is no package called 'graphfast'</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(graphfast)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>This page walks through every exported function with small, self-contained examples. The chunks are live — the output you see is produced when the site is rendered.</p>
 <p>A graph in <code>graphfast</code> is just a <strong>two-column edge list</strong>: a matrix or <code>data.table</code> where each row is an edge <code>from -&gt; to</code>. We’ll reuse this little graph with three components throughout:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>edges <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span>, <span class="dv">2</span>,</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="dv">2</span>, <span class="dv">3</span>,</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="dv">3</span>, <span class="dv">4</span>,   <span class="co"># component A: {1,2,3,4}</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="dv">5</span>, <span class="dv">6</span>,   <span class="co"># component B: {5,6}</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="dv">7</span>, <span class="dv">8</span>,</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="dv">8</span>, <span class="dv">9</span>    <span class="co"># component C: {7,8,9}</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>edges</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>edges <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span>, <span class="dv">2</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="dv">2</span>, <span class="dv">3</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="dv">3</span>, <span class="dv">4</span>,   <span class="co"># component A: {1,2,3,4}</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="dv">5</span>, <span class="dv">6</span>,   <span class="co"># component B: {5,6}</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="dv">7</span>, <span class="dv">8</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="dv">8</span>, <span class="dv">9</span>    <span class="co"># component C: {7,8,9}</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>edges</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     [,1] [,2]
 [1,]    1    2
@@ -323,50 +305,44 @@ Omitted 'LazyData' from DESCRIPTION
 <h2 data-number="4.1" class="anchored" data-anchor-id="find_connected_components"><span class="header-section-number">4.1</span> <code>find_connected_components()</code></h2>
 <p>The workhorse. Returns one component id <strong>per node</strong>, the size of each component, and the total count.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>cc <span class="ot">&lt;-</span> <span class="fu">find_connected_components</span>(edges)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in find_connected_components(edges): could not find function "find_connected_components"</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>cc <span class="ot">&lt;-</span> <span class="fu">find_connected_components</span>(edges)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>cc<span class="sc">$</span>n_components</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>cc<span class="sc">$</span>n_components</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'cc' not found</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>cc<span class="sc">$</span>component_sizes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4 2 3</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>cc<span class="sc">$</span>component_sizes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'cc' not found</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>cc<span class="sc">$</span>components          <span class="co"># component id for node 1, 2, 3, ...</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'cc' not found</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>cc<span class="sc">$</span>components          <span class="co"># component id for node 1, 2, 3, ...</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 1 1 1 2 2 3 3 3</code></pre>
 </div>
 </div>
 <p>Node 5 and node 6 share component 2; node 1 is in component 1:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>cc<span class="sc">$</span>components[<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">6</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'cc' not found</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>cc<span class="sc">$</span>components[<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">6</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 2 2</code></pre>
 </div>
 </div>
 <p><code>compress = FALSE</code> keeps the raw Union–Find root labels instead of tidy consecutive ids (the counts are still correct):</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>raw <span class="ot">&lt;-</span> <span class="fu">find_connected_components</span>(edges, <span class="at">compress =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in find_connected_components(edges, compress = FALSE): could not find function "find_connected_components"</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>raw <span class="ot">&lt;-</span> <span class="fu">find_connected_components</span>(edges, <span class="at">compress =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>raw<span class="sc">$</span>n_components</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>raw<span class="sc">$</span>n_components</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in raw$n_components: object of type 'closure' is not subsettable</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(raw<span class="sc">$</span>components)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in raw$components: object of type 'closure' is not subsettable</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(raw<span class="sc">$</span>components)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0 0 0 0 4 4</code></pre>
 </div>
 </div>
 <p>You can pass <code>n_nodes</code> explicitly to skip the scan for the maximum id (handy when you already know it, or to include isolated nodes with no edges):</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">find_connected_components</span>(edges, <span class="at">n_nodes =</span> <span class="dv">12</span>)<span class="sc">$</span>n_components   <span class="co"># nodes 10,11,12 are singletons</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in find_connected_components(edges, n_nodes = 12): could not find function "find_connected_components"</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">find_connected_components</span>(edges, <span class="at">n_nodes =</span> <span class="dv">12</span>)<span class="sc">$</span>n_components   <span class="co"># nodes 10,11,12 are singletons</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 6</code></pre>
 </div>
 </div>
 </section>
@@ -374,27 +350,25 @@ Omitted 'LazyData' from DESCRIPTION
 <h2 data-number="4.2" class="anchored" data-anchor-id="find_connected_components_safe"><span class="header-section-number">4.2</span> <code>find_connected_components_safe()</code></h2>
 <p>When node ids are <strong>sparse or large</strong>, a dense <code>parent</code> array up to the maximum id would waste memory. This version remaps ids to <code>1..(unique nodes)</code> with <code>fastmatch</code>, runs the algorithm, then maps the answer back. The returned <code>components</code> vector is <strong>named by the original ids</strong>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>sparse_edges <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1000</span>, <span class="dv">2000</span>,</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="dv">2000</span>, <span class="dv">3000</span>,</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="dv">9000</span>, <span class="dv">9001</span></span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">find_connected_components_safe</span>(sparse_edges, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in find_connected_components_safe(sparse_edges, verbose = FALSE): could not find function "find_connected_components_safe"</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>sparse_edges <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1000</span>, <span class="dv">2000</span>,</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="dv">2000</span>, <span class="dv">3000</span>,</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="dv">9000</span>, <span class="dv">9001</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">find_connected_components_safe</span>(sparse_edges, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>n_components</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>n_components</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'res' not found</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>components            <span class="co"># names are the original node ids</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>1000 2000 3000 9000 9001 
+   1    1    1    2    2 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>components            <span class="co"># names are the original node ids</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'res' not found</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>memory_info<span class="sc">$</span>memory_saved_gb</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'res' not found</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>memory_info<span class="sc">$</span>memory_saved_gb</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.0001005381</code></pre>
 </div>
 </div>
 </section>
@@ -402,23 +376,21 @@ Omitted 'LazyData' from DESCRIPTION
 <h2 data-number="4.3" class="anchored" data-anchor-id="find_connected_components_large"><span class="header-section-number">4.3</span> <code>find_connected_components_large()</code></h2>
 <p>Handles ids <strong>beyond the 32-bit integer limit</strong> (≈ 2.1e9) by keeping them as doubles until after remapping. Set <code>verbose = TRUE</code> to see what it decided.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>big_edges <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fl">1e10</span>, <span class="fl">2e10</span>,</span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fl">2e10</span>, <span class="fl">3e10</span>,</span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="fl">7e10</span>, <span class="fl">8e10</span></span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>big <span class="ot">&lt;-</span> <span class="fu">find_connected_components_large</span>(big_edges, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in find_connected_components_large(big_edges, verbose = FALSE): could not find function "find_connected_components_large"</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>big_edges <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fl">1e10</span>, <span class="fl">2e10</span>,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fl">2e10</span>, <span class="fl">3e10</span>,</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fl">7e10</span>, <span class="fl">8e10</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>big <span class="ot">&lt;-</span> <span class="fu">find_connected_components_large</span>(big_edges, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>big<span class="sc">$</span>n_components</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>big<span class="sc">$</span>n_components</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'big' not found</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>big<span class="sc">$</span>components</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'big' not found</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>big<span class="sc">$</span>components</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>1e+10 2e+10 3e+10 7e+10 8e+10 
+    1     1     1     2     2 </code></pre>
 </div>
 </div>
 </section>
@@ -429,28 +401,25 @@ Omitted 'LazyData' from DESCRIPTION
 <section id="get_edge_components" class="level2" data-number="5.1">
 <h2 data-number="5.1" class="anchored" data-anchor-id="get_edge_components"><span class="header-section-number">5.1</span> <code>get_edge_components()</code></h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>ec <span class="ot">&lt;-</span> <span class="fu">get_edge_components</span>(edges)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in get_edge_components(edges): could not find function "get_edge_components"</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>ec <span class="ot">&lt;-</span> <span class="fu">get_edge_components</span>(edges)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>ec<span class="sc">$</span>from_components       <span class="co"># component of each edge's 'from' node</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 1 1 2 3 3</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>ec<span class="sc">$</span>from_components       <span class="co"># component of each edge's 'from' node</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'ec' not found</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>ec<span class="sc">$</span>to_components         <span class="co"># ... and its 'to' node (always equal for a real edge)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 1 1 2 3 3</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>ec<span class="sc">$</span>to_components         <span class="co"># ... and its 'to' node (always equal for a real edge)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'ec' not found</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>ec<span class="sc">$</span>n_components</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'ec' not found</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>ec<span class="sc">$</span>n_components</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3</code></pre>
 </div>
 </div>
 <p><code>return_type = "combined"</code> returns just the <code>from_components</code> vector (same length as the number of edges):</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">get_edge_components</span>(edges, <span class="at">return_type =</span> <span class="st">"combined"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in get_edge_components(edges, return_type = "combined"): could not find function "get_edge_components"</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">get_edge_components</span>(edges, <span class="at">return_type =</span> <span class="st">"combined"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 1 1 2 3 3</code></pre>
 </div>
 </div>
 </section>
@@ -458,19 +427,16 @@ Omitted 'LazyData' from DESCRIPTION
 <h2 data-number="5.2" class="anchored" data-anchor-id="group_edges-and-edge_components"><span class="header-section-number">5.2</span> <code>group_edges()</code> and <code>edge_components()</code></h2>
 <p><code>group_edges()</code> is the convenience alias returning one component id per edge row. <code>edge_components()</code> does the same but takes a <code>data.table</code> and column names, so it drops straight into a <code>data.table</code> expression.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Matrix in -&gt; vector out</span></span>
-<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">group_edges</span>(edges)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in group_edges(edges): could not find function "group_edges"</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Matrix in -&gt; vector out</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">group_edges</span>(edges)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 1 1 2 3 3</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>dt <span class="ot">&lt;-</span> <span class="fu">data.table</span>(<span class="at">from =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">5</span>), <span class="at">to =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">6</span>))</span>
-<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>dt[, component <span class="sc">:</span><span class="er">=</span> <span class="fu">edge_components</span>(.SD, <span class="st">"from"</span>, <span class="st">"to"</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in edge_components(.SD, "from", "to"): could not find function "edge_components"</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>dt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>dt <span class="ot">&lt;-</span> <span class="fu">data.table</span>(<span class="at">from =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">5</span>), <span class="at">to =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">6</span>))</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>dt[, component <span class="sc">:</span><span class="er">=</span> <span class="fu">edge_components</span>(.SD, <span class="st">"from"</span>, <span class="st">"to"</span>)]</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>dt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div class="kable-table">
 <table class="caption-top table table-sm table-striped small">
@@ -478,20 +444,24 @@ Omitted 'LazyData' from DESCRIPTION
 <tr class="header">
 <th style="text-align: right;">from</th>
 <th style="text-align: right;">to</th>
+<th style="text-align: right;">component</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
 <td style="text-align: right;">6</td>
+<td style="text-align: right;">3</td>
 </tr>
 </tbody>
 </table>
@@ -503,12 +473,8 @@ Omitted 'LazyData' from DESCRIPTION
 <h2 data-number="5.3" class="anchored" data-anchor-id="add_component_column"><span class="header-section-number">5.3</span> <code>add_component_column()</code></h2>
 <p>Adds a component column to a <code>data.table</code> <strong>by reference</strong> (no copy), mapping node ids with <code>fastmatch</code> internally. Works with any column names.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>dt2 <span class="ot">&lt;-</span> <span class="fu">data.table</span>(<span class="at">source =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">7</span>), <span class="at">target =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">6</span>, <span class="dv">8</span>), <span class="at">weight =</span> <span class="fu">runif</span>(<span class="dv">4</span>))</span>
-<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="fu">add_component_column</span>(dt2, <span class="at">from_col =</span> <span class="st">"source"</span>, <span class="at">to_col =</span> <span class="st">"target"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in add_component_column(dt2, from_col = "source", to_col = "target"): could not find function "add_component_column"</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>dt2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>dt2 <span class="ot">&lt;-</span> <span class="fu">data.table</span>(<span class="at">source =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">7</span>), <span class="at">target =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">6</span>, <span class="dv">8</span>), <span class="at">weight =</span> <span class="fu">runif</span>(<span class="dv">4</span>))</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">add_component_column</span>(dt2, <span class="at">from_col =</span> <span class="st">"source"</span>, <span class="at">to_col =</span> <span class="st">"target"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div class="kable-table">
 <table class="caption-top table table-sm table-striped small">
@@ -517,6 +483,7 @@ Omitted 'LazyData' from DESCRIPTION
 <th style="text-align: right;">source</th>
 <th style="text-align: right;">target</th>
 <th style="text-align: right;">weight</th>
+<th style="text-align: right;">component</th>
 </tr>
 </thead>
 <tbody>
@@ -524,21 +491,66 @@ Omitted 'LazyData' from DESCRIPTION
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">0.2655087</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">3</td>
 <td style="text-align: right;">0.3721239</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
 <td style="text-align: right;">6</td>
 <td style="text-align: right;">0.5728534</td>
+<td style="text-align: right;">2</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">7</td>
 <td style="text-align: right;">8</td>
 <td style="text-align: right;">0.9082078</td>
+<td style="text-align: right;">3</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>dt2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">source</th>
+<th style="text-align: right;">target</th>
+<th style="text-align: right;">weight</th>
+<th style="text-align: right;">component</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.2655087</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.3721239</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0.5728534</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0.9082078</td>
+<td style="text-align: right;">3</td>
 </tr>
 </tbody>
 </table>
@@ -547,14 +559,53 @@ Omitted 'LazyData' from DESCRIPTION
 </div>
 <p>Use <code>in_place = FALSE</code> to leave the original untouched and get a copy back, and <code>verbose = TRUE</code> for per-step timing on large data:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">add_component_column</span>(dt2, <span class="at">from_col =</span> <span class="st">"source"</span>, <span class="at">to_col =</span> <span class="st">"target"</span>,</span>
-<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>                            <span class="at">component_col =</span> <span class="st">"grp"</span>, <span class="at">in_place =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in add_component_column(dt2, from_col = "source", to_col = "target", : could not find function "add_component_column"</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">add_component_column</span>(dt2, <span class="at">from_col =</span> <span class="st">"source"</span>, <span class="at">to_col =</span> <span class="st">"target"</span>,</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>                            <span class="at">component_col =</span> <span class="st">"grp"</span>, <span class="at">in_place =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>out</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">source</th>
+<th style="text-align: right;">target</th>
+<th style="text-align: right;">weight</th>
+<th style="text-align: right;">component</th>
+<th style="text-align: right;">grp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.2655087</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.3721239</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0.5728534</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0.9082078</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>out</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'out' not found</code></pre>
 </div>
 </div>
 </section>
@@ -565,15 +616,15 @@ Omitted 'LazyData' from DESCRIPTION
 <h2 data-number="6.1" class="anchored" data-anchor-id="are_connected"><span class="header-section-number">6.1</span> <code>are_connected()</code></h2>
 <p>Batched “are these two nodes in the same component?” queries. Builds Union–Find once, then answers each pair in near-constant time.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>queries <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
-<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span>, <span class="dv">4</span>,   <span class="co"># same component A</span></span>
-<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span>, <span class="dv">5</span>,   <span class="co"># A vs B</span></span>
-<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>  <span class="dv">7</span>, <span class="dv">9</span>    <span class="co"># same component C</span></span>
-<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a><span class="fu">are_connected</span>(edges, queries)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in are_connected(edges, queries): could not find function "are_connected"</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>queries <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span>, <span class="dv">4</span>,   <span class="co"># same component A</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span>, <span class="dv">5</span>,   <span class="co"># A vs B</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>  <span class="dv">7</span>, <span class="dv">9</span>    <span class="co"># same component C</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a><span class="fu">are_connected</span>(edges, queries)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  TRUE FALSE  TRUE</code></pre>
 </div>
 </div>
 </section>
@@ -581,16 +632,16 @@ Omitted 'LazyData' from DESCRIPTION
 <h2 data-number="6.2" class="anchored" data-anchor-id="shortest_paths"><span class="header-section-number">6.2</span> <code>shortest_paths()</code></h2>
 <p>Hop-distance (unweighted BFS) for each query pair. <code>-1</code> means no path exists.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">shortest_paths</span>(edges, queries)     <span class="co"># 1-&gt;4 is 3 hops; 1-&gt;5 unreachable; 7-&gt;9 is 2 hops</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in shortest_paths(edges, queries): could not find function "shortest_paths"</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">shortest_paths</span>(edges, queries)     <span class="co"># 1-&gt;4 is 3 hops; 1-&gt;5 unreachable; 7-&gt;9 is 2 hops</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  3 -1  2</code></pre>
 </div>
 </div>
 <p><code>max_distance</code> stops the search early — anything farther returns <code>-1</code>:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">shortest_paths</span>(edges, <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>), <span class="at">ncol =</span> <span class="dv">2</span>), <span class="at">max_distance =</span> <span class="dv">2</span>)   <span class="co"># 1-&gt;4 needs 3 hops</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in shortest_paths(edges, matrix(c(1, 4), ncol = 2), max_distance = 2): could not find function "shortest_paths"</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">shortest_paths</span>(edges, <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>), <span class="at">ncol =</span> <span class="dv">2</span>), <span class="at">max_distance =</span> <span class="dv">2</span>)   <span class="co"># 1-&gt;4 needs 3 hops</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -1</code></pre>
 </div>
 </div>
 </section>
@@ -598,25 +649,29 @@ Omitted 'LazyData' from DESCRIPTION
 <h2 data-number="6.3" class="anchored" data-anchor-id="graph_statistics"><span class="header-section-number">6.3</span> <code>graph_statistics()</code></h2>
 <p>Degree summary and density in a single pass — no adjacency matrix.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>stats <span class="ot">&lt;-</span> <span class="fu">graph_statistics</span>(edges)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in graph_statistics(edges): could not find function "graph_statistics"</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>stats <span class="ot">&lt;-</span> <span class="fu">graph_statistics</span>(edges)</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>stats<span class="sc">$</span>n_nodes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 9</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>stats<span class="sc">$</span>n_nodes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'stats' not found</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>stats<span class="sc">$</span>n_edges</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 6</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>stats<span class="sc">$</span>n_edges</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'stats' not found</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>stats<span class="sc">$</span>density</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1666667</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>stats<span class="sc">$</span>density</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'stats' not found</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>stats<span class="sc">$</span>degree_stats</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'stats' not found</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>stats<span class="sc">$</span>degree_stats</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$min
+[1] 1
+
+$max
+[1] 2
+
+$mean
+[1] 1.333333</code></pre>
 </div>
 </div>
 </section>
@@ -628,51 +683,66 @@ Omitted 'LazyData' from DESCRIPTION
 <h2 data-number="7.1" class="anchored" data-anchor-id="group_id"><span class="header-section-number">7.1</span> <code>group_id()</code></h2>
 <p>The general engine. Give it a <code>data.frame</code>/<code>data.table</code> and the columns to match on (regex by default), plus values that should never glue rows together (<code>incomparables</code>).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>customers <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">id     =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>,</span>
-<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone1 =</span> <span class="fu">c</span>(<span class="st">"123-456-7890"</span>, <span class="st">"987-654-3210"</span>, <span class="st">"123-456-7890"</span>, <span class="st">""</span>,            <span class="st">"555-0123"</span>, <span class="st">""</span>),</span>
-<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone2 =</span> <span class="fu">c</span>(<span class="st">""</span>,             <span class="st">"987-654-3210"</span>, <span class="st">"555-1234"</span>,     <span class="st">"123-456-7890"</span>,<span class="st">""</span>,         <span class="st">"555-0123"</span>),</span>
-<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">email  =</span> <span class="fu">c</span>(<span class="st">"a@x.com"</span>,      <span class="st">"b@x.com"</span>,      <span class="st">"c@x.com"</span>,      <span class="st">"a@x.com"</span>,     <span class="st">"d@x.com"</span>,  <span class="st">"d@x.com"</span>),</span>
-<span id="cb80-6"><a href="#cb80-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span></span>
-<span id="cb80-7"><a href="#cb80-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb80-8"><a href="#cb80-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb80-9"><a href="#cb80-9" aria-hidden="true" tabindex="-1"></a><span class="co"># cols = "phone" matches phone1 + phone2 by regex; "" is incomparable</span></span>
-<span id="cb80-10"><a href="#cb80-10" aria-hidden="true" tabindex="-1"></a><span class="fu">group_id</span>(customers, <span class="at">cols =</span> <span class="st">"phone"</span>, <span class="at">incomparables =</span> <span class="fu">c</span>(<span class="st">""</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in group_id(customers, cols = "phone", incomparables = c("")): could not find function "group_id"</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>customers <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">id     =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>,</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone1 =</span> <span class="fu">c</span>(<span class="st">"123-456-7890"</span>, <span class="st">"987-654-3210"</span>, <span class="st">"123-456-7890"</span>, <span class="st">""</span>,            <span class="st">"555-0123"</span>, <span class="st">""</span>),</span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone2 =</span> <span class="fu">c</span>(<span class="st">""</span>,             <span class="st">"987-654-3210"</span>, <span class="st">"555-1234"</span>,     <span class="st">"123-456-7890"</span>,<span class="st">""</span>,         <span class="st">"555-0123"</span>),</span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">email  =</span> <span class="fu">c</span>(<span class="st">"a@x.com"</span>,      <span class="st">"b@x.com"</span>,      <span class="st">"c@x.com"</span>,      <span class="st">"a@x.com"</span>,     <span class="st">"d@x.com"</span>,  <span class="st">"d@x.com"</span>),</span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span></span>
+<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb58-8"><a href="#cb58-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-9"><a href="#cb58-9" aria-hidden="true" tabindex="-1"></a><span class="co"># cols = "phone" matches phone1 + phone2 by regex; "" is incomparable</span></span>
+<span id="cb58-10"><a href="#cb58-10" aria-hidden="true" tabindex="-1"></a><span class="fu">group_id</span>(customers, <span class="at">cols =</span> <span class="st">"phone"</span>, <span class="at">incomparables =</span> <span class="fu">c</span>(<span class="st">""</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 2 1 1 3 3</code></pre>
 </div>
 </div>
 <p>Match across all three columns by passing exact names (<code>use_regex = FALSE</code>):</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">group_id</span>(customers, <span class="at">cols =</span> <span class="fu">c</span>(<span class="st">"phone1"</span>, <span class="st">"phone2"</span>, <span class="st">"email"</span>),</span>
-<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">use_regex =</span> <span class="cn">FALSE</span>, <span class="at">incomparables =</span> <span class="fu">c</span>(<span class="st">""</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in group_id(customers, cols = c("phone1", "phone2", "email"), use_regex = FALSE, : could not find function "group_id"</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">group_id</span>(customers, <span class="at">cols =</span> <span class="fu">c</span>(<span class="st">"phone1"</span>, <span class="st">"phone2"</span>, <span class="st">"email"</span>),</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">use_regex =</span> <span class="cn">FALSE</span>, <span class="at">incomparables =</span> <span class="fu">c</span>(<span class="st">""</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 2 1 1 3 3</code></pre>
 </div>
 </div>
 <p><code>return_details = TRUE</code> returns a rich object with a <code>print</code> method showing which shared values created which groups:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">group_id</span>(customers, <span class="at">cols =</span> <span class="fu">c</span>(<span class="st">"phone1"</span>, <span class="st">"phone2"</span>, <span class="st">"email"</span>),</span>
-<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">use_regex =</span> <span class="cn">FALSE</span>, <span class="at">incomparables =</span> <span class="fu">c</span>(<span class="st">""</span>), <span class="at">return_details =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in group_id(customers, cols = c("phone1", "phone2", "email"), use_regex = FALSE, : could not find function "group_id"</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>res</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'res' not found</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">group_id</span>(customers, <span class="at">cols =</span> <span class="fu">c</span>(<span class="st">"phone1"</span>, <span class="st">"phone2"</span>, <span class="st">"email"</span>),</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">use_regex =</span> <span class="cn">FALSE</span>, <span class="at">incomparables =</span> <span class="fu">c</span>(<span class="st">""</span>), <span class="at">return_details =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>res</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Multi-Column Group ID Results
+=============================
+Total rows: 6 
+Number of groups: 3 
+Group sizes: 3, 1, 2 
+Columns used: 3 
+Case sensitive: TRUE 
+Min group size: 1 
+Incomparables:  
+
+Group IDs (first 20):
+[1] 1 2 1 1 3 3
+
+Shared values creating groups (first 10):
+'d@x.com': rows 5, 6
+'123-456-7890': rows 1, 3, 4
+'987-654-3210': rows 2, 2
+'555-0123': rows 5, 6
+'a@x.com': rows 1, 4</code></pre>
 </div>
 </div>
 <p>Other useful arguments:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Only keep groups of at least 2 (singletons get id 0)</span></span>
-<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a><span class="fu">group_id</span>(customers, <span class="at">cols =</span> <span class="st">"phone"</span>, <span class="at">incomparables =</span> <span class="fu">c</span>(<span class="st">""</span>), <span class="at">min_group_size =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in group_id(customers, cols = "phone", incomparables = c(""), min_group_size = 2): could not find function "group_id"</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Only keep groups of at least 2 (singletons get id 0)</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a><span class="fu">group_id</span>(customers, <span class="at">cols =</span> <span class="st">"phone"</span>, <span class="at">incomparables =</span> <span class="fu">c</span>(<span class="st">""</span>), <span class="at">min_group_size =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 0 1 1 2 2</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Case-insensitive matching</span></span>
-<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a><span class="fu">group_id</span>(<span class="fu">data.frame</span>(<span class="at">a =</span> <span class="fu">c</span>(<span class="st">"ABC"</span>, <span class="st">"abc"</span>, <span class="st">"xyz"</span>)), <span class="at">case_sensitive =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in group_id(data.frame(a = c("ABC", "abc", "xyz")), case_sensitive = FALSE): could not find function "group_id"</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Case-insensitive matching</span></span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a><span class="fu">group_id</span>(<span class="fu">data.frame</span>(<span class="at">a =</span> <span class="fu">c</span>(<span class="st">"ABC"</span>, <span class="st">"abc"</span>, <span class="st">"xyz"</span>)), <span class="at">case_sensitive =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 1 2</code></pre>
 </div>
 </div>
 </section>
@@ -680,13 +750,10 @@ Omitted 'LazyData' from DESCRIPTION
 <h2 data-number="7.2" class="anchored" data-anchor-id="add_group_ids"><span class="header-section-number">7.2</span> <code>add_group_ids()</code></h2>
 <p>The <code>data.table</code> wrapper for <code>group_id()</code> — adds the group column by reference.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a>dt_cust <span class="ot">&lt;-</span> <span class="fu">as.data.table</span>(customers)</span>
-<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a><span class="fu">add_group_ids</span>(dt_cust, <span class="at">cols =</span> <span class="fu">c</span>(<span class="st">"phone1"</span>, <span class="st">"phone2"</span>, <span class="st">"email"</span>),</span>
-<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">group_col =</span> <span class="st">"entity_id"</span>, <span class="at">use_regex =</span> <span class="cn">FALSE</span>, <span class="at">incomparables =</span> <span class="fu">c</span>(<span class="st">""</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in add_group_ids(dt_cust, cols = c("phone1", "phone2", "email"), : could not find function "add_group_ids"</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>dt_cust</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>dt_cust <span class="ot">&lt;-</span> <span class="fu">as.data.table</span>(customers)</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="fu">add_group_ids</span>(dt_cust, <span class="at">cols =</span> <span class="fu">c</span>(<span class="st">"phone1"</span>, <span class="st">"phone2"</span>, <span class="st">"email"</span>),</span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">group_col =</span> <span class="st">"entity_id"</span>, <span class="at">use_regex =</span> <span class="cn">FALSE</span>, <span class="at">incomparables =</span> <span class="fu">c</span>(<span class="st">""</span>))</span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>dt_cust</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div class="kable-table">
 <table class="caption-top table table-sm table-striped small">
@@ -696,6 +763,7 @@ Omitted 'LazyData' from DESCRIPTION
 <th style="text-align: left;">phone1</th>
 <th style="text-align: left;">phone2</th>
 <th style="text-align: left;">email</th>
+<th style="text-align: right;">entity_id</th>
 </tr>
 </thead>
 <tbody>
@@ -704,36 +772,42 @@ Omitted 'LazyData' from DESCRIPTION
 <td style="text-align: left;">123-456-7890</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">a@x.com</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: left;">987-654-3210</td>
 <td style="text-align: left;">987-654-3210</td>
 <td style="text-align: left;">b@x.com</td>
+<td style="text-align: right;">2</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
 <td style="text-align: left;">123-456-7890</td>
 <td style="text-align: left;">555-1234</td>
 <td style="text-align: left;">c@x.com</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">123-456-7890</td>
 <td style="text-align: left;">a@x.com</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
 <td style="text-align: left;">555-0123</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">d@x.com</td>
+<td style="text-align: right;">3</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">6</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">555-0123</td>
 <td style="text-align: left;">d@x.com</td>
+<td style="text-align: right;">3</td>
 </tr>
 </tbody>
 </table>
@@ -748,16 +822,12 @@ Omitted 'LazyData' from DESCRIPTION
 <h3 data-number="7.3.1" class="anchored" data-anchor-id="basic-grouping"><span class="header-section-number">7.3.1</span> Basic grouping</h3>
 <p>Two rows land in the same group when they share <strong>any</strong> value across the chosen columns. Here rows 1 and 3 share phone <code>"123"</code>, and rows 1 and 4 share phone <code>"111"</code>, so all three collapse into one group.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a>dt_sg <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
-<span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">id     =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>,</span>
-<span id="cb95-3"><a href="#cb95-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone1 =</span> <span class="fu">c</span>(<span class="st">"123"</span>, <span class="st">"456"</span>, <span class="st">"123"</span>, <span class="st">"789"</span>, <span class="st">"456"</span>),</span>
-<span id="cb95-4"><a href="#cb95-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone2 =</span> <span class="fu">c</span>(<span class="st">"111"</span>, <span class="st">"222"</span>, <span class="st">"333"</span>, <span class="st">"111"</span>, <span class="st">"222"</span>)</span>
-<span id="cb95-5"><a href="#cb95-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb95-6"><a href="#cb95-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set_group_id</span>(dt_sg, <span class="at">cols =</span> <span class="st">"phone"</span>, <span class="at">var_output_name =</span> <span class="st">"gid"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in set_group_id(dt_sg, cols = "phone", var_output_name = "gid"): could not find function "set_group_id"</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb97"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a>dt_sg</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>dt_sg <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">id     =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>,</span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone1 =</span> <span class="fu">c</span>(<span class="st">"123"</span>, <span class="st">"456"</span>, <span class="st">"123"</span>, <span class="st">"789"</span>, <span class="st">"456"</span>),</span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone2 =</span> <span class="fu">c</span>(<span class="st">"111"</span>, <span class="st">"222"</span>, <span class="st">"333"</span>, <span class="st">"111"</span>, <span class="st">"222"</span>)</span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set_group_id</span>(dt_sg, <span class="at">cols =</span> <span class="st">"phone"</span>, <span class="at">var_output_name =</span> <span class="st">"gid"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div class="kable-table">
 <table class="caption-top table table-sm table-striped small">
@@ -766,6 +836,7 @@ Omitted 'LazyData' from DESCRIPTION
 <th style="text-align: right;">id</th>
 <th style="text-align: left;">phone1</th>
 <th style="text-align: left;">phone2</th>
+<th style="text-align: right;">gid</th>
 </tr>
 </thead>
 <tbody>
@@ -773,26 +844,78 @@ Omitted 'LazyData' from DESCRIPTION
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">123</td>
 <td style="text-align: left;">111</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: left;">456</td>
 <td style="text-align: left;">222</td>
+<td style="text-align: right;">2</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
 <td style="text-align: left;">123</td>
 <td style="text-align: left;">333</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
 <td style="text-align: left;">789</td>
 <td style="text-align: left;">111</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
 <td style="text-align: left;">456</td>
 <td style="text-align: left;">222</td>
+<td style="text-align: right;">2</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>dt_sg</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">id</th>
+<th style="text-align: left;">phone1</th>
+<th style="text-align: left;">phone2</th>
+<th style="text-align: right;">gid</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">123</td>
+<td style="text-align: left;">111</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">456</td>
+<td style="text-align: left;">222</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">123</td>
+<td style="text-align: left;">333</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">789</td>
+<td style="text-align: left;">111</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">456</td>
+<td style="text-align: left;">222</td>
+<td style="text-align: right;">2</td>
 </tr>
 </tbody>
 </table>
@@ -804,18 +927,14 @@ Omitted 'LazyData' from DESCRIPTION
 <h3 data-number="7.3.2" class="anchored" data-anchor-id="choosing-columns-with-a-regex"><span class="header-section-number">7.3.2</span> Choosing columns with a regex</h3>
 <p><code>cols</code> is a regular expression matched against the column names, so one pattern can pull in several value columns at once. Here <code>"phone|email"</code> grabs all three.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a>dt_re <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
-<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">id     =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>,</span>
-<span id="cb98-3"><a href="#cb98-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone1 =</span> <span class="fu">c</span>(<span class="st">"123-456-7890"</span>, <span class="st">"987-654-3210"</span>, <span class="st">"123-456-7890"</span>, <span class="st">""</span>, <span class="st">"555-0123"</span>),</span>
-<span id="cb98-4"><a href="#cb98-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone2 =</span> <span class="fu">c</span>(<span class="st">""</span>, <span class="st">"987-654-3210"</span>, <span class="st">"555-1234"</span>, <span class="st">"123-456-7890"</span>, <span class="st">""</span>),</span>
-<span id="cb98-5"><a href="#cb98-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">email  =</span> <span class="fu">c</span>(<span class="st">"john@email.com"</span>, <span class="st">"jane@email.com"</span>, <span class="st">"bob@email.com"</span>,</span>
-<span id="cb98-6"><a href="#cb98-6" aria-hidden="true" tabindex="-1"></a>             <span class="st">"john@email.com"</span>, <span class="st">"alice@email.com"</span>)</span>
-<span id="cb98-7"><a href="#cb98-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb98-8"><a href="#cb98-8" aria-hidden="true" tabindex="-1"></a><span class="fu">set_group_id</span>(dt_re, <span class="at">cols =</span> <span class="st">"phone|email"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in set_group_id(dt_re, cols = "phone|email"): could not find function "set_group_id"</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a>dt_re</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>dt_re <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">id     =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>,</span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone1 =</span> <span class="fu">c</span>(<span class="st">"123-456-7890"</span>, <span class="st">"987-654-3210"</span>, <span class="st">"123-456-7890"</span>, <span class="st">""</span>, <span class="st">"555-0123"</span>),</span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone2 =</span> <span class="fu">c</span>(<span class="st">""</span>, <span class="st">"987-654-3210"</span>, <span class="st">"555-1234"</span>, <span class="st">"123-456-7890"</span>, <span class="st">""</span>),</span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">email  =</span> <span class="fu">c</span>(<span class="st">"john@email.com"</span>, <span class="st">"jane@email.com"</span>, <span class="st">"bob@email.com"</span>,</span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>             <span class="st">"john@email.com"</span>, <span class="st">"alice@email.com"</span>)</span>
+<span id="cb71-7"><a href="#cb71-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb71-8"><a href="#cb71-8" aria-hidden="true" tabindex="-1"></a><span class="fu">set_group_id</span>(dt_re, <span class="at">cols =</span> <span class="st">"phone|email"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div class="kable-table">
 <table class="caption-top table table-sm table-striped small">
@@ -825,6 +944,7 @@ Omitted 'LazyData' from DESCRIPTION
 <th style="text-align: left;">phone1</th>
 <th style="text-align: left;">phone2</th>
 <th style="text-align: left;">email</th>
+<th style="text-align: right;">gid</th>
 </tr>
 </thead>
 <tbody>
@@ -833,30 +953,88 @@ Omitted 'LazyData' from DESCRIPTION
 <td style="text-align: left;">123-456-7890</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">john@email.com</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: left;">987-654-3210</td>
 <td style="text-align: left;">987-654-3210</td>
 <td style="text-align: left;">jane@email.com</td>
+<td style="text-align: right;">2</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
 <td style="text-align: left;">123-456-7890</td>
 <td style="text-align: left;">555-1234</td>
 <td style="text-align: left;">bob@email.com</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">123-456-7890</td>
 <td style="text-align: left;">john@email.com</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
 <td style="text-align: left;">555-0123</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">alice@email.com</td>
+<td style="text-align: right;">3</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>dt_re</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">id</th>
+<th style="text-align: left;">phone1</th>
+<th style="text-align: left;">phone2</th>
+<th style="text-align: left;">email</th>
+<th style="text-align: right;">gid</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">john@email.com</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">987-654-3210</td>
+<td style="text-align: left;">987-654-3210</td>
+<td style="text-align: left;">jane@email.com</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: left;">555-1234</td>
+<td style="text-align: left;">bob@email.com</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: left;">john@email.com</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">555-0123</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">alice@email.com</td>
+<td style="text-align: right;">3</td>
 </tr>
 </tbody>
 </table>
@@ -868,31 +1046,128 @@ Omitted 'LazyData' from DESCRIPTION
 <h3 data-number="7.3.3" class="anchored" data-anchor-id="naming-the-output-column"><span class="header-section-number">7.3.3</span> Naming the output column</h3>
 <p><code>var_output_name</code> controls the column written back (default <code>"gid"</code>).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb101"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a>dt_name <span class="ot">&lt;-</span> <span class="fu">copy</span>(dt_re)[, gid <span class="sc">:</span><span class="er">=</span> <span class="cn">NULL</span>]</span>
-<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set_group_id</span>(dt_name, <span class="at">cols =</span> <span class="st">"phone"</span>, <span class="at">var_output_name =</span> <span class="st">"household"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in set_group_id(dt_name, cols = "phone", var_output_name = "household"): could not find function "set_group_id"</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>dt_name <span class="ot">&lt;-</span> <span class="fu">copy</span>(dt_re)[, gid <span class="sc">:</span><span class="er">=</span> <span class="cn">NULL</span>]</span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set_group_id</span>(dt_name, <span class="at">cols =</span> <span class="st">"phone"</span>, <span class="at">var_output_name =</span> <span class="st">"household"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">id</th>
+<th style="text-align: left;">phone1</th>
+<th style="text-align: left;">phone2</th>
+<th style="text-align: left;">email</th>
+<th style="text-align: right;">household</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">john@email.com</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">987-654-3210</td>
+<td style="text-align: left;">987-654-3210</td>
+<td style="text-align: left;">jane@email.com</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: left;">555-1234</td>
+<td style="text-align: left;">bob@email.com</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: left;">john@email.com</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">555-0123</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">alice@email.com</td>
+<td style="text-align: right;">3</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a>dt_name</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>dt_name</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">id</th>
+<th style="text-align: left;">phone1</th>
+<th style="text-align: left;">phone2</th>
+<th style="text-align: left;">email</th>
+<th style="text-align: right;">household</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">john@email.com</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">987-654-3210</td>
+<td style="text-align: left;">987-654-3210</td>
+<td style="text-align: left;">jane@email.com</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: left;">555-1234</td>
+<td style="text-align: left;">bob@email.com</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: left;">john@email.com</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">555-0123</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">alice@email.com</td>
+<td style="text-align: right;">3</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 </section>
 <section id="values-that-should-never-link-rows" class="level3" data-number="7.3.4">
 <h3 data-number="7.3.4" class="anchored" data-anchor-id="values-that-should-never-link-rows"><span class="header-section-number">7.3.4</span> Values that should never link rows</h3>
 <p><code>incomparables</code> lists values that are ignored when forming groups — empty strings and <code>NA</code> by default, so blank cells never tie records together. Add your own sentinels (e.g.&nbsp;<code>"Unknown"</code>) as needed.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a>dt_inc <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
-<span id="cb104-2"><a href="#cb104-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">id    =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>,</span>
-<span id="cb104-3"><a href="#cb104-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone =</span> <span class="fu">c</span>(<span class="st">"Unknown"</span>, <span class="st">"Unknown"</span>, <span class="st">"555-1234"</span>, <span class="st">"555-1234"</span>),</span>
-<span id="cb104-4"><a href="#cb104-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">alt   =</span> <span class="fu">c</span>(<span class="st">""</span>, <span class="st">""</span>, <span class="st">""</span>, <span class="st">"555-9999"</span>)</span>
-<span id="cb104-5"><a href="#cb104-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb104-6"><a href="#cb104-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Without excluding "Unknown", rows 1 and 2 would be linked by it.</span></span>
-<span id="cb104-7"><a href="#cb104-7" aria-hidden="true" tabindex="-1"></a><span class="fu">set_group_id</span>(dt_inc, <span class="at">cols =</span> <span class="st">"phone|alt"</span>,</span>
-<span id="cb104-8"><a href="#cb104-8" aria-hidden="true" tabindex="-1"></a>             <span class="at">var_output_name =</span> <span class="st">"gid"</span>,</span>
-<span id="cb104-9"><a href="#cb104-9" aria-hidden="true" tabindex="-1"></a>             <span class="at">incomparables =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="st">""</span>, <span class="st">"Unknown"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in set_group_id(dt_inc, cols = "phone|alt", var_output_name = "gid", : could not find function "set_group_id"</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a>dt_inc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>dt_inc <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">id    =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>,</span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone =</span> <span class="fu">c</span>(<span class="st">"Unknown"</span>, <span class="st">"Unknown"</span>, <span class="st">"555-1234"</span>, <span class="st">"555-1234"</span>),</span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">alt   =</span> <span class="fu">c</span>(<span class="st">""</span>, <span class="st">""</span>, <span class="st">""</span>, <span class="st">"555-9999"</span>)</span>
+<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb75-6"><a href="#cb75-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Without excluding "Unknown", rows 1 and 2 would be linked by it.</span></span>
+<span id="cb75-7"><a href="#cb75-7" aria-hidden="true" tabindex="-1"></a><span class="fu">set_group_id</span>(dt_inc, <span class="at">cols =</span> <span class="st">"phone|alt"</span>,</span>
+<span id="cb75-8"><a href="#cb75-8" aria-hidden="true" tabindex="-1"></a>             <span class="at">var_output_name =</span> <span class="st">"gid"</span>,</span>
+<span id="cb75-9"><a href="#cb75-9" aria-hidden="true" tabindex="-1"></a>             <span class="at">incomparables =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="st">""</span>, <span class="st">"Unknown"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div class="kable-table">
 <table class="caption-top table table-sm table-striped small">
@@ -901,6 +1176,7 @@ Omitted 'LazyData' from DESCRIPTION
 <th style="text-align: right;">id</th>
 <th style="text-align: left;">phone</th>
 <th style="text-align: left;">alt</th>
+<th style="text-align: right;">gid</th>
 </tr>
 </thead>
 <tbody>
@@ -908,21 +1184,66 @@ Omitted 'LazyData' from DESCRIPTION
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">Unknown</td>
 <td style="text-align: left;"></td>
+<td style="text-align: right;">NA</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: left;">Unknown</td>
 <td style="text-align: left;"></td>
+<td style="text-align: right;">NA</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
 <td style="text-align: left;">555-1234</td>
 <td style="text-align: left;"></td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
 <td style="text-align: left;">555-1234</td>
 <td style="text-align: left;">555-9999</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>dt_inc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">id</th>
+<th style="text-align: left;">phone</th>
+<th style="text-align: left;">alt</th>
+<th style="text-align: right;">gid</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;"></td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;"></td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">555-1234</td>
+<td style="text-align: left;"></td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">555-1234</td>
+<td style="text-align: left;">555-9999</td>
+<td style="text-align: right;">1</td>
 </tr>
 </tbody>
 </table>
@@ -935,18 +1256,14 @@ Omitted 'LazyData' from DESCRIPTION
 <p>By default every selected column shares one value namespace, so a phone number appearing in an email column would link the two. Pass <code>isolate</code> — a list of column sets — to keep each set’s values separate: identical text only links rows <strong>within the same set</strong>. The columns to group on come from the union of the sets, and <code>cols</code> is ignored.</p>
 <p>Note row 5: its phone number <code>"123-456-7890"</code> sits in the <code>email</code> column. Because <code>email</code> is isolated from the phone columns, that value does <strong>not</strong> pull row 5 into the phone group.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb107"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a>dt_iso <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
-<span id="cb107-2"><a href="#cb107-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">id     =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>,</span>
-<span id="cb107-3"><a href="#cb107-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone1 =</span> <span class="fu">c</span>(<span class="st">"123-456-7890"</span>, <span class="st">"987-654-3210"</span>, <span class="st">"123-456-7890"</span>, <span class="st">""</span>, <span class="st">"555-0123"</span>),</span>
-<span id="cb107-4"><a href="#cb107-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone2 =</span> <span class="fu">c</span>(<span class="st">""</span>, <span class="st">"987-654-3210"</span>, <span class="st">"555-1234"</span>, <span class="st">"123-456-7890"</span>, <span class="st">""</span>),</span>
-<span id="cb107-5"><a href="#cb107-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">email  =</span> <span class="fu">c</span>(<span class="st">"john@email.com"</span>, <span class="st">"jane@email.com"</span>, <span class="st">"bob@email.com"</span>,</span>
-<span id="cb107-6"><a href="#cb107-6" aria-hidden="true" tabindex="-1"></a>             <span class="st">"john@email.com"</span>, <span class="st">"123-456-7890"</span>)</span>
-<span id="cb107-7"><a href="#cb107-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb107-8"><a href="#cb107-8" aria-hidden="true" tabindex="-1"></a><span class="fu">set_group_id</span>(dt_iso, <span class="at">isolate =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">"phone1"</span>, <span class="st">"phone2"</span>), <span class="st">"email"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in set_group_id(dt_iso, isolate = list(c("phone1", "phone2"), "email")): could not find function "set_group_id"</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a>dt_iso</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>dt_iso <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">id     =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>,</span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone1 =</span> <span class="fu">c</span>(<span class="st">"123-456-7890"</span>, <span class="st">"987-654-3210"</span>, <span class="st">"123-456-7890"</span>, <span class="st">""</span>, <span class="st">"555-0123"</span>),</span>
+<span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone2 =</span> <span class="fu">c</span>(<span class="st">""</span>, <span class="st">"987-654-3210"</span>, <span class="st">"555-1234"</span>, <span class="st">"123-456-7890"</span>, <span class="st">""</span>),</span>
+<span id="cb77-5"><a href="#cb77-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">email  =</span> <span class="fu">c</span>(<span class="st">"john@email.com"</span>, <span class="st">"jane@email.com"</span>, <span class="st">"bob@email.com"</span>,</span>
+<span id="cb77-6"><a href="#cb77-6" aria-hidden="true" tabindex="-1"></a>             <span class="st">"john@email.com"</span>, <span class="st">"123-456-7890"</span>)</span>
+<span id="cb77-7"><a href="#cb77-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb77-8"><a href="#cb77-8" aria-hidden="true" tabindex="-1"></a><span class="fu">set_group_id</span>(dt_iso, <span class="at">isolate =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">"phone1"</span>, <span class="st">"phone2"</span>), <span class="st">"email"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div class="kable-table">
 <table class="caption-top table table-sm table-striped small">
@@ -956,6 +1273,7 @@ Omitted 'LazyData' from DESCRIPTION
 <th style="text-align: left;">phone1</th>
 <th style="text-align: left;">phone2</th>
 <th style="text-align: left;">email</th>
+<th style="text-align: right;">gid</th>
 </tr>
 </thead>
 <tbody>
@@ -964,30 +1282,88 @@ Omitted 'LazyData' from DESCRIPTION
 <td style="text-align: left;">123-456-7890</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">john@email.com</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: left;">987-654-3210</td>
 <td style="text-align: left;">987-654-3210</td>
 <td style="text-align: left;">jane@email.com</td>
+<td style="text-align: right;">2</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
 <td style="text-align: left;">123-456-7890</td>
 <td style="text-align: left;">555-1234</td>
 <td style="text-align: left;">bob@email.com</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">123-456-7890</td>
 <td style="text-align: left;">john@email.com</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
 <td style="text-align: left;">555-0123</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">123-456-7890</td>
+<td style="text-align: right;">3</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>dt_iso</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">id</th>
+<th style="text-align: left;">phone1</th>
+<th style="text-align: left;">phone2</th>
+<th style="text-align: left;">email</th>
+<th style="text-align: right;">gid</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">john@email.com</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">987-654-3210</td>
+<td style="text-align: left;">987-654-3210</td>
+<td style="text-align: left;">jane@email.com</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: left;">555-1234</td>
+<td style="text-align: left;">bob@email.com</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: left;">john@email.com</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">555-0123</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: right;">3</td>
 </tr>
 </tbody>
 </table>
@@ -996,121 +1372,323 @@ Omitted 'LazyData' from DESCRIPTION
 </div>
 <p>For comparison, the same data <strong>without</strong> isolation lets the stray phone number in <code>email</code> link row 5 into the phone group:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a>dt_noiso <span class="ot">&lt;-</span> <span class="fu">copy</span>(dt_iso)[, gid <span class="sc">:</span><span class="er">=</span> <span class="cn">NULL</span>]</span>
-<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set_group_id</span>(dt_noiso, <span class="at">cols =</span> <span class="st">"phone|email"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in set_group_id(dt_noiso, cols = "phone|email"): could not find function "set_group_id"</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>dt_noiso <span class="ot">&lt;-</span> <span class="fu">copy</span>(dt_iso)[, gid <span class="sc">:</span><span class="er">=</span> <span class="cn">NULL</span>]</span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set_group_id</span>(dt_noiso, <span class="at">cols =</span> <span class="st">"phone|email"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">id</th>
+<th style="text-align: left;">phone1</th>
+<th style="text-align: left;">phone2</th>
+<th style="text-align: left;">email</th>
+<th style="text-align: right;">gid</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">john@email.com</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">987-654-3210</td>
+<td style="text-align: left;">987-654-3210</td>
+<td style="text-align: left;">jane@email.com</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: left;">555-1234</td>
+<td style="text-align: left;">bob@email.com</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: left;">john@email.com</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">555-0123</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb112"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a>dt_noiso</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>dt_noiso</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">id</th>
+<th style="text-align: left;">phone1</th>
+<th style="text-align: left;">phone2</th>
+<th style="text-align: left;">email</th>
+<th style="text-align: right;">gid</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">john@email.com</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">987-654-3210</td>
+<td style="text-align: left;">987-654-3210</td>
+<td style="text-align: left;">jane@email.com</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: left;">555-1234</td>
+<td style="text-align: left;">bob@email.com</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: left;">john@email.com</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">555-0123</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 </section>
 <section id="returning-the-edge-list-of-pair-connections" class="level3" data-number="7.3.6">
 <h3 data-number="7.3.6" class="anchored" data-anchor-id="returning-the-edge-list-of-pair-connections"><span class="header-section-number">7.3.6</span> Returning the edge list of pair connections</h3>
 <p>Pass <code>return_edges = TRUE</code> to get back the <strong>record-to-record edge list</strong> — every pair of <code>id</code>s that share a value, with the shared <code>value</code> itself. The group-id column is still written to <code>dt</code> by reference, so you get both the grouping <em>and</em> the underlying connections in one call.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb113"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a>dt_edges <span class="ot">&lt;-</span> <span class="fu">copy</span>(dt_iso)[, gid <span class="sc">:</span><span class="er">=</span> <span class="cn">NULL</span>]</span>
-<span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a>edges <span class="ot">&lt;-</span> <span class="fu">set_group_id</span>(dt_edges, <span class="at">isolate =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">"phone1"</span>, <span class="st">"phone2"</span>), <span class="st">"email"</span>),</span>
-<span id="cb113-3"><a href="#cb113-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">return_edges =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in set_group_id(dt_edges, isolate = list(c("phone1", "phone2"), : could not find function "set_group_id"</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>dt_edges <span class="ot">&lt;-</span> <span class="fu">copy</span>(dt_iso)[, gid <span class="sc">:</span><span class="er">=</span> <span class="cn">NULL</span>]</span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>edges <span class="ot">&lt;-</span> <span class="fu">set_group_id</span>(dt_edges, <span class="at">isolate =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">"phone1"</span>, <span class="st">"phone2"</span>), <span class="st">"email"</span>),</span>
+<span id="cb81-3"><a href="#cb81-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">return_edges =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb81-4"><a href="#cb81-4" aria-hidden="true" tabindex="-1"></a>edges          <span class="co"># from / to / value</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">from</th>
+<th style="text-align: right;">to</th>
+<th style="text-align: left;">value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">123-456-7890</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">123-456-7890</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">123-456-7890</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">john@email.com</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb115"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a>edges          <span class="co"># from / to / value</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     [,1] [,2]
-[1,]    1    2
-[2,]    2    3
-[3,]    3    4
-[4,]    5    6
-[5,]    7    8
-[6,]    8    9</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb117"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb117-1"><a href="#cb117-1" aria-hidden="true" tabindex="-1"></a>dt_edges       <span class="co"># gid still added by reference</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>dt_edges       <span class="co"># gid still added by reference</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">id</th>
+<th style="text-align: left;">phone1</th>
+<th style="text-align: left;">phone2</th>
+<th style="text-align: left;">email</th>
+<th style="text-align: right;">gid</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">john@email.com</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">987-654-3210</td>
+<td style="text-align: left;">987-654-3210</td>
+<td style="text-align: left;">jane@email.com</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: left;">555-1234</td>
+<td style="text-align: left;">bob@email.com</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: left;">john@email.com</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">555-0123</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">123-456-7890</td>
+<td style="text-align: right;">3</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 </section>
 <section id="plotting-the-linkage-with-visnetwork" class="level3" data-number="7.3.7">
 <h3 data-number="7.3.7" class="anchored" data-anchor-id="plotting-the-linkage-with-visnetwork"><span class="header-section-number">7.3.7</span> Plotting the linkage with <code>visNetwork</code></h3>
 <p>The edge list drops straight into <a href="https://datastorm-open.github.io/visNetwork/"><code>visNetwork</code></a>: use the <code>id</code>/<code>gid</code> columns for the nodes (colouring by group) and the returned edges for the connections. The shared value becomes the edge tooltip.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(visNetwork)</span>
-<span id="cb118-2"><a href="#cb118-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb118-3"><a href="#cb118-3" aria-hidden="true" tabindex="-1"></a>nodes <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb118-4"><a href="#cb118-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">id    =</span> dt_edges<span class="sc">$</span>id,</span>
-<span id="cb118-5"><a href="#cb118-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">label =</span> <span class="fu">paste0</span>(<span class="st">"rec "</span>, dt_edges<span class="sc">$</span>id),</span>
-<span id="cb118-6"><a href="#cb118-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">group =</span> dt_edges<span class="sc">$</span>gid</span>
-<span id="cb118-7"><a href="#cb118-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb118-8"><a href="#cb118-8" aria-hidden="true" tabindex="-1"></a>vis_edges <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb118-9"><a href="#cb118-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">from  =</span> edges<span class="sc">$</span>from,</span>
-<span id="cb118-10"><a href="#cb118-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">to    =</span> edges<span class="sc">$</span>to,</span>
-<span id="cb118-11"><a href="#cb118-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">title =</span> edges<span class="sc">$</span>value   <span class="co"># hover shows the value that links the pair</span></span>
-<span id="cb118-12"><a href="#cb118-12" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb118-13"><a href="#cb118-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb118-14"><a href="#cb118-14" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(nodes, vis_edges, <span class="at">width =</span> <span class="st">"100%"</span>, <span class="at">height =</span> <span class="st">"320px"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb118-15"><a href="#cb118-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visNodes</span>(<span class="at">shape =</span> <span class="st">"dot"</span>, <span class="at">size =</span> <span class="dv">22</span>) <span class="sc">|&gt;</span></span>
-<span id="cb118-16"><a href="#cb118-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visOptions</span>(<span class="at">highlightNearest =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb118-17"><a href="#cb118-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(visNetwork)</span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a>nodes <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb83-4"><a href="#cb83-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">id    =</span> dt_edges<span class="sc">$</span>id,</span>
+<span id="cb83-5"><a href="#cb83-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">label =</span> <span class="fu">paste0</span>(<span class="st">"rec "</span>, dt_edges<span class="sc">$</span>id),</span>
+<span id="cb83-6"><a href="#cb83-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">group =</span> dt_edges<span class="sc">$</span>gid</span>
+<span id="cb83-7"><a href="#cb83-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb83-8"><a href="#cb83-8" aria-hidden="true" tabindex="-1"></a>vis_edges <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb83-9"><a href="#cb83-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">from  =</span> edges<span class="sc">$</span>from,</span>
+<span id="cb83-10"><a href="#cb83-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">to    =</span> edges<span class="sc">$</span>to,</span>
+<span id="cb83-11"><a href="#cb83-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">title =</span> edges<span class="sc">$</span>value   <span class="co"># hover shows the value that links the pair</span></span>
+<span id="cb83-12"><a href="#cb83-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb83-13"><a href="#cb83-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb83-14"><a href="#cb83-14" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(nodes, vis_edges, <span class="at">width =</span> <span class="st">"100%"</span>, <span class="at">height =</span> <span class="st">"320px"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb83-15"><a href="#cb83-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visNodes</span>(<span class="at">shape =</span> <span class="st">"dot"</span>, <span class="at">size =</span> <span class="dv">22</span>) <span class="sc">|&gt;</span></span>
+<span id="cb83-16"><a href="#cb83-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visOptions</span>(<span class="at">highlightNearest =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb83-17"><a href="#cb83-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="htmlwidget-a1fcd62a0dd1ba32e054" style="width:100%;height:320px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-a1fcd62a0dd1ba32e054">{"x":{"nodes":{"id":[1,2,3,4,5],"label":["rec 1","rec 2","rec 3","rec 4","rec 5"],"group":[1,2,1,1,3]},"edges":{"from":[1,1,3,1],"to":[3,4,4,4],"title":["123-456-7890","123-456-7890","123-456-7890","john@email.com"]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot","size":22},"manipulation":{"enabled":false}},"groups":["1","2","3"],"width":"100%","height":"320px","idselection":{"enabled":false,"style":"width: 150px; height: 26px","useLabels":true,"main":"Select by id"},"byselection":{"enabled":false,"style":"width: 150px; height: 26px","multiple":false,"hideColor":"rgba(200,200,200,0.5)","highlight":false},"main":null,"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","highlight":{"enabled":true,"hoverNearest":false,"degree":1,"algorithm":"all","hideColor":"rgba(200,200,200,0.5)","labelOnly":true},"collapse":{"enabled":false,"fit":false,"resetHighlight":true,"clusterOptions":null,"keepCoord":true,"labelSuffix":"(cluster)"},"legend":{"width":0.2,"useGroups":true,"position":"left","ncol":1,"stepX":100,"stepY":100,"zoom":true}},"evals":[],"jsHooks":[]}</script>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb119"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(visNetwork)</span>
-<span id="cb119-2"><a href="#cb119-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb119-3"><a href="#cb119-3" aria-hidden="true" tabindex="-1"></a>nodes <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
-<span id="cb119-4"><a href="#cb119-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>,</span>
-<span id="cb119-5"><a href="#cb119-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone1 =</span> <span class="fu">c</span>(<span class="st">"123-456-7890"</span>, <span class="st">"987-654-3210"</span>, <span class="st">"123-456-7890"</span>, <span class="st">""</span>, <span class="st">"555-0123"</span>),</span>
-<span id="cb119-6"><a href="#cb119-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone2 =</span> <span class="fu">c</span>(<span class="st">""</span>, <span class="st">"987-654-3210"</span>, <span class="st">"555-1234"</span>, <span class="st">"123-456-7890"</span>, <span class="st">""</span>),</span>
-<span id="cb119-7"><a href="#cb119-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">email =</span> <span class="fu">c</span>(<span class="st">"john@email.com"</span>, <span class="st">"jane@email.com"</span>, <span class="st">"bob@email.com"</span>,</span>
-<span id="cb119-8"><a href="#cb119-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">"john@email.com"</span>, <span class="st">"123-456-7890"</span>)</span>
-<span id="cb119-9"><a href="#cb119-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb119-10"><a href="#cb119-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb119-11"><a href="#cb119-11" aria-hidden="true" tabindex="-1"></a>edges <span class="ot">&lt;-</span> <span class="fu">set_group_id</span>(dt2, <span class="at">isolate =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">"phone1"</span>, <span class="st">"phone2"</span>), <span class="st">"email"</span>),</span>
-<span id="cb119-12"><a href="#cb119-12" aria-hidden="true" tabindex="-1"></a>                      <span class="at">return_edges =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb119-13"><a href="#cb119-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb119-14"><a href="#cb119-14" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(nodes, edges, <span class="at">width =</span> <span class="st">"100%"</span>, <span class="at">height =</span> <span class="st">"320px"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb119-15"><a href="#cb119-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visNodes</span>(<span class="at">shape =</span> <span class="st">"dot"</span>, <span class="at">size =</span> <span class="dv">22</span>) <span class="sc">|&gt;</span></span>
-<span id="cb119-16"><a href="#cb119-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visOptions</span>(<span class="at">highlightNearest =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb119-17"><a href="#cb119-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(visNetwork)</span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a>nodes <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
+<span id="cb84-4"><a href="#cb84-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>,</span>
+<span id="cb84-5"><a href="#cb84-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone1 =</span> <span class="fu">c</span>(<span class="st">"123-456-7890"</span>, <span class="st">"987-654-3210"</span>, <span class="st">"123-456-7890"</span>, <span class="st">""</span>, <span class="st">"555-0123"</span>),</span>
+<span id="cb84-6"><a href="#cb84-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">phone2 =</span> <span class="fu">c</span>(<span class="st">""</span>, <span class="st">"987-654-3210"</span>, <span class="st">"555-1234"</span>, <span class="st">"123-456-7890"</span>, <span class="st">""</span>),</span>
+<span id="cb84-7"><a href="#cb84-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">email =</span> <span class="fu">c</span>(<span class="st">"john@email.com"</span>, <span class="st">"jane@email.com"</span>, <span class="st">"bob@email.com"</span>,</span>
+<span id="cb84-8"><a href="#cb84-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">"john@email.com"</span>, <span class="st">"123-456-7890"</span>)</span>
+<span id="cb84-9"><a href="#cb84-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb84-10"><a href="#cb84-10" aria-hidden="true" tabindex="-1"></a>nodes[, title <span class="sc">:</span><span class="er">=</span> <span class="fu">paste0</span>(<span class="st">"phone1: "</span>, phone1, <span class="st">"&lt;/br&gt;phone2: "</span>, phone2, <span class="st">"&lt;/br&gt;email: "</span>, email)]</span>
+<span id="cb84-11"><a href="#cb84-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-12"><a href="#cb84-12" aria-hidden="true" tabindex="-1"></a>edges <span class="ot">&lt;-</span> <span class="fu">set_group_id</span>(nodes, <span class="at">isolate =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">"phone1"</span>, <span class="st">"phone2"</span>), <span class="st">"email"</span>),</span>
+<span id="cb84-13"><a href="#cb84-13" aria-hidden="true" tabindex="-1"></a>                      <span class="at">return_edges =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb84-14"><a href="#cb84-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-15"><a href="#cb84-15" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(nodes, edges, <span class="at">width =</span> <span class="st">"100%"</span>, <span class="at">height =</span> <span class="st">"320px"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb84-16"><a href="#cb84-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visNodes</span>(<span class="at">shape =</span> <span class="st">"dot"</span>, <span class="at">size =</span> <span class="dv">22</span>) <span class="sc">|&gt;</span></span>
+<span id="cb84-17"><a href="#cb84-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visOptions</span>(<span class="at">highlightNearest =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb84-18"><a href="#cb84-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="htmlwidget-1469b5ed4906484ed424" style="width:100%;height:320px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1469b5ed4906484ed424">{"x":{"nodes":{"id":[1,2,3,4,5],"phone1":["123-456-7890","987-654-3210","123-456-7890","","555-0123"],"phone2":["","987-654-3210","555-1234","123-456-7890",""],"email":["john@email.com","jane@email.com","bob@email.com","john@email.com","123-456-7890"],"title":["phone1: 123-456-7890<\/br>phone2: <\/br>email: john@email.com","phone1: 987-654-3210<\/br>phone2: 987-654-3210<\/br>email: jane@email.com","phone1: 123-456-7890<\/br>phone2: 555-1234<\/br>email: bob@email.com","phone1: <\/br>phone2: 123-456-7890<\/br>email: john@email.com","phone1: 555-0123<\/br>phone2: <\/br>email: 123-456-7890"],"gid":[1,2,1,1,3],"label":["1","2","3","4","5"]},"edges":{"from":[1,1,3,1],"to":[3,4,4,4],"value":["123-456-7890","123-456-7890","123-456-7890","john@email.com"]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot","size":22},"manipulation":{"enabled":false}},"groups":null,"width":"100%","height":"320px","idselection":{"enabled":false,"style":"width: 150px; height: 26px","useLabels":true,"main":"Select by id"},"byselection":{"enabled":false,"style":"width: 150px; height: 26px","multiple":false,"hideColor":"rgba(200,200,200,0.5)","highlight":false},"main":null,"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","highlight":{"enabled":true,"hoverNearest":false,"degree":1,"algorithm":"all","hideColor":"rgba(200,200,200,0.5)","labelOnly":true},"collapse":{"enabled":false,"fit":false,"resetHighlight":true,"clusterOptions":null,"keepCoord":true,"labelSuffix":"(cluster)"},"legend":{"width":0.2,"useGroups":true,"position":"left","ncol":1,"stepX":100,"stepY":100,"zoom":true}},"evals":[],"jsHooks":[]}</script>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb120"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(visNetwork)</span>
-<span id="cb120-2"><a href="#cb120-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb120-3"><a href="#cb120-3" aria-hidden="true" tabindex="-1"></a>n_queries <span class="ot">&lt;-</span> <span class="dv">100</span></span>
-<span id="cb120-4"><a href="#cb120-4" aria-hidden="true" tabindex="-1"></a>query_nodes <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>, <span class="dv">2</span> <span class="sc">*</span> n_queries, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb120-5"><a href="#cb120-5" aria-hidden="true" tabindex="-1"></a>batch_queries <span class="ot">&lt;-</span> <span class="fu">data.table</span>(<span class="fu">matrix</span>(query_nodes, <span class="at">ncol =</span> <span class="dv">2</span>))</span>
-<span id="cb120-6"><a href="#cb120-6" aria-hidden="true" tabindex="-1"></a>batch_queries[, id <span class="sc">:</span><span class="er">=</span> <span class="dv">1</span><span class="sc">:</span>.N]</span>
-<span id="cb120-7"><a href="#cb120-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb120-8"><a href="#cb120-8" aria-hidden="true" tabindex="-1"></a>edges <span class="ot">&lt;-</span> <span class="fu">set_group_id</span>(batch_queries, <span class="st">"V"</span>, <span class="at">return_edges =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb120-9"><a href="#cb120-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb120-10"><a href="#cb120-10" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(batch_queries, edges, <span class="at">width =</span> <span class="st">"100%"</span>, <span class="at">height =</span> <span class="st">"320px"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb120-11"><a href="#cb120-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visNodes</span>(<span class="at">shape =</span> <span class="st">"dot"</span>, <span class="at">size =</span> <span class="dv">22</span>) <span class="sc">|&gt;</span></span>
-<span id="cb120-12"><a href="#cb120-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visOptions</span>(<span class="at">highlightNearest =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb120-13"><a href="#cb120-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(visNetwork)</span>
+<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb85-3"><a href="#cb85-3" aria-hidden="true" tabindex="-1"></a>n_queries <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb85-4"><a href="#cb85-4" aria-hidden="true" tabindex="-1"></a>query_nodes <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>, <span class="dv">2</span> <span class="sc">*</span> n_queries, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb85-5"><a href="#cb85-5" aria-hidden="true" tabindex="-1"></a>batch_queries <span class="ot">&lt;-</span> <span class="fu">data.table</span>(<span class="fu">matrix</span>(query_nodes, <span class="at">ncol =</span> <span class="dv">2</span>))</span>
+<span id="cb85-6"><a href="#cb85-6" aria-hidden="true" tabindex="-1"></a>batch_queries[, id <span class="sc">:</span><span class="er">=</span> <span class="dv">1</span><span class="sc">:</span>.N]</span>
+<span id="cb85-7"><a href="#cb85-7" aria-hidden="true" tabindex="-1"></a>batch_queries[, title <span class="sc">:</span><span class="er">=</span> <span class="fu">paste0</span>(<span class="st">"V1: "</span>, V1, <span class="st">", V2: "</span>, V2)]</span>
+<span id="cb85-8"><a href="#cb85-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb85-9"><a href="#cb85-9" aria-hidden="true" tabindex="-1"></a>edges <span class="ot">&lt;-</span> <span class="fu">set_group_id</span>(batch_queries, <span class="st">"V"</span>, <span class="at">return_edges =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb85-10"><a href="#cb85-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb85-11"><a href="#cb85-11" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(batch_queries, edges, <span class="at">width =</span> <span class="st">"100%"</span>, <span class="at">height =</span> <span class="st">"320px"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb85-12"><a href="#cb85-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visNodes</span>(<span class="at">shape =</span> <span class="st">"dot"</span>, <span class="at">size =</span> <span class="dv">22</span>) <span class="sc">|&gt;</span></span>
+<span id="cb85-13"><a href="#cb85-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visOptions</span>(<span class="at">highlightNearest =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb85-14"><a href="#cb85-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="htmlwidget-68d86de4a421697d58ab" style="width:100%;height:320px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-68d86de4a421697d58ab">{"x":{"nodes":{"V1":[34,87,43,14,82,59,51,97,85,21,54,74,7,73,79,85,37,89,37,34,89,44,79,33,84,35,70,74,42,38,20,28,20,44,87,70,40,44,25,70,39,51,42,6,24,32,14,2,45,18,22,78,65,70,87,70,75,81,100,13,40,89,48,89,23,84,29,13,22,93,28,48,33,45,21,31,17,73,87,83,90,48,64,94,96,60,51,93,34,10,1,43,59,26,15,58,29,24,42,48],"V2":[76,39,24,53,92,86,40,97,83,90,35,43,1,29,78,22,70,28,37,61,46,67,86,99,71,99,51,44,49,60,56,49,50,91,7,20,24,51,53,16,83,100,2,48,65,44,77,90,98,66,19,17,34,75,31,35,99,46,19,75,16,40,9,50,92,24,10,79,32,39,95,37,93,12,14,16,15,2,65,67,73,17,84,5,41,91,31,72,36,49,41,29,85,64,1,53,84,57,88,53],"id":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100],"title":["V1: 34, V2: 76","V1: 87, V2: 39","V1: 43, V2: 24","V1: 14, V2: 53","V1: 82, V2: 92","V1: 59, V2: 86","V1: 51, V2: 40","V1: 97, V2: 97","V1: 85, V2: 83","V1: 21, V2: 90","V1: 54, V2: 35","V1: 74, V2: 43","V1: 7, V2: 1","V1: 73, V2: 29","V1: 79, V2: 78","V1: 85, V2: 22","V1: 37, V2: 70","V1: 89, V2: 28","V1: 37, V2: 37","V1: 34, V2: 61","V1: 89, V2: 46","V1: 44, V2: 67","V1: 79, V2: 86","V1: 33, V2: 99","V1: 84, V2: 71","V1: 35, V2: 99","V1: 70, V2: 51","V1: 74, V2: 44","V1: 42, V2: 49","V1: 38, V2: 60","V1: 20, V2: 56","V1: 28, V2: 49","V1: 20, V2: 50","V1: 44, V2: 91","V1: 87, V2: 7","V1: 70, V2: 20","V1: 40, V2: 24","V1: 44, V2: 51","V1: 25, V2: 53","V1: 70, V2: 16","V1: 39, V2: 83","V1: 51, V2: 100","V1: 42, V2: 2","V1: 6, V2: 48","V1: 24, V2: 65","V1: 32, V2: 44","V1: 14, V2: 77","V1: 2, V2: 90","V1: 45, V2: 98","V1: 18, V2: 66","V1: 22, V2: 19","V1: 78, V2: 17","V1: 65, V2: 34","V1: 70, V2: 75","V1: 87, V2: 31","V1: 70, V2: 35","V1: 75, V2: 99","V1: 81, V2: 46","V1: 100, V2: 19","V1: 13, V2: 75","V1: 40, V2: 16","V1: 89, V2: 40","V1: 48, V2: 9","V1: 89, V2: 50","V1: 23, V2: 92","V1: 84, V2: 24","V1: 29, V2: 10","V1: 13, V2: 79","V1: 22, V2: 32","V1: 93, V2: 39","V1: 28, V2: 95","V1: 48, V2: 37","V1: 33, V2: 93","V1: 45, V2: 12","V1: 21, V2: 14","V1: 31, V2: 16","V1: 17, V2: 15","V1: 73, V2: 2","V1: 87, V2: 65","V1: 83, V2: 67","V1: 90, V2: 73","V1: 48, V2: 17","V1: 64, V2: 84","V1: 94, V2: 5","V1: 96, V2: 41","V1: 60, V2: 91","V1: 51, V2: 31","V1: 93, V2: 72","V1: 34, V2: 36","V1: 10, V2: 49","V1: 1, V2: 41","V1: 43, V2: 29","V1: 59, V2: 85","V1: 26, V2: 64","V1: 15, V2: 1","V1: 58, V2: 53","V1: 29, V2: 84","V1: 24, V2: 57","V1: 42, V2: 88","V1: 48, V2: 53"],"gid":[1,1,1,1,2,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"label":["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100"]},"edges":{"from":[91,13,13,48,43,43,13,67,60,4,4,47,77,40,40,61,77,52,52,51,31,31,33,10,51,16,16,45,45,3,3,3,3,37,37,37,66,32,18,18,67,67,14,14,14,92,76,55,55,46,24,1,1,1,20,20,53,26,11,11,17,17,19,41,2,2,37,37,61,7,7,7,85,29,29,43,3,3,12,22,22,22,22,34,34,38,28,28,28,49,21,63,63,63,72,72,82,44,44,44,44,29,29,32,33,7,7,7,7,42,27,27,27,38,38,4,4,4,39,39,96,6,30,83,53,45,45,22,27,27,27,27,36,36,36,40,40,54,17,17,17,17,17,14,14,78,12,57,54,54,15,15,15,23,9,9,41,25,25,25,66,66,83,9,9,16,6,2,2,2,35,35,55,18,18,18,21,21,62,10,10,48,34,5,70,70,73,24,24,26,42],"to":[95,91,95,78,48,78,35,90,68,47,75,75,95,61,76,76,82,77,82,59,33,36,36,75,69,51,69,98,66,45,98,37,66,45,98,66,98,71,32,71,97,92,67,97,92,97,87,76,87,69,73,20,89,53,89,53,89,56,26,56,19,72,72,70,41,70,61,62,62,37,61,62,91,43,99,99,92,12,92,34,38,28,46,38,46,46,34,38,46,74,58,72,82,100,82,100,100,63,72,82,100,32,90,90,64,42,87,27,38,87,42,87,38,42,87,39,96,100,96,100,100,93,86,94,79,53,79,80,36,40,54,56,40,54,56,54,56,56,27,36,40,54,56,78,81,81,28,60,57,60,52,23,68,68,80,41,80,66,83,97,83,97,97,16,93,93,23,35,55,79,55,79,79,21,62,64,62,64,64,81,48,81,86,65,88,73,88,26,57,57,59],"value":[1,1,1,2,2,2,7,10,13,14,14,14,15,16,16,16,17,17,17,19,20,20,20,21,22,22,22,24,24,24,24,24,24,24,24,24,24,28,28,28,29,29,29,29,29,29,31,31,31,32,33,34,34,34,34,34,34,35,35,35,37,37,37,39,39,39,40,40,40,40,40,40,41,42,42,42,43,43,43,44,44,44,44,44,44,44,44,44,44,45,46,48,48,48,48,48,48,48,48,48,48,49,49,49,50,51,51,51,51,51,51,51,51,51,51,53,53,53,53,53,53,59,60,64,65,65,65,67,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,73,73,73,74,75,75,75,78,79,79,79,83,83,83,84,84,84,84,84,84,85,85,85,86,87,87,87,87,87,87,89,89,89,89,89,89,90,90,90,91,92,93,93,93,99,99,99,100]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot","size":22},"manipulation":{"enabled":false}},"groups":null,"width":"100%","height":"320px","idselection":{"enabled":false,"style":"width: 150px; height: 26px","useLabels":true,"main":"Select by id"},"byselection":{"enabled":false,"style":"width: 150px; height: 26px","multiple":false,"hideColor":"rgba(200,200,200,0.5)","highlight":false},"main":null,"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","highlight":{"enabled":true,"hoverNearest":false,"degree":1,"algorithm":"all","hideColor":"rgba(200,200,200,0.5)","labelOnly":true},"collapse":{"enabled":false,"fit":false,"resetHighlight":true,"clusterOptions":null,"keepCoord":true,"labelSuffix":"(cluster)"},"legend":{"width":0.2,"useGroups":true,"position":"left","ncol":1,"stepX":100,"stepY":100,"zoom":true}},"evals":[],"jsHooks":[]}</script>
 </div>
-<p>set_group_id(dt2, isolate = list(c(“phone1”, “phone2”), “email”), return_edges = TRUE) # Putting it together</p>
+</div>
+</section>
+</section>
+</section>
+<section id="putting-it-together" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Putting it together</h1>
 <p>A realistic <code>data.table</code> flow: take an edge list, attach components, and inspect the largest blob — all without ever building a graph object.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb121"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
-<span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">from =</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>, <span class="dv">200</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb121-3"><a href="#cb121-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">to   =</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>, <span class="dv">200</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb121-4"><a href="#cb121-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb121-5"><a href="#cb121-5" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> g[from <span class="sc">!=</span> to]</span>
-<span id="cb121-6"><a href="#cb121-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb121-7"><a href="#cb121-7" aria-hidden="true" tabindex="-1"></a>g[, component <span class="sc">:</span><span class="er">=</span> <span class="fu">edge_components</span>(.SD, <span class="st">"from"</span>, <span class="st">"to"</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in edge_components(.SD, "from", "to"): could not find function "edge_components"</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">from =</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>, <span class="dv">200</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">to   =</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>, <span class="dv">200</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb86-4"><a href="#cb86-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb86-5"><a href="#cb86-5" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> g[from <span class="sc">!=</span> to]</span>
+<span id="cb86-6"><a href="#cb86-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb86-7"><a href="#cb86-7" aria-hidden="true" tabindex="-1"></a>g[, component <span class="sc">:</span><span class="er">=</span> <span class="fu">edge_components</span>(.SD, <span class="st">"from"</span>, <span class="st">"to"</span>)]</span>
+<span id="cb86-8"><a href="#cb86-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb86-9"><a href="#cb86-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Size of each component, largest first</span></span>
+<span id="cb86-10"><a href="#cb86-10" aria-hidden="true" tabindex="-1"></a>sizes <span class="ot">&lt;-</span> g[, .N, by <span class="ot">=</span> component][<span class="fu">order</span>(<span class="sc">-</span>N)]</span>
+<span id="cb86-11"><a href="#cb86-11" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(sizes)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">component</th>
+<th style="text-align: right;">N</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">194</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb123"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Size of each component, largest first</span></span>
-<span id="cb123-2"><a href="#cb123-2" aria-hidden="true" tabindex="-1"></a>sizes <span class="ot">&lt;-</span> g[, .N, by <span class="ot">=</span> component][<span class="fu">order</span>(<span class="sc">-</span>N)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(bysub, parent.frame(), parent.frame()): object 'component' not found</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb125"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb125-1"><a href="#cb125-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(sizes)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'sizes' not found</code></pre>
 </div>
 </div>
 <p>See <a href="./benchmarks.html">Benchmarks</a> for how these scale to millions and hundreds of millions of edges, and <a href="./reference.html">Reference</a> for the full argument lists.</p>
 
 
-</section>
-</section>
 </section>
 
 </main> <!-- /main -->
