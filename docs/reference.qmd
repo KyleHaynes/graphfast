@@ -224,7 +224,7 @@ Extra `...` are passed through to `group_id()`.
 ## `set_group_id`
 
 ```{r}
-set_group_id(dt, cols = "phone", var_output_name = "gid", incomparables = c(NA, ""))
+set_group_id(dt, cols = "phone", var_output_name = "gid", incomparables = c(NA, ""), isolate = NULL, return_edges = FALSE)
 ```
 
 Alternative grouping engine using the **bipartite edge reduction**
@@ -233,11 +233,15 @@ Alternative grouping engine using the **bipartite edge reduction**
 | Argument | Description |
 |---|---|
 | `dt` | A `data.table` that **must contain an `id` column**. |
-| `cols` | Regex matched against column names to choose the value columns. |
+| `cols` | Regex matched against column names to choose the value columns. Ignored when `isolate` is given. |
 | `var_output_name` | Name of the group-id column to add. |
 | `incomparables` | Values excluded from linking. |
+| `isolate` | Optional list of column-name vectors. Each set gets its own value namespace, so identical text only links rows within the same set (e.g. a phone number in an email column won't link to the phone columns). The value columns are the union of all sets. |
+| `return_edges` | `TRUE` returns the record-to-record edge list of all pair connections (`from`, `to`, shared `value`) instead of `dt`. The group column is still added to `dt` by reference — handy for plotting the linkage with `visNetwork`. |
 
-**Returns** `dt`, modified by reference with the new group column.
+**Returns** `dt` (modified by reference with the new group column); or, when
+`return_edges = TRUE`, a `data.table` edge list with columns `from`, `to`
+(`from < to`) and `value`.
 
 ---
 

@@ -26,5 +26,6 @@ Suggests:
     testthat (>= 3.0.0),
     knitr,
     rmarkdown,
-    microbenchmark
+    microbenchmark,
+    visNetwork
 VignetteBuilder: knitr

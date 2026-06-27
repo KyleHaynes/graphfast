@@ -8,7 +8,7 @@ group_id(
   data,
   cols = NULL,
   use_regex = TRUE,
-  incomparables = c("", "NA", "Unknown"),
+  incomparables = c("", NA),
   case_sensitive = TRUE,
   min_group_size = 1,
   return_details = FALSE,

@@ -532,7 +532,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="set_group_id" class="level2" data-number="9.4">
 <h2 data-number="9.4" class="anchored" data-anchor-id="set_group_id"><span class="header-section-number">9.4</span> <code>set_group_id</code></h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set_group_id</span>(dt, <span class="at">cols =</span> <span class="st">"phone"</span>, <span class="at">var_output_name =</span> <span class="st">"gid"</span>, <span class="at">incomparables =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="st">""</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set_group_id</span>(dt, <span class="at">cols =</span> <span class="st">"phone"</span>, <span class="at">var_output_name =</span> <span class="st">"gid"</span>, <span class="at">incomparables =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="st">""</span>), <span class="at">isolate =</span> <span class="cn">NULL</span>, <span class="at">return_edges =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Alternative grouping engine using the <strong>bipartite edge reduction</strong> (<code>melt</code> → edges → <code>edge_components</code>).</p>
 <table class="caption-top table">
@@ -553,7 +553,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td><code>cols</code></td>
-<td>Regex matched against column names to choose the value columns.</td>
+<td>Regex matched against column names to choose the value columns. Ignored when <code>isolate</code> is given.</td>
 </tr>
 <tr class="odd">
 <td><code>var_output_name</code></td>
@@ -563,9 +563,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td><code>incomparables</code></td>
 <td>Values excluded from linking.</td>
 </tr>
+<tr class="odd">
+<td><code>isolate</code></td>
+<td>Optional list of column-name vectors. Each set gets its own value namespace, so identical text only links rows within the same set (e.g.&nbsp;a phone number in an email column won’t link to the phone columns). The value columns are the union of all sets.</td>
+</tr>
+<tr class="even">
+<td><code>return_edges</code></td>
+<td><code>TRUE</code> returns the record-to-record edge list of all pair connections (<code>from</code>, <code>to</code>, shared <code>value</code>) instead of <code>dt</code>. The group column is still added to <code>dt</code> by reference — handy for plotting the linkage with <code>visNetwork</code>.</td>
+</tr>
 </tbody>
 </table>
-<p><strong>Returns</strong> <code>dt</code>, modified by reference with the new group column.</p>
+<p><strong>Returns</strong> <code>dt</code> (modified by reference with the new group column); or, when <code>return_edges = TRUE</code>, a <code>data.table</code> edge list with columns <code>from</code>, <code>to</code> (<code>from &lt; to</code>) and <code>value</code>.</p>
 <hr>
 </section>
 <section id="see-also" class="level2" data-number="9.5">

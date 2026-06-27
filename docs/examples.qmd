@@ -6,6 +6,18 @@ subtitle: "Every function, demonstrated"
 ```{r}
 #| label: setup
 #| message: false
+#| warning: false
+# Install graphfast from GitHub if it isn't already available...
+if (!requireNamespace("graphfast", quietly = TRUE)) {
+  if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")
+  remotes::install_github("KyleHaynes/graphfast")
+}
+
+# ...along with the optional (Suggests) packages these examples use.
+for (pkg in c("data.table", "visNetwork")) {
+  if (!requireNamespace(pkg, quietly = TRUE)) install.packages(pkg)
+}
+
 library(graphfast)
 library(data.table)
 set.seed(1)
@@ -273,6 +285,12 @@ An alternative grouping engine using the **bipartite edge reduction** (melt →
 edges → components). It requires an `id` column and writes the group id back by
 reference.
 
+### Basic grouping
+
+Two rows land in the same group when they share **any** value across the chosen
+columns. Here rows 1 and 3 share phone `"123"`, and rows 1 and 4 share phone
+`"111"`, so all three collapse into one group.
+
 ```{r}
 dt_sg <- data.table(
   id     = 1:5,
@@ -281,6 +299,127 @@ dt_sg <- data.table(
 )
 set_group_id(dt_sg, cols = "phone", var_output_name = "gid")
 dt_sg
+```
+
+### Choosing columns with a regex
+
+`cols` is a regular expression matched against the column names, so one pattern
+can pull in several value columns at once. Here `"phone|email"` grabs all three.
+
+```{r}
+dt_re <- data.table(
+  id     = 1:5,
+  phone1 = c("123-456-7890", "987-654-3210", "123-456-7890", "", "555-0123"),
+  phone2 = c("", "987-654-3210", "555-1234", "123-456-7890", ""),
+  email  = c("john@email.com", "jane@email.com", "bob@email.com",
+             "john@email.com", "alice@email.com")
+)
+set_group_id(dt_re, cols = "phone|email")
+dt_re
+```
+
+### Naming the output column
+
+`var_output_name` controls the column written back (default `"gid"`).
+
+```{r}
+dt_name <- copy(dt_re)[, gid := NULL]
+set_group_id(dt_name, cols = "phone", var_output_name = "household")
+dt_name
+```
+
+### Values that should never link rows
+
+`incomparables` lists values that are ignored when forming groups — empty
+strings and `NA` by default, so blank cells never tie records together. Add your
+own sentinels (e.g. `"Unknown"`) as needed.
+
+```{r}
+dt_inc <- data.table(
+  id    = 1:4,
+  phone = c("Unknown", "Unknown", "555-1234", "555-1234"),
+  alt   = c("", "", "", "555-9999")
+)
+# Without excluding "Unknown", rows 1 and 2 would be linked by it.
+set_group_id(dt_inc, cols = "phone|alt",
+             var_output_name = "gid",
+             incomparables = c(NA, "", "Unknown"))
+dt_inc
+```
+
+### Treating column sets in isolation
+
+By default every selected column shares one value namespace, so a phone number
+appearing in an email column would link the two. Pass `isolate` — a list of
+column sets — to keep each set's values separate: identical text only links rows
+**within the same set**. The columns to group on come from the union of the
+sets, and `cols` is ignored.
+
+Note row 5: its phone number `"123-456-7890"` sits in the `email` column. Because
+`email` is isolated from the phone columns, that value does **not** pull row 5
+into the phone group.
+
+```{r}
+dt_iso <- data.table(
+  id     = 1:5,
+  phone1 = c("123-456-7890", "987-654-3210", "123-456-7890", "", "555-0123"),
+  phone2 = c("", "987-654-3210", "555-1234", "123-456-7890", ""),
+  email  = c("john@email.com", "jane@email.com", "bob@email.com",
+             "john@email.com", "123-456-7890")
+)
+set_group_id(dt_iso, isolate = list(c("phone1", "phone2"), "email"))
+dt_iso
+```
+
+For comparison, the same data **without** isolation lets the stray phone number
+in `email` link row 5 into the phone group:
+
+```{r}
+dt_noiso <- copy(dt_iso)[, gid := NULL]
+set_group_id(dt_noiso, cols = "phone|email")
+dt_noiso
+```
+
+### Returning the edge list of pair connections
+
+Pass `return_edges = TRUE` to get back the **record-to-record edge list** — every
+pair of `id`s that share a value, with the shared `value` itself. The group-id
+column is still written to `dt` by reference, so you get both the grouping *and*
+the underlying connections in one call.
+
+```{r}
+dt_edges <- copy(dt_iso)[, gid := NULL]
+edges <- set_group_id(dt_edges, isolate = list(c("phone1", "phone2"), "email"),
+                      return_edges = TRUE)
+edges          # from / to / value
+dt_edges       # gid still added by reference
+```
+
+### Plotting the linkage with `visNetwork`
+
+The edge list drops straight into [`visNetwork`](https://datastorm-open.github.io/visNetwork/):
+use the `id`/`gid` columns for the nodes (colouring by group) and the returned
+edges for the connections. The shared value becomes the edge tooltip.
+
+```{r}
+#| eval: !expr requireNamespace("visNetwork", quietly = TRUE)
+library(visNetwork)
+
+nodes <- data.frame(
+  id    = dt_edges$id,
+  label = paste0("rec ", dt_edges$id),
+  group = dt_edges$gid
+)
+vis_edges <- data.frame(
+  from  = edges$from,
+  to    = edges$to,
+  title = edges$value   # hover shows the value that links the pair
+)
+
+visNetwork(nodes, vis_edges, width = "100%", height = "320px") |>
+  visNodes(shape = "dot", size = 22) |>
+  visOptions(highlightNearest = TRUE) |>
+  visLegend()
 ```
 
 # Putting it together

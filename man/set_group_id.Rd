@@ -8,20 +8,37 @@ set_group_id(
   dt,
   cols = "phone",
   var_output_name = "gid",
-  incomparables = c(NA, "")
+  incomparables = c(NA, ""),
+  isolate = NULL,
+  return_edges = FALSE
 )
 }
 \arguments{
 \item{dt}{A data.table containing the data to group}
 
-\item{cols}{Character vector or regex pattern for columns to use for grouping. Default "phone".}
+\item{cols}{Character vector or regex pattern for columns to use for grouping. Default "phone".
+Ignored when \code{isolate} is supplied.}
 
 \item{var_output_name}{Character. Name of the output column to create. Default "gid".}
 
 \item{incomparables}{Character vector of values to exclude from grouping (e.g., NA, "", "Unknown"). Default c(NA, "").}
+
+\item{isolate}{Optional list of character vectors of column names. Each element defines a set of
+columns whose values share a namespace. Identical values only link rows when they occur within the
+same set, so e.g. a phone number sitting in an email column will not connect to phone columns.
+The columns to group on are taken from the union of all sets; \code{cols} is ignored when supplied.
+See examples. Default NULL (all matching columns share one namespace, the original behaviour).}
+
+\item{return_edges}{Logical. If TRUE, return the record-to-record edge list of all pair connections
+(every pair of \code{id}s that share a value) instead of the data.table. The group-id column is
+still added to \code{dt} by reference. Useful for plotting the linkage with \pkg{visNetwork}.
+Default FALSE.}
 }
 \value{
-The input data.table with a new group ID column added (modified by reference)
+By default the input data.table with a new group ID column added (modified by reference).
+If \code{return_edges = TRUE}, a data.table edge list with columns \code{from}, \code{to}
+(the connected \code{id}s, with \code{from < to}) and \code{value} (the shared value linking
+them); the group-id column is still written to \code{dt} by reference.
 }
 \description{
 Alternative implementation of group ID assignment using data.table melt and edge components.
@@ -34,6 +51,10 @@ This function uses a graph-based approach:
 2. Creates a bipartite graph where row IDs and values are both nodes
 3. Finds connected components in this graph
 4. Maps the component IDs back to the original rows
+
+When \code{isolate} is supplied, each value is prefixed with the index of the column set it came
+from before the graph is built, so values from different sets never collide even when they are
+textually identical.
 }
 \examples{
 require("data.table")
@@ -44,5 +65,27 @@ dt <- data.table(
 )
 set_group_id(dt, cols = "phone", var_output_name = "group_id")
 print(dt)
+
+# Treat phone columns and email in isolation: a phone number appearing in the
+# email column will not link to the phone columns.
+dt2 <- data.table(
+  id = 1:5,
+  phone1 = c("123-456-7890", "987-654-3210", "123-456-7890", "", "555-0123"),
+  phone2 = c("", "987-654-3210", "555-1234", "123-456-7890", ""),
+  email = c("john@email.com", "jane@email.com", "bob@email.com",
+            "john@email.com", "123-456-7890")
+)
+set_group_id(dt2, isolate = list(c("phone1", "phone2"), "email"))
+print(dt2)
+
+# Return the edge list of all pair connections (e.g. to plot with visNetwork).
+edges <- set_group_id(dt2, isolate = list(c("phone1", "phone2"), "email"),
+                      return_edges = TRUE)
+edges
+\dontrun{
+# nodes carry the group id assigned above; edges carry the shared value
+nodes <- data.frame(id = dt2$id, label = dt2$id, group = dt2$gid)
+visNetwork::visNetwork(nodes, edges)
+}
 
 }
