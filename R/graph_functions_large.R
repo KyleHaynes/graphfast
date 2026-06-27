@@ -5,6 +5,7 @@
 #'
 #' @param edges A two-column matrix or data.frame where each row represents an edge
 #' @param compress Logical. Whether to compress component IDs. Default is TRUE.
+#' @param verbose Logical. Whether to print mapping/progress information. Default FALSE.
 #'
 #' @return A list containing:
 #' \item{components}{Named vector where names are original node IDs and values are component IDs}
@@ -13,7 +14,7 @@
 #' \item{node_mapping}{Data frame showing original to mapped ID conversion}
 #'
 #' @export
-find_connected_components_large <- function(edges, compress = TRUE) {
+find_connected_components_large <- function(edges, compress = TRUE, verbose = FALSE) {
   # Input validation
   if (!is.matrix(edges) && !is.data.frame(edges)) {
     stop("edges must be a matrix or data.frame")
@@ -44,30 +45,30 @@ find_connected_components_large <- function(edges, compress = TRUE) {
   all_nodes <- sort(unique(c(edges[, 1], edges[, 2])))
   n_nodes <- length(all_nodes)
   
-  cat("Found", n_nodes, "unique nodes\n")
-  cat("Node ID range:", min(all_nodes), "to", max(all_nodes), "\n")
-  
+  if (verbose) {
+    cat("Found", n_nodes, "unique nodes\n")
+    cat("Node ID range:", min(all_nodes), "to", max(all_nodes), "\n")
+  }
+
   # Check if we need mapping for large integers
   max_safe_int <- .Machine$integer.max  # 2147483647
   needs_mapping <- any(all_nodes > max_safe_int)
-  
+
   if (needs_mapping) {
-    cat("Large integers detected - creating mapping\n")
-    
+    if (verbose) cat("Large integers detected - creating mapping\n")
+
     # Create mapping from original IDs to consecutive small integers
     node_mapping <- data.frame(
       original = all_nodes,
       mapped = 1:n_nodes
     )
-    
-    # Create lookup for fast conversion
-    id_lookup <- setNames(node_mapping$mapped, node_mapping$original)
-    
-    # Map edges to small integers
+
+    # Map edges to small integers using fastmatch (works directly on the
+    # numeric IDs; far faster and lighter than an as.character() lookup).
     edges_mapped <- matrix(0L, nrow = nrow(edges), ncol = 2)
-    edges_mapped[, 1] <- id_lookup[as.character(edges[, 1])]
-    edges_mapped[, 2] <- id_lookup[as.character(edges[, 2])]
-    
+    edges_mapped[, 1] <- fmatch(edges[, 1], all_nodes)
+    edges_mapped[, 2] <- fmatch(edges[, 2], all_nodes)
+
     # Call C++ function with mapped integers
     result <- find_components_cpp(edges_mapped, n_nodes, compress)
     
@@ -82,8 +83,8 @@ find_connected_components_large <- function(edges, compress = TRUE) {
     ))
     
   } else {
-    cat("Node IDs are within safe integer range\n")
-    
+    if (verbose) cat("Node IDs are within safe integer range\n")
+
     # Can use original approach but need to handle the case where node IDs aren't consecutive
     min_node <- min(all_nodes)
     max_node <- max(all_nodes)
@@ -102,13 +103,11 @@ find_connected_components_large <- function(edges, compress = TRUE) {
         original = all_nodes,
         mapped = 1:n_nodes
       )
-      
-      id_lookup <- setNames(node_mapping$mapped, node_mapping$original)
-      
+
       edges_mapped <- matrix(0L, nrow = nrow(edges), ncol = 2)
-      edges_mapped[, 1] <- id_lookup[as.character(edges[, 1])]
-      edges_mapped[, 2] <- id_lookup[as.character(edges[, 2])]
-      
+      edges_mapped[, 1] <- fmatch(edges[, 1], all_nodes)
+      edges_mapped[, 2] <- fmatch(edges[, 2], all_nodes)
+
       result <- find_components_cpp(edges_mapped, n_nodes, compress)
       
       # Map results back

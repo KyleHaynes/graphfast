@@ -12,3 +12,9 @@ src/*.dll
 ^doc$
 ^Meta$
 ^\.github$
+^_quarto\.yml$
+^.*\.qmd$
+^site$
+^\.quarto$
+^_freeze$
+^benchmark\.R$

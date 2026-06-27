@@ -85,37 +85,6 @@ test_that("multi_column_group_cpp parameters work", {
   }
 })
 
-test_that("string matching C++ functions work", {
-  strings <- c("hello world", "goodbye", "hello there")
-  patterns <- c("hello", "world")
-  
-  # Test the C++ functions through the R interface (::: to access unexported functions)
-  # These functions exist but are not exported, so we access them with :::
-  
-  # Test multi_grepl_cpp via :::
-  if (exists("multi_grepl_cpp", envir = asNamespace("graphfast"), inherits = FALSE)) {
-    # multi_grepl_cpp returns a matrix format even with match_any=TRUE
-    result_cpp <- graphfast:::multi_grepl_cpp(strings, patterns, match_any = TRUE)
-    expect_type(result_cpp, "logical")
-    # Convert to vector for comparison since other functions return vectors
-    result_cpp_vec <- as.vector(result_cpp)
-    
-    # Test multi_grepl_any_cpp via :::
-    result_any_cpp <- graphfast:::multi_grepl_any_cpp(strings, patterns)
-    expect_type(result_any_cpp, "logical")
-    
-    # Test multi_grepl_any_fast_cpp via :::
-    result_fast_cpp <- graphfast:::multi_grepl_any_fast_cpp(strings, patterns)
-    expect_type(result_fast_cpp, "logical")
-    
-    # All should give same results (comparing as vectors)
-    expect_equal(result_cpp_vec, result_any_cpp)
-    expect_equal(result_cpp_vec, result_fast_cpp)
-  } else {
-    skip("C++ functions not available for direct testing")
-  }
-})
-
 test_that("C++ functions handle edge cases", {
   # Test edge cases for accessible C++ functions
   
@@ -124,19 +93,6 @@ test_that("C++ functions handle edge cases", {
     empty_edges <- matrix(integer(0), ncol = 2)
     result_empty <- graphfast:::find_components_cpp(empty_edges, 0)
     expect_type(result_empty, "list")
-  }
-  
-  if (exists("multi_grepl_cpp", envir = asNamespace("graphfast"), inherits = FALSE)) {
-    # Empty strings/patterns
-    empty_strings <- character(0)
-    empty_patterns <- character(0)
-    result_empty_strings <- graphfast:::multi_grepl_cpp(empty_strings, c("test"))
-    result_empty_patterns <- graphfast:::multi_grepl_cpp(c("test"), empty_patterns)
-    
-    expect_type(result_empty_strings, "logical")
-    expect_type(result_empty_patterns, "logical")
-    expect_equal(length(result_empty_strings), 0)
-    expect_equal(length(result_empty_patterns), 1)
   }
   
   if (exists("multi_column_group_cpp", envir = asNamespace("graphfast"), inherits = FALSE)) {
@@ -185,28 +141,5 @@ test_that("C++ performance is reasonable", {
     
     expect_type(result, "list")
     expect_lt(as.numeric(end_time - start_time), 2)  # Should complete in < 2 seconds
-  }
-  
-  # Large string matching
-  large_strings <- rep(c("hello world", "goodbye", "test"), length.out = n)
-  large_patterns <- c("hello", "world", "test", "goodbye")
-  
-  if (exists("multi_grepl_any_fast_cpp", envir = asNamespace("graphfast"), inherits = FALSE)) {
-    start_time <- Sys.time()
-    result_strings <- graphfast:::multi_grepl_any_fast_cpp(large_strings, large_patterns)
-    end_time <- Sys.time()
-    
-    expect_type(result_strings, "logical")
-    expect_equal(length(result_strings), n)
-    expect_lt(as.numeric(end_time - start_time), 1)  # Should complete in < 1 second
-  } else {
-    # Test through the R wrapper instead
-    start_time <- Sys.time()
-    result_strings <- large_strings %fgrepl% large_patterns
-    end_time <- Sys.time()
-    
-    expect_type(result_strings, "logical")
-    expect_equal(length(result_strings), n)
-    expect_lt(as.numeric(end_time - start_time), 1)  # Should complete in < 1 second
   }
 })

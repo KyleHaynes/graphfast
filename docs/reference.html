@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Reference – graphfast</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-cfca05be01d3419732a5879cfde5cf21.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">graphfast</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Overview</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./theory.html"> 
+<span class="menu-text">Theory</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./examples.html"> 
+<span class="menu-text">Examples</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./benchmarks.html"> 
+<span class="menu-text">Benchmarks</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./reference.html" aria-current="page"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/KyleHaynes/graphfast"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text">Source</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#connected-components" id="toc-connected-components" class="nav-link active" data-scroll-target="#connected-components">Connected components</a>
+  <ul class="collapse">
+  <li><a href="#find_connected_componentsedges-n_nodes-null-compress-true" id="toc-find_connected_componentsedges-n_nodes-null-compress-true" class="nav-link" data-scroll-target="#find_connected_componentsedges-n_nodes-null-compress-true"><code>find_connected_components(edges, n_nodes = NULL, compress = TRUE)</code></a></li>
+  <li><a href="#find_connected_components_safeedges-compress-true-verbose-true" id="toc-find_connected_components_safeedges-compress-true-verbose-true" class="nav-link" data-scroll-target="#find_connected_components_safeedges-compress-true-verbose-true"><code>find_connected_components_safe(edges, compress = TRUE, verbose = TRUE)</code></a></li>
+  <li><a href="#find_connected_components_largeedges-compress-true-verbose-false" id="toc-find_connected_components_largeedges-compress-true-verbose-false" class="nav-link" data-scroll-target="#find_connected_components_largeedges-compress-true-verbose-false"><code>find_connected_components_large(edges, compress = TRUE, verbose = FALSE)</code></a></li>
+  </ul></li>
+  <li><a href="#per-edge-components" id="toc-per-edge-components" class="nav-link" data-scroll-target="#per-edge-components">Per-edge components</a>
+  <ul class="collapse">
+  <li><a href="#get_edge_componentsedges-n_nodes-null-compress-true-return_type-list" id="toc-get_edge_componentsedges-n_nodes-null-compress-true-return_type-list" class="nav-link" data-scroll-target="#get_edge_componentsedges-n_nodes-null-compress-true-return_type-list"><code>get_edge_components(edges, n_nodes = NULL, compress = TRUE, return_type = "list")</code></a></li>
+  <li><a href="#group_edgesedges-n_nodes-null-compress-true" id="toc-group_edgesedges-n_nodes-null-compress-true" class="nav-link" data-scroll-target="#group_edgesedges-n_nodes-null-compress-true"><code>group_edges(edges, n_nodes = NULL, compress = TRUE)</code></a></li>
+  <li><a href="#edge_componentsdt-from_col-to_col-compress-true" id="toc-edge_componentsdt-from_col-to_col-compress-true" class="nav-link" data-scroll-target="#edge_componentsdt-from_col-to_col-compress-true"><code>edge_components(dt, from_col, to_col, compress = TRUE)</code></a></li>
+  <li><a href="#add_component_columndt-from_col-from-to_col-to-component_col-component-n_nodes-null-compress-true-in_place-true-verbose-false" id="toc-add_component_columndt-from_col-from-to_col-to-component_col-component-n_nodes-null-compress-true-in_place-true-verbose-false" class="nav-link" data-scroll-target="#add_component_columndt-from_col-from-to_col-to-component_col-component-n_nodes-null-compress-true-in_place-true-verbose-false"><code>add_component_column(dt, from_col = "from", to_col = "to", component_col = "component", n_nodes = NULL, compress = TRUE, in_place = TRUE, verbose = FALSE)</code></a></li>
+  </ul></li>
+  <li><a href="#connectivity-distance-statistics" id="toc-connectivity-distance-statistics" class="nav-link" data-scroll-target="#connectivity-distance-statistics">Connectivity, distance, statistics</a>
+  <ul class="collapse">
+  <li><a href="#are_connectededges-query_pairs-n_nodes-null" id="toc-are_connectededges-query_pairs-n_nodes-null" class="nav-link" data-scroll-target="#are_connectededges-query_pairs-n_nodes-null"><code>are_connected(edges, query_pairs, n_nodes = NULL)</code></a></li>
+  <li><a href="#shortest_pathsedges-query_pairs-n_nodes-null-max_distance--1" id="toc-shortest_pathsedges-query_pairs-n_nodes-null-max_distance--1" class="nav-link" data-scroll-target="#shortest_pathsedges-query_pairs-n_nodes-null-max_distance--1"><code>shortest_paths(edges, query_pairs, n_nodes = NULL, max_distance = -1)</code></a></li>
+  <li><a href="#graph_statisticsedges-n_nodes-null" id="toc-graph_statisticsedges-n_nodes-null" class="nav-link" data-scroll-target="#graph_statisticsedges-n_nodes-null"><code>graph_statistics(edges, n_nodes = NULL)</code></a></li>
+  </ul></li>
+  <li><a href="#entity-resolution-grouping" id="toc-entity-resolution-grouping" class="nav-link" data-scroll-target="#entity-resolution-grouping">Entity resolution / grouping</a>
+  <ul class="collapse">
+  <li><a href="#group_iddata-cols-null-use_regex-true-incomparables-c-na-unknown-case_sensitive-true-min_group_size-1-return_details-false-verbose-false" id="toc-group_iddata-cols-null-use_regex-true-incomparables-c-na-unknown-case_sensitive-true-min_group_size-1-return_details-false-verbose-false" class="nav-link" data-scroll-target="#group_iddata-cols-null-use_regex-true-incomparables-c-na-unknown-case_sensitive-true-min_group_size-1-return_details-false-verbose-false"><code>group_id(data, cols = NULL, use_regex = TRUE, incomparables = c("", "NA", "Unknown"), case_sensitive = TRUE, min_group_size = 1, return_details = FALSE, verbose = FALSE)</code></a></li>
+  <li><a href="#printx-...-for-group_id_result" id="toc-printx-...-for-group_id_result" class="nav-link" data-scroll-target="#printx-...-for-group_id_result"><code>print(x, ...)</code> for <code>group_id_result</code></a></li>
+  <li><a href="#add_group_idsdt-cols-group_col-group_id-use_regex-true-..." id="toc-add_group_idsdt-cols-group_col-group_id-use_regex-true-..." class="nav-link" data-scroll-target="#add_group_idsdt-cols-group_col-group_id-use_regex-true-..."><code>add_group_ids(dt, cols, group_col = "group_id", use_regex = TRUE, ...)</code></a></li>
+  <li><a href="#set_group_iddt-cols-phone-var_output_name-gid-incomparables-cna" id="toc-set_group_iddt-cols-phone-var_output_name-gid-incomparables-cna" class="nav-link" data-scroll-target="#set_group_iddt-cols-phone-var_output_name-gid-incomparables-cna"><code>set_group_id(dt, cols = "phone", var_output_name = "gid", incomparables = c(NA, ""))</code></a></li>
+  <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also">See also</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Reference</h1>
+<p class="subtitle lead">API documentation</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Compact reference for every exported function. Conventions:</p>
+<ul>
+<li><strong>edges</strong> — a two-column matrix or <code>data.frame</code>/<code>data.table</code>; each row is an edge <code>from -&gt; to</code>. Node ids are positive integers.</li>
+<li><strong>query_pairs</strong> — a two-column matrix of node pairs.</li>
+<li>Component / group ids are 1-based and consecutive when <code>compress = TRUE</code> (the default). <code>0</code> denotes “no group” where applicable.</li>
+</ul>
+<hr>
+<section id="connected-components" class="level1">
+<h1>Connected components</h1>
+<section id="find_connected_componentsedges-n_nodes-null-compress-true" class="level2">
+<h2 class="anchored" data-anchor-id="find_connected_componentsedges-n_nodes-null-compress-true"><code>find_connected_components(edges, n_nodes = NULL, compress = TRUE)</code></h2>
+<p>All connected components for a dense, small-integer node space.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>edges</code></td>
+<td>Two-column edge list.</td>
+</tr>
+<tr class="even">
+<td><code>n_nodes</code></td>
+<td>Total node count. If <code>NULL</code>, inferred as <code>max(edges)</code>. Set it to include isolated nodes or to skip the max scan.</td>
+</tr>
+<tr class="odd">
+<td><code>compress</code></td>
+<td><code>TRUE</code>: tidy ids <code>1..k</code>. <code>FALSE</code>: raw Union–Find root labels.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> a list: <code>components</code> (component id per node, length <code>n_nodes</code>), <code>component_sizes</code> (size of each component), <code>n_components</code> (count).</p>
+<p><strong>Notes</strong> — errors if node ids exceed the 32-bit integer limit or if the implied allocation would exceed 32 GB; warns above ~8 GB. For sparse/huge ids use <code>find_connected_components_safe()</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>cc <span class="ot">&lt;-</span> <span class="fu">find_connected_components</span>(<span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>, <span class="dv">2</span>,<span class="dv">3</span>, <span class="dv">5</span>,<span class="dv">6</span>), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>cc<span class="sc">$</span>n_components   <span class="co"># 2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="find_connected_components_safeedges-compress-true-verbose-true" class="level2">
+<h2 class="anchored" data-anchor-id="find_connected_components_safeedges-compress-true-verbose-true"><code>find_connected_components_safe(edges, compress = TRUE, verbose = TRUE)</code></h2>
+<p>Same result, but <strong>remaps node ids</strong> to a dense <code>1..(unique nodes)</code> space with <code>fastmatch</code> first — safe and memory-efficient for sparse or large ids.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>edges</code></td>
+<td>Two-column edge list (kept numeric to tolerate large ids).</td>
+</tr>
+<tr class="even">
+<td><code>compress</code></td>
+<td>As above.</td>
+</tr>
+<tr class="odd">
+<td><code>verbose</code></td>
+<td>Print a memory analysis. Default <code>TRUE</code>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> <code>components</code> (named by original node ids), <code>component_sizes</code>, <code>n_components</code>, <code>node_mapping</code> (original ↔︎ mapped), and <code>memory_info</code> (<code>naive_memory_gb</code>, <code>efficient_memory_gb</code>, <code>memory_saved_gb</code>).</p>
+</section>
+<section id="find_connected_components_largeedges-compress-true-verbose-false" class="level2">
+<h2 class="anchored" data-anchor-id="find_connected_components_largeedges-compress-true-verbose-false"><code>find_connected_components_large(edges, compress = TRUE, verbose = FALSE)</code></h2>
+<p>For node ids <strong>beyond the 32-bit integer range</strong>. Ids are held as doubles and remapped to consecutive integers internally.</p>
+<p><strong>Returns</strong> <code>components</code> (named by original ids), <code>component_sizes</code>, <code>n_components</code>, and (when remapping occurs) <code>node_mapping</code>.</p>
+<hr>
+</section>
+</section>
+<section id="per-edge-components" class="level1">
+<h1>Per-edge components</h1>
+<section id="get_edge_componentsedges-n_nodes-null-compress-true-return_type-list" class="level2">
+<h2 class="anchored" data-anchor-id="get_edge_componentsedges-n_nodes-null-compress-true-return_type-list"><code>get_edge_components(edges, n_nodes = NULL, compress = TRUE, return_type = "list")</code></h2>
+<p>Component assignment for each <strong>edge</strong> rather than each node.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>return_type</code></td>
+<td><code>"list"</code>: <code>from_components</code>, <code>to_components</code>, <code>n_components</code>. <code>"combined"</code>: just the <code>from_components</code> vector.</td>
+</tr>
+</tbody>
+</table>
+<p>For a genuine edge, <code>from</code> and <code>to</code> are always in the same component, so the combined vector is the natural “component id per row”.</p>
+</section>
+<section id="group_edgesedges-n_nodes-null-compress-true" class="level2">
+<h2 class="anchored" data-anchor-id="group_edgesedges-n_nodes-null-compress-true"><code>group_edges(edges, n_nodes = NULL, compress = TRUE)</code></h2>
+<p>Convenience alias returning one component id per edge row (<code>get_edge_components(..., return_type = "combined")</code>).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">group_edges</span>(<span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>, <span class="dv">2</span>,<span class="dv">3</span>, <span class="dv">5</span>,<span class="dv">6</span>), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>))   <span class="co"># 1 1 2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="edge_componentsdt-from_col-to_col-compress-true" class="level2">
+<h2 class="anchored" data-anchor-id="edge_componentsdt-from_col-to_col-compress-true"><code>edge_components(dt, from_col, to_col, compress = TRUE)</code></h2>
+<p>Same as <code>group_edges()</code> but takes a <code>data.table</code>/<code>data.frame</code> and column names — designed for inline <code>data.table</code> use.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>dt[, component <span class="sc">:</span><span class="er">=</span> <span class="fu">edge_components</span>(.SD, <span class="st">"from"</span>, <span class="st">"to"</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="add_component_columndt-from_col-from-to_col-to-component_col-component-n_nodes-null-compress-true-in_place-true-verbose-false" class="level2">
+<h2 class="anchored" data-anchor-id="add_component_columndt-from_col-from-to_col-to-component_col-component-n_nodes-null-compress-true-in_place-true-verbose-false"><code>add_component_column(dt, from_col = "from", to_col = "to", component_col = "component", n_nodes = NULL, compress = TRUE, in_place = TRUE, verbose = FALSE)</code></h2>
+<p>Add a component column to a <code>data.table</code>. Node ids are mapped with <code>fastmatch</code>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>from_col</code>, <code>to_col</code></td>
+<td>Edge endpoint columns.</td>
+</tr>
+<tr class="even">
+<td><code>component_col</code></td>
+<td>Name of the new column.</td>
+</tr>
+<tr class="odd">
+<td><code>in_place</code></td>
+<td><code>TRUE</code>: modify <code>dt</code> by reference. <code>FALSE</code>: return a modified copy.</td>
+</tr>
+<tr class="even">
+<td><code>verbose</code></td>
+<td>Print per-step timing.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> the <code>data.table</code> (invisibly when <code>in_place = TRUE</code>).</p>
+<hr>
+</section>
+</section>
+<section id="connectivity-distance-statistics" class="level1">
+<h1>Connectivity, distance, statistics</h1>
+<section id="are_connectededges-query_pairs-n_nodes-null" class="level2">
+<h2 class="anchored" data-anchor-id="are_connectededges-query_pairs-n_nodes-null"><code>are_connected(edges, query_pairs, n_nodes = NULL)</code></h2>
+<p>Are the two nodes in each pair in the same component? Builds Union–Find once.</p>
+<p><strong>Returns</strong> a logical vector, one element per query pair.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">are_connected</span>(edges, <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>, <span class="dv">1</span>,<span class="dv">5</span>), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>))   <span class="co"># TRUE FALSE</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="shortest_pathsedges-query_pairs-n_nodes-null-max_distance--1" class="level2">
+<h2 class="anchored" data-anchor-id="shortest_pathsedges-query_pairs-n_nodes-null-max_distance--1"><code>shortest_paths(edges, query_pairs, n_nodes = NULL, max_distance = -1)</code></h2>
+<p>Unweighted shortest <strong>hop</strong> distance per query pair, via BFS.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>max_distance</code></td>
+<td>Stop searching beyond this depth; farther pairs return <code>-1</code>. <code>-1</code> (default) = no limit.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> an integer vector; <code>0</code> for identical source/target, <code>-1</code> if no path (or beyond <code>max_distance</code>).</p>
+</section>
+<section id="graph_statisticsedges-n_nodes-null" class="level2">
+<h2 class="anchored" data-anchor-id="graph_statisticsedges-n_nodes-null"><code>graph_statistics(edges, n_nodes = NULL)</code></h2>
+<p>Single-pass degree and density summary; no adjacency matrix.</p>
+<p><strong>Returns</strong> <code>n_edges</code>, <code>n_nodes</code>, <code>density</code>, and <code>degree_stats</code> (<code>min</code>, <code>max</code>, <code>mean</code>).</p>
+<hr>
+</section>
+</section>
+<section id="entity-resolution-grouping" class="level1">
+<h1>Entity resolution / grouping</h1>
+<section id="group_iddata-cols-null-use_regex-true-incomparables-c-na-unknown-case_sensitive-true-min_group_size-1-return_details-false-verbose-false" class="level2">
+<h2 class="anchored" data-anchor-id="group_iddata-cols-null-use_regex-true-incomparables-c-na-unknown-case_sensitive-true-min_group_size-1-return_details-false-verbose-false"><code>group_id(data, cols = NULL, use_regex = TRUE, incomparables = c("", "NA", "Unknown"), case_sensitive = TRUE, min_group_size = 1, return_details = FALSE, verbose = FALSE)</code></h2>
+<p>Group rows that share any value across the chosen columns (Union–Find over rows).</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>data</code></td>
+<td>A <code>data.frame</code>/<code>data.table</code>, or a list of equal-length columns.</td>
+</tr>
+<tr class="even">
+<td><code>cols</code></td>
+<td>Column names, or regex patterns when <code>use_regex = TRUE</code>. <code>NULL</code> uses all columns.</td>
+</tr>
+<tr class="odd">
+<td><code>use_regex</code></td>
+<td>Treat <code>cols</code> as regex patterns matched against column names.</td>
+</tr>
+<tr class="even">
+<td><code>incomparables</code></td>
+<td>Values that never link rows (empty, <code>"NA"</code>, etc.).</td>
+</tr>
+<tr class="odd">
+<td><code>case_sensitive</code></td>
+<td>Case-sensitive string comparison.</td>
+</tr>
+<tr class="even">
+<td><code>min_group_size</code></td>
+<td>Groups smaller than this get id <code>0</code>.</td>
+</tr>
+<tr class="odd">
+<td><code>return_details</code></td>
+<td>Return a rich <code>group_id_result</code> object instead of a bare vector.</td>
+</tr>
+<tr class="even">
+<td><code>verbose</code></td>
+<td>Print timing/progress.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> an integer vector of group ids (one per row); or, with <code>return_details = TRUE</code>, a <code>group_id_result</code> list with <code>group_ids</code>, <code>n_groups</code>, <code>group_sizes</code>, and <code>value_map</code> (which shared values formed each group).</p>
+<p><strong>Note</strong> — an all-numeric, no-incomparables, case-sensitive call dispatches to a specialised fast numeric path automatically.</p>
+</section>
+<section id="printx-...-for-group_id_result" class="level2">
+<h2 class="anchored" data-anchor-id="printx-...-for-group_id_result"><code>print(x, ...)</code> for <code>group_id_result</code></h2>
+<p>S3 print method summarising counts, settings, the first group ids, and the shared values that created groups.</p>
+</section>
+<section id="add_group_idsdt-cols-group_col-group_id-use_regex-true-..." class="level2">
+<h2 class="anchored" data-anchor-id="add_group_idsdt-cols-group_col-group_id-use_regex-true-..."><code>add_group_ids(dt, cols, group_col = "group_id", use_regex = TRUE, ...)</code></h2>
+<p><code>data.table</code> wrapper for <code>group_id()</code> — adds the group column <strong>by reference</strong>. Extra <code>...</code> are passed through to <code>group_id()</code>.</p>
+<p><strong>Returns</strong> <code>dt</code> (invisibly).</p>
+</section>
+<section id="set_group_iddt-cols-phone-var_output_name-gid-incomparables-cna" class="level2">
+<h2 class="anchored" data-anchor-id="set_group_iddt-cols-phone-var_output_name-gid-incomparables-cna"><code>set_group_id(dt, cols = "phone", var_output_name = "gid", incomparables = c(NA, ""))</code></h2>
+<p>Alternative grouping engine using the <strong>bipartite edge reduction</strong> (<code>melt</code> → edges → <code>edge_components</code>).</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>dt</code></td>
+<td>A <code>data.table</code> that <strong>must contain an <code>id</code> column</strong>.</td>
+</tr>
+<tr class="even">
+<td><code>cols</code></td>
+<td>Regex matched against column names to choose the value columns.</td>
+</tr>
+<tr class="odd">
+<td><code>var_output_name</code></td>
+<td>Name of the group-id column to add.</td>
+</tr>
+<tr class="even">
+<td><code>incomparables</code></td>
+<td>Values excluded from linking.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> <code>dt</code>, modified by reference with the new group column.</p>
+<hr>
+</section>
+<section id="see-also" class="level2">
+<h2 class="anchored" data-anchor-id="see-also">See also</h2>
+<ul>
+<li><a href="./theory.html">Theory</a> — how these algorithms work and why they are fast.</li>
+<li><a href="./examples.html">Examples</a> — runnable demonstrations of every function.</li>
+<li><a href="./benchmarks.html">Benchmarks</a> — scaling against <code>igraph</code>, <code>network</code>, <code>sna</code>.</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -74,23 +74,23 @@ find_connected_components <- function(edges, n_nodes = NULL, compress = TRUE) {
     }
   }
   
-  # Memory safety check
-  unique_nodes <- length(unique(c(edges[, 1], edges[, 2])))
+  # Memory safety check. The estimate depends only on the max node ID, so the
+  # expensive unique() scan is deferred until we actually need it for a message.
   estimated_memory_gb <- n_nodes * 12 / 1024^3  # Rough estimate
-  
+
   if (estimated_memory_gb > 8) {  # Warning for >8GB allocation
-    warning("Large memory allocation required (~", round(estimated_memory_gb, 1), 
+    unique_nodes <- length(unique(c(edges[, 1], edges[, 2])))
+    if (estimated_memory_gb > 32) {  # Hard stop for >32GB
+      stop("Memory allocation would exceed 32GB (", round(estimated_memory_gb, 1),
+           "GB) due to sparse large node IDs.\n",
+           "Use find_connected_components_safe() instead, which handles large sparse node IDs efficiently.\n",
+           "Your graph has ", unique_nodes, " unique nodes but max ID is ", n_nodes)
+    }
+    warning("Large memory allocation required (~", round(estimated_memory_gb, 1),
             "GB) due to sparse node IDs.\n",
             "Consider using find_connected_components_safe() which automatically ",
             "remaps node IDs.\n",
             "Unique nodes: ", unique_nodes, ", Max node ID: ", n_nodes)
-  }
-  
-  if (estimated_memory_gb > 32) {  # Hard stop for >32GB
-    stop("Memory allocation would exceed 32GB (", round(estimated_memory_gb, 1), 
-         "GB) due to sparse large node IDs.\n",
-         "Use find_connected_components_safe() instead, which handles large sparse node IDs efficiently.\n",
-         "Your graph has ", unique_nodes, " unique nodes but max ID is ", n_nodes)
   }
   
   # Call C++ function

@@ -18,6 +18,11 @@
 /check/
 /build/
 
+# Quarto documentation site
+/site/
+/.quarto/
+/_freeze/
+
 # IDE
 .vscode/
 .idea/
@@ -39,3 +44,5 @@ Thumbs.db
 .env
 config_local.*
 /Meta/
+
+**/*.quarto_ipynb

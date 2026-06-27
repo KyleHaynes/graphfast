@@ -20,13 +20,12 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-The `graphfast` package provides high-performance algorithms for analyzing large-scale graphs in R. Built with optimized C++ implementations, it can handle graphs with hundreds of millions of edges efficiently. The package also includes advanced entity resolution capabilities and fast string matching functions.
+The `graphfast` package provides high-performance algorithms for analyzing large-scale graphs in R. Built with optimized C++ implementations, it can handle graphs with hundreds of millions of edges efficiently. The package also includes graph-based entity resolution for deduplication and record linkage.
 
 ## Key Features
 
 - **Graph Analysis**: Connected components, shortest paths, connectivity queries
 - **Entity Resolution**: Multi-column grouping with the `group_id()` function
-- **String Matching**: Fast multi-pattern string matching with `%fgrepl%` operators
 - **Memory Efficiency**: Sparse representations and streaming algorithms
 - **Performance**: Optimized C++ implementations for massive datasets
 
@@ -105,43 +104,6 @@ group_ids_exact <- group_id(customers,
 print("Results are identical:", identical(group_ids_regex, group_ids_exact))
 ```
 
-## Fast String Matching
-
-The package includes optimized string matching functions that significantly outperform base R for multiple pattern searches.
-
-### Multi-Pattern Matching
-
-```{r}
-# Sample data
-text_files <- c("error.log", "data.csv", "temp.txt", "config.json", 
-                "test_results.log", "backup.tmp", "user_data.xml")
-
-search_patterns <- c("log", "tmp", "test")
-
-# Fast multi-pattern matching
-matches <- text_files %fgrepl% search_patterns
-print(matches)
-
-# Show matching files
-print(text_files[matches])
-```
-
-### Case-Insensitive Matching
-
-```{r}
-# Case-insensitive version
-mixed_case <- c("ERROR.LOG", "Data.CSV", "TEMP.txt", "Test_File.doc")
-lower_patterns <- c("error", "temp", "test")
-
-# Case-sensitive (no matches)
-case_sensitive <- mixed_case %fgrepl% lower_patterns
-print(paste("Case-sensitive matches:", sum(case_sensitive)))
-
-# Case-insensitive (matches found)
-case_insensitive <- mixed_case %fgrepli% lower_patterns
-print(paste("Case-insensitive matches:", sum(case_insensitive)))
-```
-
 ## Graph Analysis
 
 ### Creating a Graph
@@ -207,33 +169,6 @@ A distance of -1 indicates no path exists between the nodes.
 ## Performance Comparison
 
 Let's compare the performance of different approaches:
-
-### String Matching Performance
-
-```{r}
-# Generate test data
-set.seed(42)
-test_strings <- paste0(sample(c("error", "data", "temp", "config", "user"), 1000, replace = TRUE),
-                      "_", sample(100:999, 1000, replace = TRUE), 
-                      sample(c(".log", ".csv", ".tmp", ".json", ".xml"), 1000, replace = TRUE))
-
-patterns <- c("error", "temp", "data")
-
-# Base R approach
-base_time <- system.time({
-  base_result <- sapply(test_strings, function(s) any(sapply(patterns, function(p) grepl(p, s, fixed = TRUE))))
-})
-
-# Fast approach
-fast_time <- system.time({
-  fast_result <- test_strings %fgrepl% patterns
-})
-
-cat("Base R time:", base_time["elapsed"], "seconds\n")
-cat("Fast time:", fast_time["elapsed"], "seconds\n")
-cat("Speedup:", round(base_time["elapsed"] / fast_time["elapsed"], 1), "x\n")
-cat("Results identical:", identical(as.logical(base_result), fast_result), "\n")
-```
 
 ### Entity Resolution Performance
 
@@ -340,35 +275,6 @@ cat("Duplicate groups found:", sum(duplicate_summary > 1), "\n")
 cat("Total duplicates identified:", sum(duplicate_summary) - sum(duplicate_summary == 1), "\n")
 ```
 
-### Log File Analysis
-
-```{r}
-# Simulate log file analysis
-log_entries <- c(
-  "2023-10-01 ERROR: Database connection failed",
-  "2023-10-01 INFO: User login successful", 
-  "2023-10-01 WARNING: High memory usage detected",
-  "2023-10-01 ERROR: File not found",
-  "2023-10-01 DEBUG: Processing request",
-  "2023-10-01 ERROR: Authentication failed",
-  "2023-10-01 INFO: Backup completed",
-  "2023-10-01 WARNING: Disk space low"
-)
-
-# Find critical entries
-critical_patterns <- c("ERROR", "CRITICAL", "FATAL")
-warnings_patterns <- c("WARNING", "WARN")
-
-critical_entries <- log_entries %fgrepli% critical_patterns
-warning_entries <- log_entries %fgrepli% warnings_patterns
-
-cat("Critical entries found:", sum(critical_entries), "\n")
-cat("Warning entries found:", sum(warning_entries), "\n")
-
-# Show critical entries
-print("Critical log entries:")
-print(log_entries[critical_entries])
-```
 ### Social Network Analysis
 
 ```{r}
@@ -483,12 +389,6 @@ monitor_memory({
 - Time complexity: O(m × α(n)) where m is total values across columns
 - Memory efficient: processes millions of records with minimal overhead
 
-### String Matching
-- Optimized C++ multi-pattern search implementation
-- Boyer-Moore-inspired algorithms for fixed string patterns
-- Significantly faster than nested R loops for multiple patterns
-- Both case-sensitive and case-insensitive variants
-
 ### Shortest Paths
 - Breadth-first search from each source node
 - Time complexity: O(m + n) per query
@@ -515,28 +415,19 @@ monitor_memory({
 4. **Consider case sensitivity** based on your data characteristics
 5. **Use return_details=TRUE** for debugging and analysis
 
-### String Matching
-1. **Use %fgrepl%** for case-sensitive fixed string matching
-2. **Use %fgrepli%** for case-insensitive matching
-3. **Batch multiple patterns** rather than individual grepl() calls
-4. **Consider perl regex** for complex pattern requirements
-5. **Profile performance** with your specific data and patterns
-
 ## Conclusion
 
-The `graphfast` package provides a comprehensive suite of high-performance tools for:
+The `graphfast` package provides a focused suite of high-performance tools for:
 
 - **Graph Analysis**: Connected components, shortest paths, and connectivity queries for massive graphs
-- **Entity Resolution**: Multi-column deduplication and record linkage with the `group_id()` function  
-- **String Processing**: Fast multi-pattern string matching with convenient infix operators
+- **Entity Resolution**: Multi-column deduplication and record linkage with the `group_id()` function
 
 Its optimized C++ implementations enable analysis of datasets that would be intractable with traditional R approaches, making it suitable for big data applications in:
 
 - Social network analysis and community detection
-- Customer deduplication and master data management  
+- Customer deduplication and master data management
 - Bioinformatics and protein interaction networks
 - Web graph analysis and link structure
-- Log file processing and pattern detection
 - Infrastructure network analysis
 
 The package scales efficiently to handle millions of records and hundreds of millions of edges while maintaining memory efficiency and providing intuitive R interfaces.

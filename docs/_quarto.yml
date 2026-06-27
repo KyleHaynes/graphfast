@@ -1,0 +1,46 @@
+project:
+  type: website
+  output-dir: .
+  execute-dir: project
+  render:
+    - index.qmd
+    - theory.qmd
+    - examples.qmd
+    - benchmarks.qmd
+    - reference.qmd
+
+execute:
+  freeze: auto
+  error: true
+  warning: false
+  message: false
+
+website:
+  title: "graphfast"
+  description: "Fast graph connectivity analysis and entity resolution in R, powered by C++."
+  navbar:
+    left:
+      - href: index.qmd
+        text: Overview
+      - href: theory.qmd
+        text: Theory
+      - href: examples.qmd
+        text: Examples
+      - href: benchmarks.qmd
+        text: Benchmarks
+      - href: reference.qmd
+        text: Reference
+    right:
+      - icon: github
+        href: https://github.com/KyleHaynes/graphfast
+        text: Source
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    code-copy: true
+    code-overflow: wrap
+    df-print: kable
+    highlight-style: github

@@ -1,0 +1,204 @@
+---
+title: "Reference"
+subtitle: "API documentation"
+---
+
+```{r}
+#| include: false
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+Compact reference for every exported function. Conventions:
+
+- **edges** — a two-column matrix or `data.frame`/`data.table`; each row is an
+  edge `from -> to`. Node ids are positive integers.
+- **query_pairs** — a two-column matrix of node pairs.
+- Component / group ids are 1-based and consecutive when `compress = TRUE`
+  (the default). `0` denotes "no group" where applicable.
+
+---
+
+# Connected components
+
+## `find_connected_components(edges, n_nodes = NULL, compress = TRUE)`
+
+All connected components for a dense, small-integer node space.
+
+| Argument | Description |
+|---|---|
+| `edges` | Two-column edge list. |
+| `n_nodes` | Total node count. If `NULL`, inferred as `max(edges)`. Set it to include isolated nodes or to skip the max scan. |
+| `compress` | `TRUE`: tidy ids `1..k`. `FALSE`: raw Union–Find root labels. |
+
+**Returns** a list: `components` (component id per node, length `n_nodes`),
+`component_sizes` (size of each component), `n_components` (count).
+
+**Notes** — errors if node ids exceed the 32-bit integer limit or if the implied
+allocation would exceed 32 GB; warns above ~8 GB. For sparse/huge ids use
+`find_connected_components_safe()`.
+
+```{r}
+cc <- find_connected_components(matrix(c(1,2, 2,3, 5,6), ncol = 2, byrow = TRUE))
+cc$n_components   # 2
+```
+
+## `find_connected_components_safe(edges, compress = TRUE, verbose = TRUE)`
+
+Same result, but **remaps node ids** to a dense `1..(unique nodes)` space with
+`fastmatch` first — safe and memory-efficient for sparse or large ids.
+
+| Argument | Description |
+|---|---|
+| `edges` | Two-column edge list (kept numeric to tolerate large ids). |
+| `compress` | As above. |
+| `verbose` | Print a memory analysis. Default `TRUE`. |
+
+**Returns** `components` (named by original node ids), `component_sizes`,
+`n_components`, `node_mapping` (original ↔ mapped), and `memory_info`
+(`naive_memory_gb`, `efficient_memory_gb`, `memory_saved_gb`).
+
+## `find_connected_components_large(edges, compress = TRUE, verbose = FALSE)`
+
+For node ids **beyond the 32-bit integer range**. Ids are held as doubles and
+remapped to consecutive integers internally.
+
+**Returns** `components` (named by original ids), `component_sizes`,
+`n_components`, and (when remapping occurs) `node_mapping`.
+
+---
+
+# Per-edge components
+
+## `get_edge_components(edges, n_nodes = NULL, compress = TRUE, return_type = "list")`
+
+Component assignment for each **edge** rather than each node.
+
+| Argument | Description |
+|---|---|
+| `return_type` | `"list"`: `from_components`, `to_components`, `n_components`. `"combined"`: just the `from_components` vector. |
+
+For a genuine edge, `from` and `to` are always in the same component, so the
+combined vector is the natural "component id per row".
+
+## `group_edges(edges, n_nodes = NULL, compress = TRUE)`
+
+Convenience alias returning one component id per edge row
+(`get_edge_components(..., return_type = "combined")`).
+
+```{r}
+group_edges(matrix(c(1,2, 2,3, 5,6), ncol = 2, byrow = TRUE))   # 1 1 2
+```
+
+## `edge_components(dt, from_col, to_col, compress = TRUE)`
+
+Same as `group_edges()` but takes a `data.table`/`data.frame` and column names —
+designed for inline `data.table` use.
+
+```{r}
+dt[, component := edge_components(.SD, "from", "to")]
+```
+
+## `add_component_column(dt, from_col = "from", to_col = "to", component_col = "component", n_nodes = NULL, compress = TRUE, in_place = TRUE, verbose = FALSE)`
+
+Add a component column to a `data.table`. Node ids are mapped with `fastmatch`.
+
+| Argument | Description |
+|---|---|
+| `from_col`, `to_col` | Edge endpoint columns. |
+| `component_col` | Name of the new column. |
+| `in_place` | `TRUE`: modify `dt` by reference. `FALSE`: return a modified copy. |
+| `verbose` | Print per-step timing. |
+
+**Returns** the `data.table` (invisibly when `in_place = TRUE`).
+
+---
+
+# Connectivity, distance, statistics
+
+## `are_connected(edges, query_pairs, n_nodes = NULL)`
+
+Are the two nodes in each pair in the same component? Builds Union–Find once.
+
+**Returns** a logical vector, one element per query pair.
+
+```{r}
+are_connected(edges, matrix(c(1,3, 1,5), ncol = 2, byrow = TRUE))   # TRUE FALSE
+```
+
+## `shortest_paths(edges, query_pairs, n_nodes = NULL, max_distance = -1)`
+
+Unweighted shortest **hop** distance per query pair, via BFS.
+
+| Argument | Description |
+|---|---|
+| `max_distance` | Stop searching beyond this depth; farther pairs return `-1`. `-1` (default) = no limit. |
+
+**Returns** an integer vector; `0` for identical source/target, `-1` if no path
+(or beyond `max_distance`).
+
+## `graph_statistics(edges, n_nodes = NULL)`
+
+Single-pass degree and density summary; no adjacency matrix.
+
+**Returns** `n_edges`, `n_nodes`, `density`, and `degree_stats`
+(`min`, `max`, `mean`).
+
+---
+
+# Entity resolution / grouping
+
+## `group_id(data, cols = NULL, use_regex = TRUE, incomparables = c("", "NA", "Unknown"), case_sensitive = TRUE, min_group_size = 1, return_details = FALSE, verbose = FALSE)`
+
+Group rows that share any value across the chosen columns (Union–Find over rows).
+
+| Argument | Description |
+|---|---|
+| `data` | A `data.frame`/`data.table`, or a list of equal-length columns. |
+| `cols` | Column names, or regex patterns when `use_regex = TRUE`. `NULL` uses all columns. |
+| `use_regex` | Treat `cols` as regex patterns matched against column names. |
+| `incomparables` | Values that never link rows (empty, `"NA"`, etc.). |
+| `case_sensitive` | Case-sensitive string comparison. |
+| `min_group_size` | Groups smaller than this get id `0`. |
+| `return_details` | Return a rich `group_id_result` object instead of a bare vector. |
+| `verbose` | Print timing/progress. |
+
+**Returns** an integer vector of group ids (one per row); or, with
+`return_details = TRUE`, a `group_id_result` list with `group_ids`, `n_groups`,
+`group_sizes`, and `value_map` (which shared values formed each group).
+
+**Note** — an all-numeric, no-incomparables, case-sensitive call dispatches to a
+specialised fast numeric path automatically.
+
+## `print(x, ...)` for `group_id_result`
+
+S3 print method summarising counts, settings, the first group ids, and the
+shared values that created groups.
+
+## `add_group_ids(dt, cols, group_col = "group_id", use_regex = TRUE, ...)`
+
+`data.table` wrapper for `group_id()` — adds the group column **by reference**.
+Extra `...` are passed through to `group_id()`.
+
+**Returns** `dt` (invisibly).
+
+## `set_group_id(dt, cols = "phone", var_output_name = "gid", incomparables = c(NA, ""))`
+
+Alternative grouping engine using the **bipartite edge reduction**
+(`melt` → edges → `edge_components`).
+
+| Argument | Description |
+|---|---|
+| `dt` | A `data.table` that **must contain an `id` column**. |
+| `cols` | Regex matched against column names to choose the value columns. |
+| `var_output_name` | Name of the group-id column to add. |
+| `incomparables` | Values excluded from linking. |
+
+**Returns** `dt`, modified by reference with the new group column.
+
+---
+
+## See also
+
+- [Theory](theory.qmd) — how these algorithms work and why they are fast.
+- [Examples](examples.qmd) — runnable demonstrations of every function.
+- [Benchmarks](benchmarks.qmd) — scaling against `igraph`, `network`, `sna`.

@@ -1,5 +1,4 @@
-#include <Rcpp.h>
-#include <map>
+﻿#include <Rcpp.h>
 #include <vector>
 #include <queue>
 #include <unordered_map>
@@ -19,11 +18,14 @@ public:
         }
     }
     
+    // Iterative find with path halving. Avoids deep recursion (and stack
+    // overflow) on very large graphs while keeping near-constant amortised cost.
     int find(int x) {
-        if (parent[x] != x) {
-            parent[x] = find(parent[x]);
+        while (parent[x] != x) {
+            parent[x] = parent[parent[x]];  // path halving
+            x = parent[x];
         }
-        return parent[x];
+        return x;
     }
     
     bool union_sets(int x, int y) {
@@ -62,31 +64,30 @@ Rcpp::List find_components_cpp(const Rcpp::IntegerMatrix& edges, int n_nodes, bo
         }
     }
     
-    std::map<int, int> component_map;
-    std::vector<int> components(n_nodes);
+    // Relabel roots to compact component IDs using an O(n) vector lookup
+    // (roots live in [0, n_nodes), so std::map is unnecessary overhead).
+    std::vector<int> root_to_comp(n_nodes, -1);
+    std::vector<int> roots(n_nodes);
     int next_component_id = 0;
-    
+
     for (int i = 0; i < n_nodes; i++) {
         int root = uf.find(i);
-        if (component_map.find(root) == component_map.end()) {
-            component_map[root] = compress ? next_component_id++ : root;
+        roots[i] = root;
+        if (root_to_comp[root] == -1) {
+            root_to_comp[root] = next_component_id++;
         }
-        components[i] = component_map[root];
     }
-    
+
+    // Component sizes are always populated (previously empty when compress=FALSE),
+    // and labels are 1-based consecutive when compressing, raw roots otherwise.
+    std::vector<int> components(n_nodes);
     std::vector<int> component_sizes(next_component_id, 0);
-    for (int comp : components) {
-        if (compress) {
-            component_sizes[comp]++;
-        }
+    for (int i = 0; i < n_nodes; i++) {
+        int comp = root_to_comp[roots[i]];
+        component_sizes[comp]++;
+        components[i] = compress ? comp + 1 : roots[i];
     }
-    
-    if (compress) {
-        for (int& comp : components) {
-            comp++;
-        }
-    }
-    
+
     return Rcpp::List::create(
         Rcpp::Named("components") = components,
         Rcpp::Named("component_sizes") = component_sizes,
@@ -128,69 +129,93 @@ Rcpp::LogicalVector are_connected_cpp(const Rcpp::IntegerMatrix& edges, const Rc
 Rcpp::IntegerVector shortest_paths_cpp(const Rcpp::IntegerMatrix& edges, const Rcpp::IntegerMatrix& query_pairs, 
                                       int n_nodes, int max_distance) {
     
+    // Build the adjacency list, reserving exact degree per node so we avoid
+    // repeated vector reallocations while filling (a real cost on large graphs).
     std::vector<std::vector<int>> adj(n_nodes);
-    
+    {
+        std::vector<int> degree(n_nodes, 0);
+        for (int i = 0; i < edges.nrow(); i++) {
+            int u = edges(i, 0) - 1;
+            int v = edges(i, 1) - 1;
+            if (u >= 0 && u < n_nodes && v >= 0 && v < n_nodes && u != v) {
+                degree[u]++;
+                degree[v]++;
+            }
+        }
+        for (int i = 0; i < n_nodes; i++) adj[i].reserve(degree[i]);
+    }
+
     for (int i = 0; i < edges.nrow(); i++) {
         int u = edges(i, 0) - 1;
         int v = edges(i, 1) - 1;
-        
+
         if (u >= 0 && u < n_nodes && v >= 0 && v < n_nodes && u != v) {
             adj[u].push_back(v);
             adj[v].push_back(u);
         }
     }
-    
+
     Rcpp::IntegerVector result(query_pairs.nrow());
-    
+
+    // Reuse a single distance buffer across all queries. A monotonically
+    // increasing "version" marks visited nodes, so we never re-zero an
+    // O(n_nodes) array per query (the previous behaviour, which dominated
+    // runtime when answering many queries on a large graph).
+    std::vector<int> visited_version(n_nodes, 0);
+    std::vector<int> distance(n_nodes, 0);
+    int version = 0;
+    std::queue<int> bfs_queue;
+
     for (int q = 0; q < query_pairs.nrow(); q++) {
         int source = query_pairs(q, 0) - 1;
         int target = query_pairs(q, 1) - 1;
-        
+
         if (source < 0 || source >= n_nodes || target < 0 || target >= n_nodes) {
             result[q] = -1;
             continue;
         }
-        
+
         if (source == target) {
             result[q] = 0;
             continue;
         }
-        
-        std::vector<int> distance(n_nodes, -1);
-        std::queue<int> bfs_queue;
-        
+
+        version++;
+        while (!bfs_queue.empty()) bfs_queue.pop();  // clear any leftover state
         distance[source] = 0;
+        visited_version[source] = version;
         bfs_queue.push(source);
-        
+
         bool found = false;
         while (!bfs_queue.empty() && !found) {
             int current = bfs_queue.front();
             bfs_queue.pop();
-            
+
             if (max_distance > 0 && distance[current] >= max_distance) {
                 break;
             }
-            
+
             for (int neighbor : adj[current]) {
-                if (distance[neighbor] == -1) {
+                if (visited_version[neighbor] != version) {
+                    visited_version[neighbor] = version;
                     distance[neighbor] = distance[current] + 1;
-                    
+
                     if (neighbor == target) {
                         result[q] = distance[neighbor];
                         found = true;
                         break;
                     }
-                    
+
                     bfs_queue.push(neighbor);
                 }
             }
         }
-        
+
         if (!found) {
             result[q] = -1;
         }
     }
-    
+
     return result;
 }
 
@@ -258,26 +283,21 @@ Rcpp::List get_edge_components_cpp(const Rcpp::IntegerMatrix& edges, int n_nodes
         }
     }
     
-    // Create component mapping (same logic as find_components_cpp)
-    std::map<int, int> component_map;
+    // Create component mapping (same logic as find_components_cpp) using an
+    // O(n) vector lookup instead of std::map.
+    std::vector<int> root_to_comp(n_nodes, -1);
     std::vector<int> node_components(n_nodes);
     int next_component_id = 0;
-    
+
     for (int i = 0; i < n_nodes; i++) {
         int root = uf.find(i);
-        if (component_map.find(root) == component_map.end()) {
-            component_map[root] = compress ? next_component_id++ : root;
+        if (root_to_comp[root] == -1) {
+            root_to_comp[root] = next_component_id++;
         }
-        node_components[i] = component_map[root];
+        // 1-based consecutive IDs when compressing, raw roots otherwise.
+        node_components[i] = compress ? root_to_comp[root] + 1 : root;
     }
-    
-    // Convert to 1-based indexing if compressed
-    if (compress) {
-        for (int& comp : node_components) {
-            comp++;
-        }
-    }
-    
+
     // Now assign components directly to edges
     std::vector<int> from_components(edges.nrow());
     std::vector<int> to_components(edges.nrow());
@@ -301,239 +321,6 @@ Rcpp::List get_edge_components_cpp(const Rcpp::IntegerMatrix& edges, int n_nodes
         Rcpp::Named("to_components") = to_components,
         Rcpp::Named("n_components") = next_component_id
     );
-}
-
-//' Multi-Pattern Fixed String Matching
-//'
-//' Fast C++ implementation for finding multiple fixed patterns in strings.
-//' Equivalent to multiple grepl(pattern, x, fixed=TRUE) calls but much faster.
-//'
-//' @param strings Character vector of strings to search in
-//' @param patterns Character vector of fixed patterns to search for
-//' @param match_any Logical. If TRUE, returns TRUE if ANY pattern matches.
-//'   If FALSE, returns a matrix showing which pattern matches which string.
-//' @param ignore_case Logical. Whether to ignore case when matching. Default FALSE.
-//'
-//' @return If match_any=TRUE: Logical vector same length as strings.
-//'   If match_any=FALSE: Logical matrix with nrow=length(strings), ncol=length(patterns).
-//'
-//' @examples
-//' strings <- c("hello world", "goodbye", "hello there", "world peace")
-//' patterns <- c("hello", "world")
-//' 
-//' # Check if ANY pattern matches each string
-//' multi_grepl_cpp(strings, patterns, match_any = TRUE)
-//' # Returns: TRUE FALSE TRUE TRUE
-//' 
-//' # Get detailed matrix of which patterns match which strings
-//' multi_grepl_cpp(strings, patterns, match_any = FALSE)
-//' # Returns 4x2 matrix showing hello/world matches for each string
-//'
-// [[Rcpp::export]]
-Rcpp::LogicalMatrix multi_grepl_cpp(const Rcpp::CharacterVector& strings,
-                                   const Rcpp::CharacterVector& patterns,
-                                   bool match_any = true,
-                                   bool ignore_case = false) {
-    
-    int n_strings = strings.size();
-    int n_patterns = patterns.size();
-    
-    // Convert patterns to std::string for easier manipulation
-    std::vector<std::string> pattern_vec(n_patterns);
-    for (int p = 0; p < n_patterns; p++) {
-        pattern_vec[p] = Rcpp::as<std::string>(patterns[p]);
-        if (ignore_case) {
-            // Convert pattern to lowercase
-            std::transform(pattern_vec[p].begin(), pattern_vec[p].end(), 
-                         pattern_vec[p].begin(), ::tolower);
-        }
-    }
-    
-    if (match_any) {
-        // Return vector indicating if ANY pattern matches each string
-        Rcpp::LogicalVector result(n_strings);
-        
-        for (int i = 0; i < n_strings; i++) {
-            std::string str = Rcpp::as<std::string>(strings[i]);
-            if (ignore_case) {
-                std::transform(str.begin(), str.end(), str.begin(), ::tolower);
-            }
-            
-            bool found_match = false;
-            for (int p = 0; p < n_patterns && !found_match; p++) {
-                if (str.find(pattern_vec[p]) != std::string::npos) {
-                    found_match = true;
-                }
-            }
-            result[i] = found_match;
-        }
-        
-        // Convert to matrix format for consistent return type
-        Rcpp::LogicalMatrix result_matrix(n_strings, 1);
-        for (int i = 0; i < n_strings; i++) {
-            result_matrix(i, 0) = result[i];
-        }
-        return result_matrix;
-        
-    } else {
-        // Return matrix showing which patterns match which strings
-        Rcpp::LogicalMatrix result(n_strings, n_patterns);
-        
-        for (int i = 0; i < n_strings; i++) {
-            std::string str = Rcpp::as<std::string>(strings[i]);
-            if (ignore_case) {
-                std::transform(str.begin(), str.end(), str.begin(), ::tolower);
-            }
-            
-            for (int p = 0; p < n_patterns; p++) {
-                result(i, p) = (str.find(pattern_vec[p]) != std::string::npos);
-            }
-        }
-        
-        return result;
-    }
-}
-
-//' Multi-Pattern Fixed String Matching (Any Match)
-//'
-//' Simplified version that returns TRUE if any pattern matches each string.
-//' Optimized for the common use case of "does this string contain any of these patterns?"
-//'
-//' @param strings Character vector of strings to search in
-//' @param patterns Character vector of fixed patterns to search for
-//' @param ignore_case Logical. Whether to ignore case. Default FALSE.
-//'
-//' @return Logical vector same length as strings
-//'
-// [[Rcpp::export]]
-Rcpp::LogicalVector multi_grepl_any_cpp(const Rcpp::CharacterVector& strings,
-                                        const Rcpp::CharacterVector& patterns,
-                                        bool ignore_case = false) {
-    
-    int n_strings = strings.size();
-    int n_patterns = patterns.size();
-    
-    // Convert patterns to std::string
-    std::vector<std::string> pattern_vec(n_patterns);
-    for (int p = 0; p < n_patterns; p++) {
-        pattern_vec[p] = Rcpp::as<std::string>(patterns[p]);
-        if (ignore_case) {
-            std::transform(pattern_vec[p].begin(), pattern_vec[p].end(), 
-                         pattern_vec[p].begin(), ::tolower);
-        }
-    }
-    
-    Rcpp::LogicalVector result(n_strings);
-    
-    for (int i = 0; i < n_strings; i++) {
-        std::string str = Rcpp::as<std::string>(strings[i]);
-        if (ignore_case) {
-            std::transform(str.begin(), str.end(), str.begin(), ::tolower);
-        }
-        
-        bool found_match = false;
-        for (int p = 0; p < n_patterns && !found_match; p++) {
-            if (str.find(pattern_vec[p]) != std::string::npos) {
-                found_match = true;
-            }
-        }
-        result[i] = found_match;
-    }
-    
-    return result;
-}
-
-//' Multi-Pattern Fixed String Matching (Any Match) - Optimized Version
-//'
-//' High-performance version with multiple optimizations:
-//' - Minimal string conversions using CHAR() and strstr()
-//' - Pattern sorting by length for early termination  
-//' - Chunked processing for better cache locality
-//' - Optimized case conversion without std::transform
-//'
-//' @param strings Character vector of strings to search in
-//' @param patterns Character vector of fixed patterns to search for
-//' @param ignore_case Logical. Whether to ignore case. Default FALSE.
-//'
-//' @return Logical vector same length as strings
-//'
-// [[Rcpp::export]]
-Rcpp::LogicalVector multi_grepl_any_fast_cpp(const Rcpp::CharacterVector& strings,
-                                             const Rcpp::CharacterVector& patterns,
-                                             bool ignore_case = false) {
-    
-    int n_strings = strings.size();
-    int n_patterns = patterns.size();
-    
-    // Early exit for empty patterns
-    if (n_patterns == 0) {
-        return Rcpp::LogicalVector(n_strings, false);
-    }
-    
-    // Convert and sort patterns by length (shorter first for faster rejection)
-    std::vector<std::pair<std::string, int>> pattern_data;
-    pattern_data.reserve(n_patterns);
-    
-    for (int p = 0; p < n_patterns; p++) {
-        std::string pattern = Rcpp::as<std::string>(patterns[p]);
-        if (ignore_case) {
-            // Fast case conversion
-            for (char& c : pattern) {
-                if (c >= 'A' && c <= 'Z') {
-                    c += 32;
-                }
-            }
-        }
-        pattern_data.emplace_back(std::move(pattern), pattern.length());
-    }
-    
-    // Sort by length for early termination
-    std::sort(pattern_data.begin(), pattern_data.end(), 
-              [](const std::pair<std::string, int>& a, const std::pair<std::string, int>& b) { 
-                  return a.second < b.second; 
-              });
-    
-    Rcpp::LogicalVector result(n_strings);
-    
-    for (int i = 0; i < n_strings; i++) {
-        const char* str_ptr = CHAR(strings[i]);
-        int str_len = strlen(str_ptr);
-        bool found_match = false;
-        
-        if (ignore_case) {
-            // Convert string once
-            std::string str_lower;
-            str_lower.reserve(str_len);
-            for (int j = 0; j < str_len; j++) {
-                char c = str_ptr[j];
-                str_lower += (c >= 'A' && c <= 'Z') ? (c + 32) : c;
-            }
-            
-            // Search patterns
-            for (size_t p = 0; p < pattern_data.size(); p++) {
-                const std::pair<std::string, int>& pattern_pair = pattern_data[p];
-                if (pattern_pair.second > str_len) break;
-                if (str_lower.find(pattern_pair.first) != std::string::npos) {
-                    found_match = true;
-                    break;
-                }
-            }
-        } else {
-            // Case-sensitive: use fast C-style search
-            for (size_t p = 0; p < pattern_data.size(); p++) {
-                const std::pair<std::string, int>& pattern_pair = pattern_data[p];
-                if (pattern_pair.second > str_len) break;
-                if (strstr(str_ptr, pattern_pair.first.c_str()) != nullptr) {
-                    found_match = true;
-                    break;
-                }
-            }
-        }
-        
-        result[i] = found_match;
-    }
-    
-    return result;
 }
 
 //' Multi-Column Group ID Assignment

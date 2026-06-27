@@ -1,0 +1,306 @@
+---
+title: "Examples"
+subtitle: "Every function, demonstrated"
+---
+
+```{r}
+#| label: setup
+#| message: false
+library(graphfast)
+library(data.table)
+set.seed(1)
+```
+
+This page walks through every exported function with small, self-contained
+examples. The chunks are live — the output you see is produced when the site is
+rendered.
+
+A graph in `graphfast` is just a **two-column edge list**: a matrix or
+`data.table` where each row is an edge `from -> to`. We'll reuse this little
+graph with three components throughout:
+
+```{r}
+#| label: demo-graph
+edges <- matrix(c(
+  1, 2,
+  2, 3,
+  3, 4,   # component A: {1,2,3,4}
+  5, 6,   # component B: {5,6}
+  7, 8,
+  8, 9    # component C: {7,8,9}
+), ncol = 2, byrow = TRUE)
+edges
+```
+
+# Connected components
+
+## `find_connected_components()`
+
+The workhorse. Returns one component id **per node**, the size of each component,
+and the total count.
+
+```{r}
+cc <- find_connected_components(edges)
+cc$n_components
+cc$component_sizes
+cc$components          # component id for node 1, 2, 3, ...
+```
+
+Node 5 and node 6 share component 2; node 1 is in component 1:
+
+```{r}
+cc$components[c(1, 5, 6)]
+```
+
+`compress = FALSE` keeps the raw Union–Find root labels instead of tidy
+consecutive ids (the counts are still correct):
+
+```{r}
+raw <- find_connected_components(edges, compress = FALSE)
+raw$n_components
+head(raw$components)
+```
+
+You can pass `n_nodes` explicitly to skip the scan for the maximum id (handy when
+you already know it, or to include isolated nodes with no edges):
+
+```{r}
+find_connected_components(edges, n_nodes = 12)$n_components   # nodes 10,11,12 are singletons
+```
+
+## `find_connected_components_safe()`
+
+When node ids are **sparse or large**, a dense `parent` array up to the maximum
+id would waste memory. This version remaps ids to `1..(unique nodes)` with
+`fastmatch`, runs the algorithm, then maps the answer back. The returned
+`components` vector is **named by the original ids**.
+
+```{r}
+sparse_edges <- matrix(c(
+  1000, 2000,
+  2000, 3000,
+  9000, 9001
+), ncol = 2, byrow = TRUE)
+
+res <- find_connected_components_safe(sparse_edges, verbose = FALSE)
+res$n_components
+res$components            # names are the original node ids
+res$memory_info$memory_saved_gb
+```
+
+## `find_connected_components_large()`
+
+Handles ids **beyond the 32-bit integer limit** (≈ 2.1e9) by keeping them as
+doubles until after remapping. Set `verbose = TRUE` to see what it decided.
+
+```{r}
+big_edges <- matrix(c(
+  1e10, 2e10,
+  2e10, 3e10,
+  7e10, 8e10
+), ncol = 2, byrow = TRUE)
+
+big <- find_connected_components_large(big_edges, verbose = FALSE)
+big$n_components
+big$components
+```
+
+# Per-edge components
+
+Often you don't want a node-indexed vector — you want a component id attached to
+each **edge / row** of your data.
+
+## `get_edge_components()`
+
+```{r}
+ec <- get_edge_components(edges)
+ec$from_components       # component of each edge's 'from' node
+ec$to_components         # ... and its 'to' node (always equal for a real edge)
+ec$n_components
+```
+
+`return_type = "combined"` returns just the `from_components` vector (same length
+as the number of edges):
+
+```{r}
+get_edge_components(edges, return_type = "combined")
+```
+
+## `group_edges()` and `edge_components()`
+
+`group_edges()` is the convenience alias returning one component id per edge row.
+`edge_components()` does the same but takes a `data.table` and column names, so it
+drops straight into a `data.table` expression.
+
+```{r}
+# Matrix in -> vector out
+group_edges(edges)
+```
+
+```{r}
+dt <- data.table(from = c(1, 2, 5), to = c(2, 3, 6))
+dt[, component := edge_components(.SD, "from", "to")]
+dt
+```
+
+## `add_component_column()`
+
+Adds a component column to a `data.table` **by reference** (no copy), mapping node
+ids with `fastmatch` internally. Works with any column names.
+
+```{r}
+dt2 <- data.table(source = c(1, 2, 5, 7), target = c(2, 3, 6, 8), weight = runif(4))
+add_component_column(dt2, from_col = "source", to_col = "target")
+dt2
+```
+
+Use `in_place = FALSE` to leave the original untouched and get a copy back, and
+`verbose = TRUE` for per-step timing on large data:
+
+```{r}
+out <- add_component_column(dt2, from_col = "source", to_col = "target",
+                            component_col = "grp", in_place = FALSE)
+out
+```
+
+# Connectivity and distance
+
+## `are_connected()`
+
+Batched "are these two nodes in the same component?" queries. Builds Union–Find
+once, then answers each pair in near-constant time.
+
+```{r}
+queries <- matrix(c(
+  1, 4,   # same component A
+  1, 5,   # A vs B
+  7, 9    # same component C
+), ncol = 2, byrow = TRUE)
+
+are_connected(edges, queries)
+```
+
+## `shortest_paths()`
+
+Hop-distance (unweighted BFS) for each query pair. `-1` means no path exists.
+
+```{r}
+shortest_paths(edges, queries)     # 1->4 is 3 hops; 1->5 unreachable; 7->9 is 2 hops
+```
+
+`max_distance` stops the search early — anything farther returns `-1`:
+
+```{r}
+shortest_paths(edges, matrix(c(1, 4), ncol = 2), max_distance = 2)   # 1->4 needs 3 hops
+```
+
+## `graph_statistics()`
+
+Degree summary and density in a single pass — no adjacency matrix.
+
+```{r}
+stats <- graph_statistics(edges)
+stats$n_nodes
+stats$n_edges
+stats$density
+stats$degree_stats
+```
+
+# Entity resolution / grouping
+
+These solve "group rows that share a value across any of these columns" as a
+connected-components problem.
+
+## `group_id()`
+
+The general engine. Give it a `data.frame`/`data.table` and the columns to match
+on (regex by default), plus values that should never glue rows together
+(`incomparables`).
+
+```{r}
+customers <- data.frame(
+  id     = 1:6,
+  phone1 = c("123-456-7890", "987-654-3210", "123-456-7890", "",            "555-0123", ""),
+  phone2 = c("",             "987-654-3210", "555-1234",     "123-456-7890","",         "555-0123"),
+  email  = c("a@x.com",      "b@x.com",      "c@x.com",      "a@x.com",     "d@x.com",  "d@x.com"),
+  stringsAsFactors = FALSE
+)
+
+# cols = "phone" matches phone1 + phone2 by regex; "" is incomparable
+group_id(customers, cols = "phone", incomparables = c(""))
+```
+
+Match across all three columns by passing exact names (`use_regex = FALSE`):
+
+```{r}
+group_id(customers, cols = c("phone1", "phone2", "email"),
+         use_regex = FALSE, incomparables = c(""))
+```
+
+`return_details = TRUE` returns a rich object with a `print` method showing which
+shared values created which groups:
+
+```{r}
+res <- group_id(customers, cols = c("phone1", "phone2", "email"),
+                use_regex = FALSE, incomparables = c(""), return_details = TRUE)
+res
+```
+
+Other useful arguments:
+
+```{r}
+# Only keep groups of at least 2 (singletons get id 0)
+group_id(customers, cols = "phone", incomparables = c(""), min_group_size = 2)
+
+# Case-insensitive matching
+group_id(data.frame(a = c("ABC", "abc", "xyz")), case_sensitive = FALSE)
+```
+
+## `add_group_ids()`
+
+The `data.table` wrapper for `group_id()` — adds the group column by reference.
+
+```{r}
+dt_cust <- as.data.table(customers)
+add_group_ids(dt_cust, cols = c("phone1", "phone2", "email"),
+              group_col = "entity_id", use_regex = FALSE, incomparables = c(""))
+dt_cust
+```
+
+## `set_group_id()`
+
+An alternative grouping engine using the **bipartite edge reduction** (melt →
+edges → components). It requires an `id` column and writes the group id back by
+reference.
+
+```{r}
+dt_sg <- data.table(
+  id     = 1:5,
+  phone1 = c("123", "456", "123", "789", "456"),
+  phone2 = c("111", "222", "333", "111", "222")
+)
+set_group_id(dt_sg, cols = "phone", var_output_name = "gid")
+dt_sg
+```
+
+# Putting it together
+
+A realistic `data.table` flow: take an edge list, attach components, and inspect
+the largest blob — all without ever building a graph object.
+
+```{r}
+g <- data.table(
+  from = sample(1:50, 200, replace = TRUE),
+  to   = sample(1:50, 200, replace = TRUE)
+)
+g <- g[from != to]
+
+g[, component := edge_components(.SD, "from", "to")]
+
+# Size of each component, largest first
+sizes <- g[, .N, by = component][order(-N)]
+head(sizes)
+```
+
+See [Benchmarks](benchmarks.qmd) for how these scale to millions and hundreds of
+millions of edges, and [Reference](reference.qmd) for the full argument lists.

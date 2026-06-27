@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Theory – graphfast</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-cfca05be01d3419732a5879cfde5cf21.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">graphfast</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Overview</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./theory.html" aria-current="page"> 
+<span class="menu-text">Theory</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./examples.html"> 
+<span class="menu-text">Examples</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./benchmarks.html"> 
+<span class="menu-text">Benchmarks</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./reference.html"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/KyleHaynes/graphfast"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text">Source</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#connected-components" id="toc-connected-components" class="nav-link active" data-scroll-target="#connected-components">Connected components</a>
+  <ul class="collapse">
+  <li><a href="#unionfind-disjoint-sets" id="toc-unionfind-disjoint-sets" class="nav-link" data-scroll-target="#unionfind-disjoint-sets">Union–Find (disjoint sets)</a></li>
+  <li><a href="#two-optimisations-that-make-it-fast" id="toc-two-optimisations-that-make-it-fast" class="nav-link" data-scroll-target="#two-optimisations-that-make-it-fast">Two optimisations that make it fast</a></li>
+  <li><a href="#complexity" id="toc-complexity" class="nav-link" data-scroll-target="#complexity">Complexity</a></li>
+  <li><a href="#relabelling-roots" id="toc-relabelling-roots" class="nav-link" data-scroll-target="#relabelling-roots">Relabelling roots</a></li>
+  </ul></li>
+  <li><a href="#shortest-paths" id="toc-shortest-paths" class="nav-link" data-scroll-target="#shortest-paths">Shortest paths</a></li>
+  <li><a href="#graph-statistics" id="toc-graph-statistics" class="nav-link" data-scroll-target="#graph-statistics">Graph statistics</a></li>
+  <li><a href="#entity-resolution-as-a-graph-problem" id="toc-entity-resolution-as-a-graph-problem" class="nav-link" data-scroll-target="#entity-resolution-as-a-graph-problem">Entity resolution as a graph problem</a>
+  <ul class="collapse">
+  <li><a href="#value-keyed-unionfind-group_id" id="toc-value-keyed-unionfind-group_id" class="nav-link" data-scroll-target="#value-keyed-unionfind-group_id">1. Value-keyed Union–Find (<code>group_id()</code>)</a></li>
+  <li><a href="#bipartite-edge-reduction-set_group_id" id="toc-bipartite-edge-reduction-set_group_id" class="nav-link" data-scroll-target="#bipartite-edge-reduction-set_group_id">2. Bipartite edge reduction (<code>set_group_id()</code>)</a></li>
+  </ul></li>
+  <li><a href="#why-node-id-remapping-matters" id="toc-why-node-id-remapping-matters" class="nav-link" data-scroll-target="#why-node-id-remapping-matters">Why node-ID remapping matters</a></li>
+  <li><a href="#why-c-rcpp" id="toc-why-c-rcpp" class="nav-link" data-scroll-target="#why-c-rcpp">Why C++ / Rcpp</a></li>
+  <li><a href="#design-principles-summarised" id="toc-design-principles-summarised" class="nav-link" data-scroll-target="#design-principles-summarised">Design principles, summarised</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Theory</h1>
+<p class="subtitle lead">The data structures and algorithms behind graphfast</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Almost everything <code>graphfast</code> does reduces to one question: <em>which things are transitively connected?</em> That question is answered by a <strong>disjoint-set (Union–Find)</strong> structure, so it is worth understanding it well — the rest of the package is engineering around it.</p>
+<section id="connected-components" class="level2">
+<h2 class="anchored" data-anchor-id="connected-components">Connected components</h2>
+<p>A graph is a set of nodes joined by edges. A <strong>connected component</strong> is a maximal set of nodes such that there is a path between any two of them. Computing components is the canonical “group the related things” operation:</p>
+<ul>
+<li>In a social graph, components are isolated friend circles.</li>
+<li>In record linkage, a component is one real-world entity assembled from many rows that share phone numbers, emails, etc.</li>
+<li>In infrastructure, a component is a sub-network that can still reach itself after some links are removed.</li>
+</ul>
+<section id="unionfind-disjoint-sets" class="level3">
+<h3 class="anchored" data-anchor-id="unionfind-disjoint-sets">Union–Find (disjoint sets)</h3>
+<p>Union–Find maintains a forest where each tree is one component. Every node has a <code>parent</code>; following parents leads to a <strong>root</strong> that names the component. Two operations:</p>
+<ul>
+<li><code>find(x)</code> — return the root of <code>x</code>’s tree.</li>
+<li><code>union(x, y)</code> — merge the trees containing <code>x</code> and <code>y</code>.</li>
+</ul>
+<p>Building components is then trivial: start with every node as its own root, then <code>union</code> the endpoints of every edge. Afterwards, two nodes are in the same component <strong>iff</strong> they share a root.</p>
+<pre class="text"><code>edges: 1-2, 2-3, 5-6
+
+  1        becomes      3
+  |                    / \
+  2          -&gt;       2   1        (one tree = {1,2,3})
+  |
+  3                    6
+                       |
+  5 - 6                5            (another tree = {5,6})</code></pre>
+</section>
+<section id="two-optimisations-that-make-it-fast" class="level3">
+<h3 class="anchored" data-anchor-id="two-optimisations-that-make-it-fast">Two optimisations that make it fast</h3>
+<p>A naive forest can degrade to a linked list (O(n) per <code>find</code>). Two classic tricks keep it almost flat:</p>
+<ol type="1">
+<li><p><strong>Union by rank</strong> — when merging, hang the shorter tree under the taller one, so trees stay shallow. <code>graphfast</code> tracks a <code>rank</code> per root for this.</p></li>
+<li><p><strong>Path compression / halving</strong> — while walking up to the root, point nodes closer to the root so future walks are shorter. <code>graphfast</code> uses <em>path halving</em> (<code>parent[x] = parent[parent[x]]</code>) inside an <strong>iterative</strong> <code>find</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode cpp code-with-copy"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> find<span class="op">(</span><span class="dt">int</span> x<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span>parent<span class="op">[</span>x<span class="op">]</span> <span class="op">!=</span> x<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        parent<span class="op">[</span>x<span class="op">]</span> <span class="op">=</span> parent<span class="op">[</span>parent<span class="op">[</span>x<span class="op">]];</span>  <span class="co">// halve the path</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> parent<span class="op">[</span>x<span class="op">];</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x<span class="op">;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Iterative (rather than recursive) matters at scale: a recursive <code>find</code> on a graph with a long chain can overflow the C call stack on hundreds of millions of nodes. Path halving gives the same asymptotics as full compression while touching each node at most once per call.</p></li>
+</ol>
+</section>
+<section id="complexity" class="level3">
+<h3 class="anchored" data-anchor-id="complexity">Complexity</h3>
+<p>With both optimisations, a sequence of <em>m</em> operations over <em>n</em> elements runs in</p>
+<p><span class="math display">\[
+O\!\big(m \cdot \alpha(n)\big)
+\]</span></p>
+<p>where <span class="math inline">\(\alpha\)</span> is the <strong>inverse Ackermann function</strong>. <span class="math inline">\(\alpha(n) \le 4\)</span> for any <span class="math inline">\(n\)</span> that fits in this universe, so component construction is <em>effectively linear</em> in the number of edges. Memory is <span class="math inline">\(O(n)\)</span>: two integer arrays (<code>parent</code>, <code>rank</code>) of length <em>n_nodes</em>.</p>
+</section>
+<section id="relabelling-roots" class="level3">
+<h3 class="anchored" data-anchor-id="relabelling-roots">Relabelling roots</h3>
+<p>Roots are arbitrary integers in <code>[0, n_nodes)</code>. To return tidy, consecutive component ids <code>1..k</code>, <code>graphfast</code> makes a single pass assigning each new root the next id. Because roots live in a known bounded range, this uses a flat <code>vector&lt;int&gt;</code> of size <em>n_nodes</em> (an <strong>O(n)</strong> lookup) rather than a hash map or a balanced tree (<code>std::map</code>, O(n log n) plus per-node allocations). This is the kind of constant-factor decision that dominates wall-clock time once you are in the tens-of-millions regime.</p>
+</section>
+</section>
+<section id="shortest-paths" class="level2">
+<h2 class="anchored" data-anchor-id="shortest-paths">Shortest paths</h2>
+<p>For unweighted graphs the shortest path (in <strong>hops</strong>) between two nodes is found by <strong>breadth-first search (BFS)</strong>. From the source, explore all neighbours at distance 1, then distance 2, and so on; the first time you reach the target you have the shortest distance. BFS is O(<em>n</em> + <em>m</em>) per query.</p>
+<p><code>graphfast</code> is optimised for <strong>many queries against one graph</strong>:</p>
+<ul>
+<li>The adjacency list is built once, with each node’s neighbour vector pre-reserved to its exact degree (counted in a first pass), avoiding repeated reallocations.</li>
+<li>A single distance buffer is reused across all queries. Instead of re-zeroing an <em>n_nodes</em>-length array per query (which alone is O(n_nodes) per query and dominates when queries are short), nodes carry a <strong>visited “version” stamp</strong>; bumping the version invalidates the previous query’s marks in O(1).</li>
+<li>An optional <code>max_distance</code> lets BFS terminate early once the frontier exceeds the depth you care about.</li>
+</ul>
+<p>Unreachable pairs return <code>-1</code>. The algorithm stores no full distance matrix, so memory stays at O(<em>n</em> + <em>m</em>).</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Components first, paths second
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If you only need to know <em>whether</em> two nodes are connected (not how far apart), use <code>are_connected()</code> — it builds Union–Find once and answers each query in near-constant time, far cheaper than a BFS per pair.</p>
+</div>
+</div>
+</section>
+<section id="graph-statistics" class="level2">
+<h2 class="anchored" data-anchor-id="graph-statistics">Graph statistics</h2>
+<p><code>graph_statistics()</code> computes degree per node in a single O(<em>m</em>) pass over the edges, then derives min/mean/max degree and density. Density for an undirected simple graph is</p>
+<p><span class="math display">\[
+\text{density} = \frac{m}{\binom{n}{2}} = \frac{2m}{n(n-1)}.
+\]</span></p>
+<p>No adjacency matrix is materialised, so this is safe on graphs where an <span class="math inline">\(n \times n\)</span> matrix would be impossible.</p>
+</section>
+<section id="entity-resolution-as-a-graph-problem" class="level2">
+<h2 class="anchored" data-anchor-id="entity-resolution-as-a-graph-problem">Entity resolution as a graph problem</h2>
+<p>“Group all records that share a phone number, or an email, or any value across these columns” <em>is</em> a connected-components problem in disguise. Two equivalent reductions are used:</p>
+<section id="value-keyed-unionfind-group_id" class="level3">
+<h3 class="anchored" data-anchor-id="value-keyed-unionfind-group_id">1. Value-keyed Union–Find (<code>group_id()</code>)</h3>
+<p>Treat each <strong>row</strong> as a node. For every column value, collect the rows that carry it; <code>union</code> those rows together. Rows end up in the same component exactly when a chain of shared values links them. Incomparable values (<code>""</code>, <code>"NA"</code>, <code>"Unknown"</code>, …) are skipped so they never glue unrelated rows. This runs in <span class="math inline">\(O(N \cdot \alpha(N))\)</span> over the <em>N</em> total cell values and is the default engine, with a specialised numeric-only fast path.</p>
+</section>
+<section id="bipartite-edge-reduction-set_group_id" class="level3">
+<h3 class="anchored" data-anchor-id="bipartite-edge-reduction-set_group_id">2. Bipartite edge reduction (<code>set_group_id()</code>)</h3>
+<p>Build a bipartite graph with two kinds of node — <strong>row ids</strong> and <strong>values</strong> — and an edge for every (row, value) pair. The connected components of this graph are the entity groups. This phrasing lets the same component machinery (<code>edge_components()</code>) and <code>data.table::melt()</code> do the work, which can be the faster route when columns are very wide.</p>
+<p>Both are the same idea: <em>shared value ⇒ edge ⇒ same component.</em></p>
+</section>
+</section>
+<section id="why-node-id-remapping-matters" class="level2">
+<h2 class="anchored" data-anchor-id="why-node-id-remapping-matters">Why node-ID remapping matters</h2>
+<p>The core C++ routines index a <code>parent</code> array directly by node id, so they want a <strong>dense</strong> id space <code>1..n_nodes</code>. If your ids are sparse or huge (e.g.&nbsp;account numbers up to <span class="math inline">\(10^{12}\)</span>), allocating an array up to the maximum id is wasteful or impossible.</p>
+<ul>
+<li><code>find_connected_components()</code> assumes a reasonably dense space and <em>warns/stops</em> if the implied allocation is large.</li>
+<li><code>find_connected_components_safe()</code> and <code>add_component_column()</code> <strong>remap</strong> the observed ids to <code>1..(unique nodes)</code> first, using <code>fastmatch::fmatch()</code>. <code>fmatch</code> builds a hash once and reuses it, so mapping millions of ids is fast and light — far better than coercing every id <code>as.character()</code> and doing named-vector lookups.</li>
+<li><code>find_connected_components_large()</code> extends this to ids beyond the 32-bit integer range by keeping them as doubles until after remapping.</li>
+</ul>
+</section>
+<section id="why-c-rcpp" class="level2">
+<h2 class="anchored" data-anchor-id="why-c-rcpp">Why C++ / Rcpp</h2>
+<p>The hot loops — one pass per edge for <code>union</code>, one pass per node for relabelling, BFS frontier expansion — are tight integer work. In interpreted R each iteration carries per-element overhead; in compiled C++ they are a few machine instructions over contiguous memory. Rcpp lets the package keep R’s ergonomic interface (matrices, <code>data.table</code>, named lists) while the inner loops run at native speed, and <code>.registration = TRUE</code> exposes the compiled routines safely.</p>
+</section>
+<section id="design-principles-summarised" class="level2">
+<h2 class="anchored" data-anchor-id="design-principles-summarised">Design principles, summarised</h2>
+<ul>
+<li><strong>One idea, done well.</strong> Union–Find + BFS cover components, connectivity, grouping, and distance.</li>
+<li><strong>No heavyweight graph object.</strong> Consume edge lists; return plain vectors.</li>
+<li><strong>Keep the R glue cheap.</strong> <code>data.table</code> for I/O by reference, <code>fastmatch</code> for id mapping, minimal copying.</li>
+<li><strong>Mind the constant factors.</strong> Flat arrays over maps, iterative over recursive, reuse buffers, reserve capacity. At 100M edges, constants <em>are</em> the runtime.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

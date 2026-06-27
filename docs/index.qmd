@@ -1,0 +1,126 @@
+---
+title: "graphfast"
+subtitle: "Fast graph connectivity analysis and entity resolution in R, powered by C++"
+---
+
+```{r}
+#| include: false
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+## What is graphfast?
+
+`graphfast` is a small, focused R package for the operations that dominate
+real-world graph work on **large** data:
+
+- **Connected components** — which nodes/edges belong to the same blob?
+- **Connectivity queries** — are these two nodes reachable from each other?
+- **Shortest paths** — how many hops between these node pairs?
+- **Graph statistics** — degree distribution, density, counts.
+- **Entity resolution** — group records that share *any* value across *any*
+  of several columns (deduplication / record linkage), solved as a graph
+  problem.
+
+It is built on a single, well-understood idea — the **Union–Find** (disjoint-set)
+data structure — implemented in C++ via [Rcpp](https://www.rcpp.org/) and wired
+to [data.table](https://r-datatable.com/) and
+[fastmatch](https://cran.r-project.org/package=fastmatch) so the R-side glue is
+never the bottleneck.
+
+::: {.callout-note}
+## Scope: graphs, not everything
+For comprehensive graph analysis — centrality, community detection, layouts,
+isomorphism, flows — use [igraph](https://igraph.org/r/), which is mature and
+feature-complete. `graphfast` deliberately trades breadth for **speed and memory
+efficiency** on a handful of high-volume operations. If you have hundreds of
+millions of edges and only need components / connectivity / hop-distance /
+grouping, this package is built for exactly that.
+:::
+
+## Why it exists
+
+The standard pattern in R is "build an `igraph` object, then ask a question of
+it". For very large edge lists that construction step — and the vertex
+bookkeeping around it — can dominate runtime and memory. `graphfast` skips the
+heavyweight graph object: it consumes a **two-column edge list** (matrix or
+`data.table`) directly and returns plain integer vectors, so it composes
+naturally with a `data.table` pipeline:
+
+```r
+library(graphfast)
+library(data.table)
+
+dt <- data.table(from = c(1, 2, 5), to = c(2, 3, 6))
+
+# Component id per edge, added by reference — no graph object, no copy
+dt[, component := edge_components(.SD, "from", "to")]
+```
+
+## Installation
+
+```r
+# Development version from GitHub
+# install.packages("remotes")
+remotes::install_github("KyleHaynes/graphfast")
+```
+
+`graphfast` compiles C++ (Rcpp / C++11), so you need a working toolchain
+(Rtools on Windows, Xcode CLT on macOS, `r-base-dev` on Linux).
+
+## A 60-second tour
+
+```{r}
+#| eval: false
+library(graphfast)
+
+edges <- matrix(c(
+  1, 2,
+  2, 3,
+  3, 4,   # component A: {1,2,3,4}
+  5, 6,   # component B: {5,6}
+  7, 8,
+  8, 9    # component C: {7,8,9}
+), ncol = 2, byrow = TRUE)
+
+# 1. Connected components
+cc <- find_connected_components(edges)
+cc$n_components       #> 3
+cc$component_sizes    #> 4 2 3
+
+# 2. Are these pairs connected?
+are_connected(edges, matrix(c(1, 4, 1, 5, 7, 9), ncol = 2, byrow = TRUE))
+#> TRUE FALSE TRUE
+
+# 3. Shortest path (hops); -1 means unreachable
+shortest_paths(edges, matrix(c(1, 4, 1, 5), ncol = 2, byrow = TRUE))
+#> 3 -1
+
+# 4. Graph statistics
+graph_statistics(edges)$density
+```
+
+## How the manual is organised
+
+| Page | What you'll find |
+|------|------------------|
+| [Theory](theory.qmd) | The data structures and algorithms, complexity, and the design choices behind the speed. |
+| [Examples](examples.qmd) | Every exported function demonstrated with small, runnable snippets. |
+| [Benchmarks](benchmarks.qmd) | Comparison against `igraph` / `network` / `sna` at 1M, 10M, and 100M edges. |
+| [Reference](reference.qmd) | Compact API documentation — signatures, arguments, return values. |
+
+## At a glance
+
+| Function | Purpose |
+|----------|---------|
+| `find_connected_components()` | All components for a dense, small-integer node space. |
+| `find_connected_components_safe()` | Same, with automatic node-ID remapping for sparse/large IDs. |
+| `find_connected_components_large()` | Same, supporting IDs beyond 32-bit integers. |
+| `get_edge_components()` | Component id for each *edge* (from/to). |
+| `group_edges()` / `edge_components()` | One component id per edge row — ideal for `data.table`. |
+| `add_component_column()` | Add a component column to a `data.table` by reference. |
+| `are_connected()` | Batched pairwise connectivity queries. |
+| `shortest_paths()` | Batched BFS hop-distances between node pairs. |
+| `graph_statistics()` | Edges, nodes, density, degree summary. |
+| `group_id()` / `add_group_ids()` / `set_group_id()` | Multi-column entity resolution via Union–Find. |
+
+License: MIT. Source on [GitHub](https://github.com/KyleHaynes/graphfast).

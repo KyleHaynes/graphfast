@@ -66,14 +66,14 @@ find_connected_components_safe <- function(edges, compress = TRUE, verbose = TRU
     original = unique_nodes,
     mapped = 1:n_unique_nodes
   )
-  
-  # Create fast lookup
-  lookup <- setNames(node_mapping$mapped, as.character(node_mapping$original))
-  
-  # Remap edges to consecutive integers
+
+  # Remap edges to consecutive integers using fastmatch. fmatch() works
+  # directly on the numeric node IDs, avoiding the slow, memory-heavy
+  # as.character() + named-vector lookup that the previous version used
+  # (that approach materialised a character key for every node and edge).
   edges_remapped <- matrix(0L, nrow = nrow(edges), ncol = 2)
-  edges_remapped[, 1] <- lookup[as.character(edges[, 1])]
-  edges_remapped[, 2] <- lookup[as.character(edges[, 2])]
+  edges_remapped[, 1] <- fmatch(edges[, 1], unique_nodes)
+  edges_remapped[, 2] <- fmatch(edges[, 2], unique_nodes)
   
   if (verbose) {
     cat("Calling C++ with", n_unique_nodes, "nodes instead of", max_node_id, "\n")

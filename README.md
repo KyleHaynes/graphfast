@@ -24,11 +24,6 @@ A high-performance R package for analyzing large-scale graphs with hundreds of m
 - **Memory efficient**: Uses Union-Find algorithm for optimal performance
 - **Data.table integration**: Seamless workflow with data.table
 
-### String Matching
-- **Multi-pattern matching**: Fast C++ implementation of fixed string search
-- **Convenience operators**: `%fgrepl%` and `%fgrepli%` for easy pattern matching
-- **Performance optimized**: Significantly faster than base R grepl() for multiple fixed patterns
-
 ## Installation
 
 ```r
@@ -97,23 +92,10 @@ result <- group_id(customers,
 print(result)
 ```
 
-### Fast String Matching
+### Graph Statistics
 
 ```r
-# Multi-pattern string matching
-text <- c("hello world", "goodbye", "hello there", "world peace")
-patterns <- c("hello", "world")
-
-# Check if any pattern matches (fast C++ implementation)
-matches <- text %fgrepl% patterns
-print(matches)  # TRUE FALSE TRUE TRUE
-
-# Case-insensitive matching
-matches_ci <- text %fgrepli% patterns
-print(matches_ci)
-````
-
-# Get graph statistics
+# Get memory-efficient graph statistics
 stats <- graph_statistics(edges)
 print(stats$density)
 print(stats$degree_stats)
@@ -205,24 +187,6 @@ head(edges_dt)
 # 4: 124022 544743         1
 # 5: 685285 416069         4
 # 6: 226318 949112         2
-```
-
-## String Matching
-
-```r
-library(graphfast)
-
-# Fast multi-pattern string matching
-strings <- c("error.log", "data.csv", "temp.log", "config.xml")
-patterns <- c("log", "temp")
-
-# Check if any pattern matches each string
-multi_grepl(strings, patterns)
-# Returns: TRUE FALSE TRUE FALSE
-
-# Filter strings containing any pattern
-filter_strings(strings, patterns)
-# Returns: "error.log" "temp.log"
 ```
 
 ## Performance Example
