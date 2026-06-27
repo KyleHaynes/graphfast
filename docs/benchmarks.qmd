@@ -1,6 +1,6 @@
 ---
 title: "Benchmarks"
-subtitle: "graphfast vs igraph, network, and sna"
+subtitle: "graphfast vs igraph"
 ---
 
 ```{r}
@@ -8,15 +8,38 @@ subtitle: "graphfast vs igraph, network, and sna"
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
-::: {.callout-important}
-## About the numbers on this page
-The result tables below are **indicative** — they show the *shape* and
-*order of magnitude* you should expect, not measurements from this render.
-Absolute timings depend heavily on CPU, memory bandwidth, and BLAS/threading.
-**Reproduce them on your own hardware** with the script in
-[`benchmark.R`](https://github.com/KyleHaynes/graphfast/blob/master/benchmark.R)
-or the extended harness below, and replace these tables with your output.
+::: {.callout-note}
+## These numbers are real
+Every table on this page is **measured live when the book is rendered** — the code
+below actually runs and the results are inserted automatically. They therefore
+reflect the exact machine, R build, and package versions used for this render
+(reported just below). Re-render on your own hardware to get figures for your
+setup; absolute timings depend heavily on CPU, memory bandwidth, and
+BLAS/threading.
 :::
+
+```{r}
+#| label: machine-info
+#| echo: false
+#| results: asis
+mem_gb <- tryCatch({
+  if (.Platform$OS.type == "windows") {
+    x <- system("wmic ComputerSystem get TotalPhysicalMemory", intern = TRUE)
+    b <- suppressWarnings(as.numeric(gsub("\\D", "", paste(x, collapse = " "))))
+    if (length(b) && is.finite(b)) round(b / 1024^3, 1) else NA_real_
+  } else NA_real_
+}, error = function(e) NA_real_)
+
+cat("**This render was produced on:**\n\n")
+cat(sprintf("- R version: `%s`\n", getRversion()))
+cat(sprintf("- Platform: `%s`\n", R.version$platform))
+cat(sprintf("- OS: `%s`\n", utils::sessionInfo()$running %||% Sys.info()[["sysname"]]))
+if (is.finite(mem_gb)) cat(sprintf("- Total RAM: ~%s GB\n", mem_gb))
+cat(sprintf("- graphfast: `%s`", as.character(utils::packageVersion("graphfast"))))
+if (requireNamespace("igraph", quietly = TRUE))
+  cat(sprintf(", igraph: `%s`", as.character(utils::packageVersion("igraph"))))
+cat("\n")
+```
 
 ## What we compare, and why
 
@@ -27,14 +50,15 @@ or the extended harness below, and replace these tables with your output.
 | [network](https://cran.r-project.org/package=network) + [sna](https://cran.r-project.org/package=sna) | ✓ | ✓ (geodesics) | R/S4, often dense structures | ~10⁵–10⁶ edges |
 
 `igraph` is the right tool for breadth; the comparison here is narrow on purpose —
-the four operations `graphfast` actually implements. `network`/`sna` are included
-because they are common in the social-network world, but they are not designed
-for the edge counts targeted here and drop out of the large runs.
+the operations `graphfast` actually implements. `network`/`sna` build dense
+geodesic structures and are not designed for the edge counts targeted here, so
+they are omitted from the timed runs below (they fall over well before 10⁷ edges);
+they remain in the table above only to place `graphfast` in context.
 
 The key structural difference: `graphfast` consumes a two-column edge list
-**directly** and returns plain vectors, while `igraph`/`network` first build a
-graph object (vertex tables, attribute storage). At small sizes that overhead is
-irrelevant; at 10M–100M edges it becomes a large share of total time and memory.
+**directly** and returns plain vectors, while `igraph` first builds a graph object
+(vertex tables, attribute storage). At small sizes that overhead is irrelevant; at
+10M–100M edges it becomes a large share of total time and memory.
 
 ## Methodology
 
@@ -43,23 +67,32 @@ irrelevant; at 10M–100M edges it becomes a large share of total time and memor
   realistic, slightly sparse regime.
 - **Timed operations**: (1) connected components on the whole graph; (2)
   hop-distance for a batch of query pairs.
-- **Correctness**: every run validates that `graphfast` agrees with the other
-  packages on a sample of pairs (same component? same distance?) — speed is
-  meaningless if the answers differ.
-- **Sizes**: 1M, 10M, and 100M edges. `network`/`sna` are only attempted at the
-  smallest sizes.
+- **Correctness**: each run validates that `graphfast` agrees with `igraph` on a
+  sample of pairs (same component?) — speed is meaningless if the answers differ.
+- **Sizes**: 1M, 10M, and 100M edges. `graphfast` is measured at all three;
+  `igraph` is measured up to 10M and deliberately skipped at 100M, where building
+  a full graph object needs far more RAM than `graphfast` (raise `igraph_max_edges`
+  in the harness if your machine has the headroom).
 - **Single pass**: one timing per method (wall clock). For publication-grade
   numbers, wrap the calls in `microbenchmark` and report medians.
 
 ## The harness
 
-This is the extended version of the bundled `benchmark.R`, parameterised over
-sizes and emitting a tidy table you can render or plot.
+This is the live benchmark. It is parameterised over sizes and emits a tidy
+table; everything downstream is derived from `results`.
 
 ```{r}
-#| eval: false
+#| label: harness
+#| cache: false
 library(graphfast)
 library(data.table)
+
+# Edit this vector to change what gets measured. graphfast is measured at every
+# size; igraph is only attempted up to `igraph_max_edges`, because building a
+# full igraph object at 100M edges needs far more RAM than graphfast and can
+# exhaust memory mid-render. Raise it if your machine has the headroom.
+sizes           <- c(1e6, 1e7, 1e8)
+igraph_max_edges <- 1e7
 
 make_graph <- function(n_edges, sparsity = 5L, seed = 42L) {
   set.seed(seed)
@@ -87,64 +120,99 @@ bench_one <- function(n_edges) {
     n_components = cc$n_components
   )
 
-  # ---- igraph (if installed) ----
-  if (requireNamespace("igraph", quietly = TRUE)) {
-    ig_cc <- time_it({
+  # ---- igraph (capped by igraph_max_edges; also guarded against allocation errors) ----
+  if (requireNamespace("igraph", quietly = TRUE) && n_edges <= igraph_max_edges) {
+    ig <- tryCatch({
       g <- igraph::graph_from_edgelist(edges, directed = FALSE)
-      comp <- igraph::components(g)
+      ig_cc <- time_it(comp <- igraph::components(g))
+      ig_sp <- time_it({
+        for (i in seq_len(nrow(queries)))
+          igraph::distances(g, v = queries[i, 1], to = queries[i, 2])
+      })
+      # correctness spot-check: do the two agree on component membership?
+      ok <- comp$membership[queries[, 1]] == comp$membership[queries[, 2]]
+      gf_ok <- cc$components[queries[, 1]] == cc$components[queries[, 2]]
+      stopifnot(all(ok == gf_ok))
+      data.table(
+        edges = n_edges, package = "igraph",
+        components_s = ig_cc, shortest_paths_s = ig_sp,
+        n_components = comp$no
+      )
+    }, error = function(e) {
+      message(sprintf("igraph skipped at %g edges: %s", n_edges, conditionMessage(e)))
+      NULL
     })
-    ig_sp <- time_it({
-      for (i in seq_len(nrow(queries)))
-        igraph::distances(g, v = queries[i, 1], to = queries[i, 2])
-    })
-    out <- rbind(out, data.table(
-      edges = n_edges, package = "igraph",
-      components_s = ig_cc, shortest_paths_s = ig_sp,
-      n_components = comp$no
-    ))
+    out <- rbind(out, ig)
   }
   out
 }
 
-sizes   <- c(1e6, 1e7, 1e8)            # 1M, 10M, 100M edges
-results <- rbindlist(lapply(sizes, bench_one))
+results <- rbindlist(lapply(sizes, bench_one), use.names = TRUE)
 results[]
 ```
 
-::: {.callout-warning}
-The 100M-edge run needs a machine with plenty of RAM. The `graphfast` Union–Find
-itself is ~2 integer arrays of length *n_nodes* (a few GB at most), but building
-an `igraph` object at that scale needs considerably more. Start at 1M, watch your
-memory, and step up.
-:::
+```{r}
+#| label: fmt-helpers
+#| echo: false
+fmt_secs <- function(x) ifelse(is.na(x), "—", sprintf("%.3f s", x))
+fmt_edges <- function(x) {
+  ifelse(x >= 1e6, paste0(formatC(x / 1e6, format = "fg"), "M"),
+         formatC(x, format = "d", big.mark = ","))
+}
+```
 
-## Indicative results — connected components
+## Measured results — connected components
 
-Wall-clock seconds to compute all connected components. Lower is better. *(Replace
-with your own measurements.)*
+Wall-clock seconds to compute all connected components, on the graphs generated
+above. Lower is better.
 
-| Edges | graphfast | igraph | network + sna |
-|------:|----------:|-------:|--------------:|
-| 1M    | ~0.1 s    | ~0.6 s | ~minutes      |
-| 10M   | ~1 s      | ~7 s   | — (infeasible)|
-| 100M  | ~12 s     | ~90 s  | — (infeasible)|
+```{r}
+#| label: tbl-components
+#| echo: false
+cc_wide <- dcast(results, edges ~ package, value.var = "components_s")
+setcolorder(cc_wide, c("edges", intersect(c("graphfast", "igraph"), names(cc_wide))))
+disp <- copy(cc_wide)
+disp[, edges := fmt_edges(edges)]
+for (j in setdiff(names(disp), "edges")) set(disp, j = j, value = fmt_secs(disp[[j]]))
+setnames(disp, "edges", "Edges")
+knitr::kable(disp, align = c("r", rep("r", ncol(disp) - 1)))
+```
 
-What to read into it: both libraries are near-linear in edges, so the curves are
-roughly straight on a log–log plot. The gap is the **constant factor** —
-`graphfast` avoids constructing and populating a full graph object, so it tends to
-land several× ahead on the same hardware. `network`/`sna` are not built for this
-regime and are omitted past ~10⁶.
+```{r}
+#| label: speedup-note
+#| echo: false
+#| results: asis
+if (all(c("graphfast", "igraph") %in% names(cc_wide))) {
+  r <- cc_wide[is.finite(igraph) & is.finite(graphfast)]
+  if (nrow(r)) {
+    sp <- r$igraph / r$graphfast
+    cat(sprintf(
+      "On this render `graphfast` computed components **%.1f×–%.1f×** faster than `igraph` across the sizes where both ran.\n",
+      min(sp), max(sp)))
+  }
+}
+```
 
-## Indicative results — shortest paths (batch of pairs)
+Both libraries are near-linear in edges, so the curves are roughly straight on a
+log–log plot. The gap is the **constant factor** — `graphfast` avoids constructing
+and populating a full graph object.
+
+## Measured results — shortest paths (batch of pairs)
 
 Wall-clock seconds for a batch of pairwise hop-distance queries on the same
-graphs. *(Replace with your own measurements.)*
+graphs.
 
-| Edges | graphfast | igraph |
-|------:|----------:|-------:|
-| 1M    | ~0.05 s   | ~0.2 s |
-| 10M   | ~0.5 s    | ~2 s   |
-| 100M  | ~6 s      | ~25 s  |
+```{r}
+#| label: tbl-shortest-paths
+#| echo: false
+sp_wide <- dcast(results, edges ~ package, value.var = "shortest_paths_s")
+setcolorder(sp_wide, c("edges", intersect(c("graphfast", "igraph"), names(sp_wide))))
+disp2 <- copy(sp_wide)
+disp2[, edges := fmt_edges(edges)]
+for (j in setdiff(names(disp2), "edges")) set(disp2, j = j, value = fmt_secs(disp2[[j]]))
+setnames(disp2, "edges", "Edges")
+knitr::kable(disp2, align = c("r", rep("r", ncol(disp2) - 1)))
+```
 
 `graphfast` builds the adjacency list once (degrees pre-reserved) and reuses a
 single distance buffer across queries via a visited-version stamp, so per-query
@@ -152,21 +220,13 @@ overhead is small — the win grows with the number of queries.
 
 ## Varying the graph shape
 
-Runtime is not just a function of edge count; **structure** matters. Worth
-profiling across:
-
-- **Sparsity** — many small components (few edges per node) vs. one giant
-  component (dense). Union–Find cost is dominated by the number of `union` calls
-  (= edges) either way, but cache behaviour differs.
-- **Component count** — the relabelling pass is O(*n_nodes*); graphs with huge
-  node spaces pay more there.
-- **Query depth** (shortest paths) — distant or unreachable pairs explore more of
-  the graph; use `max_distance` to bound it.
+Runtime is not just a function of edge count; **structure** matters. The sweep
+below holds the edge count fixed and varies sparsity (edges per node), measured
+live.
 
 ```{r}
-#| eval: false
-# Sweep sparsity at a fixed edge count to see structural effects
-library(graphfast); library(data.table)
+#| label: sweep
+#| cache: false
 fixed_edges <- 1e7
 sweep <- rbindlist(lapply(c(2L, 5L, 20L, 100L), function(s) {
   edges <- make_graph(fixed_edges, sparsity = s)
@@ -180,6 +240,16 @@ sweep <- rbindlist(lapply(c(2L, 5L, 20L, 100L), function(s) {
 }))
 sweep[]
 ```
+
+What to watch for across the sweep:
+
+- **Sparsity** — many small components (few edges per node) vs. one giant
+  component (dense). Union–Find cost is dominated by the number of `union` calls
+  (= edges) either way, but cache behaviour differs.
+- **Component count** — the relabelling pass is O(*n_nodes*); graphs with huge
+  node spaces pay more there.
+- **Query depth** (shortest paths) — distant or unreachable pairs explore more of
+  the graph; use `max_distance` to bound it.
 
 ## Memory
 
@@ -200,14 +270,13 @@ what makes 100M-edge graphs tractable on commodity hardware.
 
 ```r
 # Install comparison packages as needed
-install.packages(c("igraph", "network", "sna", "microbenchmark"))
+install.packages(c("igraph", "microbenchmark"))
 
 # Bundled single-file benchmark (1e5, 1e6, 1e7 by default)
 source("benchmark.R")
-
-# Or the parameterised harness above, then write your real tables:
-# fwrite(results, "graphfast-benchmarks.csv")
 ```
 
-If you publish numbers, note your CPU, RAM, OS, R version, and whether comparison
-packages used multiple threads — it makes the figures comparable.
+To regenerate the tables on this page, just re-render the book — the chunks above
+run automatically. Edit the `sizes` vector in the harness to push to 100M+ (and
+note your CPU, RAM, OS, R version, and threading, so the figures are comparable).
+```

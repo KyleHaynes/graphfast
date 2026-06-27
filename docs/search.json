@@ -1,373 +1,532 @@
 [
   {
-    "objectID": "reference.html",
-    "href": "reference.html",
-    "title": "Reference",
-    "section": "",
-    "text": "Compact reference for every exported function. Conventions:"
-  },
-  {
-    "objectID": "reference.html#find_connected_componentsedges-n_nodes-null-compress-true",
-    "href": "reference.html#find_connected_componentsedges-n_nodes-null-compress-true",
-    "title": "Reference",
-    "section": "find_connected_components(edges, n_nodes = NULL, compress = TRUE)",
-    "text": "find_connected_components(edges, n_nodes = NULL, compress = TRUE)\nAll connected components for a dense, small-integer node space.\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nedges\nTwo-column edge list.\n\n\nn_nodes\nTotal node count. If NULL, inferred as max(edges). Set it to include isolated nodes or to skip the max scan.\n\n\ncompress\nTRUE: tidy ids 1..k. FALSE: raw Union–Find root labels.\n\n\n\nReturns a list: components (component id per node, length n_nodes), component_sizes (size of each component), n_components (count).\nNotes — errors if node ids exceed the 32-bit integer limit or if the implied allocation would exceed 32 GB; warns above ~8 GB. For sparse/huge ids use find_connected_components_safe().\n\ncc &lt;- find_connected_components(matrix(c(1,2, 2,3, 5,6), ncol = 2, byrow = TRUE))\ncc$n_components   # 2"
-  },
-  {
-    "objectID": "reference.html#find_connected_components_safeedges-compress-true-verbose-true",
-    "href": "reference.html#find_connected_components_safeedges-compress-true-verbose-true",
-    "title": "Reference",
-    "section": "find_connected_components_safe(edges, compress = TRUE, verbose = TRUE)",
-    "text": "find_connected_components_safe(edges, compress = TRUE, verbose = TRUE)\nSame result, but remaps node ids to a dense 1..(unique nodes) space with fastmatch first — safe and memory-efficient for sparse or large ids.\n\n\n\nArgument\nDescription\n\n\n\n\nedges\nTwo-column edge list (kept numeric to tolerate large ids).\n\n\ncompress\nAs above.\n\n\nverbose\nPrint a memory analysis. Default TRUE.\n\n\n\nReturns components (named by original node ids), component_sizes, n_components, node_mapping (original ↔︎ mapped), and memory_info (naive_memory_gb, efficient_memory_gb, memory_saved_gb)."
-  },
-  {
-    "objectID": "reference.html#find_connected_components_largeedges-compress-true-verbose-false",
-    "href": "reference.html#find_connected_components_largeedges-compress-true-verbose-false",
-    "title": "Reference",
-    "section": "find_connected_components_large(edges, compress = TRUE, verbose = FALSE)",
-    "text": "find_connected_components_large(edges, compress = TRUE, verbose = FALSE)\nFor node ids beyond the 32-bit integer range. Ids are held as doubles and remapped to consecutive integers internally.\nReturns components (named by original ids), component_sizes, n_components, and (when remapping occurs) node_mapping."
-  },
-  {
-    "objectID": "reference.html#get_edge_componentsedges-n_nodes-null-compress-true-return_type-list",
-    "href": "reference.html#get_edge_componentsedges-n_nodes-null-compress-true-return_type-list",
-    "title": "Reference",
-    "section": "get_edge_components(edges, n_nodes = NULL, compress = TRUE, return_type = \"list\")",
-    "text": "get_edge_components(edges, n_nodes = NULL, compress = TRUE, return_type = \"list\")\nComponent assignment for each edge rather than each node.\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nreturn_type\n\"list\": from_components, to_components, n_components. \"combined\": just the from_components vector.\n\n\n\nFor a genuine edge, from and to are always in the same component, so the combined vector is the natural “component id per row”."
-  },
-  {
-    "objectID": "reference.html#group_edgesedges-n_nodes-null-compress-true",
-    "href": "reference.html#group_edgesedges-n_nodes-null-compress-true",
-    "title": "Reference",
-    "section": "group_edges(edges, n_nodes = NULL, compress = TRUE)",
-    "text": "group_edges(edges, n_nodes = NULL, compress = TRUE)\nConvenience alias returning one component id per edge row (get_edge_components(..., return_type = \"combined\")).\n\ngroup_edges(matrix(c(1,2, 2,3, 5,6), ncol = 2, byrow = TRUE))   # 1 1 2"
-  },
-  {
-    "objectID": "reference.html#edge_componentsdt-from_col-to_col-compress-true",
-    "href": "reference.html#edge_componentsdt-from_col-to_col-compress-true",
-    "title": "Reference",
-    "section": "edge_components(dt, from_col, to_col, compress = TRUE)",
-    "text": "edge_components(dt, from_col, to_col, compress = TRUE)\nSame as group_edges() but takes a data.table/data.frame and column names — designed for inline data.table use.\n\ndt[, component := edge_components(.SD, \"from\", \"to\")]"
-  },
-  {
-    "objectID": "reference.html#add_component_columndt-from_col-from-to_col-to-component_col-component-n_nodes-null-compress-true-in_place-true-verbose-false",
-    "href": "reference.html#add_component_columndt-from_col-from-to_col-to-component_col-component-n_nodes-null-compress-true-in_place-true-verbose-false",
-    "title": "Reference",
-    "section": "add_component_column(dt, from_col = \"from\", to_col = \"to\", component_col = \"component\", n_nodes = NULL, compress = TRUE, in_place = TRUE, verbose = FALSE)",
-    "text": "add_component_column(dt, from_col = \"from\", to_col = \"to\", component_col = \"component\", n_nodes = NULL, compress = TRUE, in_place = TRUE, verbose = FALSE)\nAdd a component column to a data.table. Node ids are mapped with fastmatch.\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nfrom_col, to_col\nEdge endpoint columns.\n\n\ncomponent_col\nName of the new column.\n\n\nin_place\nTRUE: modify dt by reference. FALSE: return a modified copy.\n\n\nverbose\nPrint per-step timing.\n\n\n\nReturns the data.table (invisibly when in_place = TRUE)."
-  },
-  {
-    "objectID": "reference.html#are_connectededges-query_pairs-n_nodes-null",
-    "href": "reference.html#are_connectededges-query_pairs-n_nodes-null",
-    "title": "Reference",
-    "section": "are_connected(edges, query_pairs, n_nodes = NULL)",
-    "text": "are_connected(edges, query_pairs, n_nodes = NULL)\nAre the two nodes in each pair in the same component? Builds Union–Find once.\nReturns a logical vector, one element per query pair.\n\nare_connected(edges, matrix(c(1,3, 1,5), ncol = 2, byrow = TRUE))   # TRUE FALSE"
-  },
-  {
-    "objectID": "reference.html#shortest_pathsedges-query_pairs-n_nodes-null-max_distance--1",
-    "href": "reference.html#shortest_pathsedges-query_pairs-n_nodes-null-max_distance--1",
-    "title": "Reference",
-    "section": "shortest_paths(edges, query_pairs, n_nodes = NULL, max_distance = -1)",
-    "text": "shortest_paths(edges, query_pairs, n_nodes = NULL, max_distance = -1)\nUnweighted shortest hop distance per query pair, via BFS.\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nmax_distance\nStop searching beyond this depth; farther pairs return -1. -1 (default) = no limit.\n\n\n\nReturns an integer vector; 0 for identical source/target, -1 if no path (or beyond max_distance)."
-  },
-  {
-    "objectID": "reference.html#graph_statisticsedges-n_nodes-null",
-    "href": "reference.html#graph_statisticsedges-n_nodes-null",
-    "title": "Reference",
-    "section": "graph_statistics(edges, n_nodes = NULL)",
-    "text": "graph_statistics(edges, n_nodes = NULL)\nSingle-pass degree and density summary; no adjacency matrix.\nReturns n_edges, n_nodes, density, and degree_stats (min, max, mean)."
-  },
-  {
-    "objectID": "reference.html#group_iddata-cols-null-use_regex-true-incomparables-c-na-unknown-case_sensitive-true-min_group_size-1-return_details-false-verbose-false",
-    "href": "reference.html#group_iddata-cols-null-use_regex-true-incomparables-c-na-unknown-case_sensitive-true-min_group_size-1-return_details-false-verbose-false",
-    "title": "Reference",
-    "section": "group_id(data, cols = NULL, use_regex = TRUE, incomparables = c(\"\", \"NA\", \"Unknown\"), case_sensitive = TRUE, min_group_size = 1, return_details = FALSE, verbose = FALSE)",
-    "text": "group_id(data, cols = NULL, use_regex = TRUE, incomparables = c(\"\", \"NA\", \"Unknown\"), case_sensitive = TRUE, min_group_size = 1, return_details = FALSE, verbose = FALSE)\nGroup rows that share any value across the chosen columns (Union–Find over rows).\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\ndata\nA data.frame/data.table, or a list of equal-length columns.\n\n\ncols\nColumn names, or regex patterns when use_regex = TRUE. NULL uses all columns.\n\n\nuse_regex\nTreat cols as regex patterns matched against column names.\n\n\nincomparables\nValues that never link rows (empty, \"NA\", etc.).\n\n\ncase_sensitive\nCase-sensitive string comparison.\n\n\nmin_group_size\nGroups smaller than this get id 0.\n\n\nreturn_details\nReturn a rich group_id_result object instead of a bare vector.\n\n\nverbose\nPrint timing/progress.\n\n\n\nReturns an integer vector of group ids (one per row); or, with return_details = TRUE, a group_id_result list with group_ids, n_groups, group_sizes, and value_map (which shared values formed each group).\nNote — an all-numeric, no-incomparables, case-sensitive call dispatches to a specialised fast numeric path automatically."
-  },
-  {
-    "objectID": "reference.html#printx-...-for-group_id_result",
-    "href": "reference.html#printx-...-for-group_id_result",
-    "title": "Reference",
-    "section": "print(x, ...) for group_id_result",
-    "text": "print(x, ...) for group_id_result\nS3 print method summarising counts, settings, the first group ids, and the shared values that created groups."
-  },
-  {
-    "objectID": "reference.html#add_group_idsdt-cols-group_col-group_id-use_regex-true-...",
-    "href": "reference.html#add_group_idsdt-cols-group_col-group_id-use_regex-true-...",
-    "title": "Reference",
-    "section": "add_group_ids(dt, cols, group_col = \"group_id\", use_regex = TRUE, ...)",
-    "text": "add_group_ids(dt, cols, group_col = \"group_id\", use_regex = TRUE, ...)\ndata.table wrapper for group_id() — adds the group column by reference. Extra ... are passed through to group_id().\nReturns dt (invisibly)."
-  },
-  {
-    "objectID": "reference.html#set_group_iddt-cols-phone-var_output_name-gid-incomparables-cna",
-    "href": "reference.html#set_group_iddt-cols-phone-var_output_name-gid-incomparables-cna",
-    "title": "Reference",
-    "section": "set_group_id(dt, cols = \"phone\", var_output_name = \"gid\", incomparables = c(NA, \"\"))",
-    "text": "set_group_id(dt, cols = \"phone\", var_output_name = \"gid\", incomparables = c(NA, \"\"))\nAlternative grouping engine using the bipartite edge reduction (melt → edges → edge_components).\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\ndt\nA data.table that must contain an id column.\n\n\ncols\nRegex matched against column names to choose the value columns.\n\n\nvar_output_name\nName of the group-id column to add.\n\n\nincomparables\nValues excluded from linking.\n\n\n\nReturns dt, modified by reference with the new group column."
-  },
-  {
-    "objectID": "reference.html#see-also",
-    "href": "reference.html#see-also",
-    "title": "Reference",
-    "section": "See also",
-    "text": "See also\n\nTheory — how these algorithms work and why they are fast.\nExamples — runnable demonstrations of every function.\nBenchmarks — scaling against igraph, network, sna."
-  },
-  {
-    "objectID": "examples.html",
-    "href": "examples.html",
-    "title": "Examples",
-    "section": "",
-    "text": "library(graphfast)\nlibrary(data.table)\nset.seed(1)\nThis page walks through every exported function with small, self-contained examples. The chunks are live — the output you see is produced when the site is rendered.\nA graph in graphfast is just a two-column edge list: a matrix or data.table where each row is an edge from -&gt; to. We’ll reuse this little graph with three components throughout:\nedges &lt;- matrix(c(\n  1, 2,\n  2, 3,\n  3, 4,   # component A: {1,2,3,4}\n  5, 6,   # component B: {5,6}\n  7, 8,\n  8, 9    # component C: {7,8,9}\n), ncol = 2, byrow = TRUE)\nedges\n\n     [,1] [,2]\n[1,]    1    2\n[2,]    2    3\n[3,]    3    4\n[4,]    5    6\n[5,]    7    8\n[6,]    8    9"
-  },
-  {
-    "objectID": "examples.html#find_connected_components",
-    "href": "examples.html#find_connected_components",
-    "title": "Examples",
-    "section": "find_connected_components()",
-    "text": "find_connected_components()\nThe workhorse. Returns one component id per node, the size of each component, and the total count.\n\ncc &lt;- find_connected_components(edges)\ncc$n_components\n\n[1] 3\n\ncc$component_sizes\n\n[1] 4 2 3\n\ncc$components          # component id for node 1, 2, 3, ...\n\n[1] 1 1 1 1 2 2 3 3 3\n\n\nNode 5 and node 6 share component 2; node 1 is in component 1:\n\ncc$components[c(1, 5, 6)]\n\n[1] 1 2 2\n\n\ncompress = FALSE keeps the raw Union–Find root labels instead of tidy consecutive ids (the counts are still correct):\n\nraw &lt;- find_connected_components(edges, compress = FALSE)\nraw$n_components\n\n[1] 3\n\nhead(raw$components)\n\n[1] 0 0 0 0 4 4\n\n\nYou can pass n_nodes explicitly to skip the scan for the maximum id (handy when you already know it, or to include isolated nodes with no edges):\n\nfind_connected_components(edges, n_nodes = 12)$n_components   # nodes 10,11,12 are singletons\n\n[1] 6"
-  },
-  {
-    "objectID": "examples.html#find_connected_components_safe",
-    "href": "examples.html#find_connected_components_safe",
-    "title": "Examples",
-    "section": "find_connected_components_safe()",
-    "text": "find_connected_components_safe()\nWhen node ids are sparse or large, a dense parent array up to the maximum id would waste memory. This version remaps ids to 1..(unique nodes) with fastmatch, runs the algorithm, then maps the answer back. The returned components vector is named by the original ids.\n\nsparse_edges &lt;- matrix(c(\n  1000, 2000,\n  2000, 3000,\n  9000, 9001\n), ncol = 2, byrow = TRUE)\n\nres &lt;- find_connected_components_safe(sparse_edges, verbose = FALSE)\nres$n_components\n\n[1] 2\n\nres$components            # names are the original node ids\n\n1000 2000 3000 9000 9001 \n   1    1    1    2    2 \n\nres$memory_info$memory_saved_gb\n\n[1] 0.0001005381"
-  },
-  {
-    "objectID": "examples.html#find_connected_components_large",
-    "href": "examples.html#find_connected_components_large",
-    "title": "Examples",
-    "section": "find_connected_components_large()",
-    "text": "find_connected_components_large()\nHandles ids beyond the 32-bit integer limit (≈ 2.1e9) by keeping them as doubles until after remapping. Set verbose = TRUE to see what it decided.\n\nbig_edges &lt;- matrix(c(\n  1e10, 2e10,\n  2e10, 3e10,\n  7e10, 8e10\n), ncol = 2, byrow = TRUE)\n\nbig &lt;- find_connected_components_large(big_edges, verbose = FALSE)\nbig$n_components\n\n[1] 2\n\nbig$components\n\n1e+10 2e+10 3e+10 7e+10 8e+10 \n    1     1     1     2     2"
-  },
-  {
-    "objectID": "examples.html#get_edge_components",
-    "href": "examples.html#get_edge_components",
-    "title": "Examples",
-    "section": "get_edge_components()",
-    "text": "get_edge_components()\n\nec &lt;- get_edge_components(edges)\nec$from_components       # component of each edge's 'from' node\n\n[1] 1 1 1 2 3 3\n\nec$to_components         # ... and its 'to' node (always equal for a real edge)\n\n[1] 1 1 1 2 3 3\n\nec$n_components\n\n[1] 3\n\n\nreturn_type = \"combined\" returns just the from_components vector (same length as the number of edges):\n\nget_edge_components(edges, return_type = \"combined\")\n\n[1] 1 1 1 2 3 3"
-  },
-  {
-    "objectID": "examples.html#group_edges-and-edge_components",
-    "href": "examples.html#group_edges-and-edge_components",
-    "title": "Examples",
-    "section": "group_edges() and edge_components()",
-    "text": "group_edges() and edge_components()\ngroup_edges() is the convenience alias returning one component id per edge row. edge_components() does the same but takes a data.table and column names, so it drops straight into a data.table expression.\n\n# Matrix in -&gt; vector out\ngroup_edges(edges)\n\n[1] 1 1 1 2 3 3\n\n\n\ndt &lt;- data.table(from = c(1, 2, 5), to = c(2, 3, 6))\ndt[, component := edge_components(.SD, \"from\", \"to\")]\ndt\n\n\n\n\n\nfrom\nto\ncomponent\n\n\n\n\n1\n2\n1\n\n\n2\n3\n1\n\n\n5\n6\n3"
-  },
-  {
-    "objectID": "examples.html#add_component_column",
-    "href": "examples.html#add_component_column",
-    "title": "Examples",
-    "section": "add_component_column()",
-    "text": "add_component_column()\nAdds a component column to a data.table by reference (no copy), mapping node ids with fastmatch internally. Works with any column names.\n\ndt2 &lt;- data.table(source = c(1, 2, 5, 7), target = c(2, 3, 6, 8), weight = runif(4))\nadd_component_column(dt2, from_col = \"source\", to_col = \"target\")\n\n\n\n\n\nsource\ntarget\nweight\ncomponent\n\n\n\n\n1\n2\n0.2655087\n1\n\n\n2\n3\n0.3721239\n1\n\n\n5\n6\n0.5728534\n2\n\n\n7\n8\n0.9082078\n3\n\n\n\n\n\ndt2\n\n\n\n\n\nsource\ntarget\nweight\ncomponent\n\n\n\n\n1\n2\n0.2655087\n1\n\n\n2\n3\n0.3721239\n1\n\n\n5\n6\n0.5728534\n2\n\n\n7\n8\n0.9082078\n3\n\n\n\n\n\n\nUse in_place = FALSE to leave the original untouched and get a copy back, and verbose = TRUE for per-step timing on large data:\n\nout &lt;- add_component_column(dt2, from_col = \"source\", to_col = \"target\",\n                            component_col = \"grp\", in_place = FALSE)\nout\n\n\n\n\n\nsource\ntarget\nweight\ncomponent\ngrp\n\n\n\n\n1\n2\n0.2655087\n1\n1\n\n\n2\n3\n0.3721239\n1\n1\n\n\n5\n6\n0.5728534\n2\n2\n\n\n7\n8\n0.9082078\n3\n3"
-  },
-  {
-    "objectID": "examples.html#are_connected",
-    "href": "examples.html#are_connected",
-    "title": "Examples",
-    "section": "are_connected()",
-    "text": "are_connected()\nBatched “are these two nodes in the same component?” queries. Builds Union–Find once, then answers each pair in near-constant time.\n\nqueries &lt;- matrix(c(\n  1, 4,   # same component A\n  1, 5,   # A vs B\n  7, 9    # same component C\n), ncol = 2, byrow = TRUE)\n\nare_connected(edges, queries)\n\n[1]  TRUE FALSE  TRUE"
-  },
-  {
-    "objectID": "examples.html#shortest_paths",
-    "href": "examples.html#shortest_paths",
-    "title": "Examples",
-    "section": "shortest_paths()",
-    "text": "shortest_paths()\nHop-distance (unweighted BFS) for each query pair. -1 means no path exists.\n\nshortest_paths(edges, queries)     # 1-&gt;4 is 3 hops; 1-&gt;5 unreachable; 7-&gt;9 is 2 hops\n\n[1]  3 -1  2\n\n\nmax_distance stops the search early — anything farther returns -1:\n\nshortest_paths(edges, matrix(c(1, 4), ncol = 2), max_distance = 2)   # 1-&gt;4 needs 3 hops\n\n[1] -1"
-  },
-  {
-    "objectID": "examples.html#graph_statistics",
-    "href": "examples.html#graph_statistics",
-    "title": "Examples",
-    "section": "graph_statistics()",
-    "text": "graph_statistics()\nDegree summary and density in a single pass — no adjacency matrix.\n\nstats &lt;- graph_statistics(edges)\nstats$n_nodes\n\n[1] 9\n\nstats$n_edges\n\n[1] 6\n\nstats$density\n\n[1] 0.1666667\n\nstats$degree_stats\n\n$min\n[1] 1\n\n$max\n[1] 2\n\n$mean\n[1] 1.333333"
-  },
-  {
-    "objectID": "examples.html#group_id",
-    "href": "examples.html#group_id",
-    "title": "Examples",
-    "section": "group_id()",
-    "text": "group_id()\nThe general engine. Give it a data.frame/data.table and the columns to match on (regex by default), plus values that should never glue rows together (incomparables).\n\ncustomers &lt;- data.frame(\n  id     = 1:6,\n  phone1 = c(\"123-456-7890\", \"987-654-3210\", \"123-456-7890\", \"\",            \"555-0123\", \"\"),\n  phone2 = c(\"\",             \"987-654-3210\", \"555-1234\",     \"123-456-7890\",\"\",         \"555-0123\"),\n  email  = c(\"a@x.com\",      \"b@x.com\",      \"c@x.com\",      \"a@x.com\",     \"d@x.com\",  \"d@x.com\"),\n  stringsAsFactors = FALSE\n)\n\n# cols = \"phone\" matches phone1 + phone2 by regex; \"\" is incomparable\ngroup_id(customers, cols = \"phone\", incomparables = c(\"\"))\n\n[1] 1 2 1 1 3 3\n\n\nMatch across all three columns by passing exact names (use_regex = FALSE):\n\ngroup_id(customers, cols = c(\"phone1\", \"phone2\", \"email\"),\n         use_regex = FALSE, incomparables = c(\"\"))\n\n[1] 1 2 1 1 3 3\n\n\nreturn_details = TRUE returns a rich object with a print method showing which shared values created which groups:\n\nres &lt;- group_id(customers, cols = c(\"phone1\", \"phone2\", \"email\"),\n                use_regex = FALSE, incomparables = c(\"\"), return_details = TRUE)\nres\n\nMulti-Column Group ID Results\n=============================\nTotal rows: 6 \nNumber of groups: 3 \nGroup sizes: 3, 1, 2 \nColumns used: 3 \nCase sensitive: TRUE \nMin group size: 1 \nIncomparables:  \n\nGroup IDs (first 20):\n[1] 1 2 1 1 3 3\n\nShared values creating groups (first 10):\n'd@x.com': rows 5, 6\n'123-456-7890': rows 1, 3, 4\n'987-654-3210': rows 2, 2\n'555-0123': rows 5, 6\n'a@x.com': rows 1, 4\n\n\nOther useful arguments:\n\n# Only keep groups of at least 2 (singletons get id 0)\ngroup_id(customers, cols = \"phone\", incomparables = c(\"\"), min_group_size = 2)\n\n[1] 1 0 1 1 2 2\n\n# Case-insensitive matching\ngroup_id(data.frame(a = c(\"ABC\", \"abc\", \"xyz\")), case_sensitive = FALSE)\n\n[1] 1 1 2"
-  },
-  {
-    "objectID": "examples.html#add_group_ids",
-    "href": "examples.html#add_group_ids",
-    "title": "Examples",
-    "section": "add_group_ids()",
-    "text": "add_group_ids()\nThe data.table wrapper for group_id() — adds the group column by reference.\n\ndt_cust &lt;- as.data.table(customers)\nadd_group_ids(dt_cust, cols = c(\"phone1\", \"phone2\", \"email\"),\n              group_col = \"entity_id\", use_regex = FALSE, incomparables = c(\"\"))\ndt_cust\n\n\n\n\n\nid\nphone1\nphone2\nemail\nentity_id\n\n\n\n\n1\n123-456-7890\n\na@x.com\n1\n\n\n2\n987-654-3210\n987-654-3210\nb@x.com\n2\n\n\n3\n123-456-7890\n555-1234\nc@x.com\n1\n\n\n4\n\n123-456-7890\na@x.com\n1\n\n\n5\n555-0123\n\nd@x.com\n3\n\n\n6\n\n555-0123\nd@x.com\n3"
-  },
-  {
-    "objectID": "examples.html#set_group_id",
-    "href": "examples.html#set_group_id",
-    "title": "Examples",
-    "section": "set_group_id()",
-    "text": "set_group_id()\nAn alternative grouping engine using the bipartite edge reduction (melt → edges → components). It requires an id column and writes the group id back by reference.\n\ndt_sg &lt;- data.table(\n  id     = 1:5,\n  phone1 = c(\"123\", \"456\", \"123\", \"789\", \"456\"),\n  phone2 = c(\"111\", \"222\", \"333\", \"111\", \"222\")\n)\nset_group_id(dt_sg, cols = \"phone\", var_output_name = \"gid\")\n\n\n\n\n\nid\nphone1\nphone2\ngid\n\n\n\n\n1\n123\n111\n1\n\n\n2\n456\n222\n2\n\n\n3\n123\n333\n1\n\n\n4\n789\n111\n1\n\n\n5\n456\n222\n2\n\n\n\n\n\ndt_sg\n\n\n\n\n\nid\nphone1\nphone2\ngid\n\n\n\n\n1\n123\n111\n1\n\n\n2\n456\n222\n2\n\n\n3\n123\n333\n1\n\n\n4\n789\n111\n1\n\n\n5\n456\n222\n2"
-  },
-  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "graphfast",
     "section": "",
-    "text": "graphfast is a small, focused R package for the operations that dominate real-world graph work on large data:\n\nConnected components — which nodes/edges belong to the same blob?\nConnectivity queries — are these two nodes reachable from each other?\nShortest paths — how many hops between these node pairs?\nGraph statistics — degree distribution, density, counts.\nEntity resolution — group records that share any value across any of several columns (deduplication / record linkage), solved as a graph problem.\n\nIt is built on a single, well-understood idea — the Union–Find (disjoint-set) data structure — implemented in C++ via Rcpp and wired to data.table and fastmatch so the R-side glue is never the bottleneck.\n\n\n\n\n\n\nNoteScope: graphs, not everything\n\n\n\nFor comprehensive graph analysis — centrality, community detection, layouts, isomorphism, flows — use igraph, which is mature and feature-complete. graphfast deliberately trades breadth for speed and memory efficiency on a handful of high-volume operations. If you have hundreds of millions of edges and only need components / connectivity / hop-distance / grouping, this package is built for exactly that."
+    "text": "0.1 What is graphfast?\ngraphfast is a small, focused R package for the operations that dominate real-world graph work on large data:\nIt is built on a single, well-understood idea — the Union–Find (disjoint-set) data structure — implemented in C++ via Rcpp and wired to data.table and fastmatch so the R-side glue is never the bottleneck.",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>graphfast</span>"
+    ]
   },
   {
     "objectID": "index.html#what-is-graphfast",
     "href": "index.html#what-is-graphfast",
     "title": "graphfast",
     "section": "",
-    "text": "graphfast is a small, focused R package for the operations that dominate real-world graph work on large data:\n\nConnected components — which nodes/edges belong to the same blob?\nConnectivity queries — are these two nodes reachable from each other?\nShortest paths — how many hops between these node pairs?\nGraph statistics — degree distribution, density, counts.\nEntity resolution — group records that share any value across any of several columns (deduplication / record linkage), solved as a graph problem.\n\nIt is built on a single, well-understood idea — the Union–Find (disjoint-set) data structure — implemented in C++ via Rcpp and wired to data.table and fastmatch so the R-side glue is never the bottleneck.\n\n\n\n\n\n\nNoteScope: graphs, not everything\n\n\n\nFor comprehensive graph analysis — centrality, community detection, layouts, isomorphism, flows — use igraph, which is mature and feature-complete. graphfast deliberately trades breadth for speed and memory efficiency on a handful of high-volume operations. If you have hundreds of millions of edges and only need components / connectivity / hop-distance / grouping, this package is built for exactly that."
+    "text": "Connected components — which nodes/edges belong to the same blob?\nConnectivity queries — are these two nodes reachable from each other?\nShortest paths — how many hops between these node pairs?\nGraph statistics — degree distribution, density, counts.\nEntity resolution — group records that share any value across any of several columns (deduplication / record linkage), solved as a graph problem.\n\n\n\n\n\n\n\n\nNoteScope: graphs, not everything\n\n\n\nFor comprehensive graph analysis — centrality, community detection, layouts, isomorphism, flows — use igraph, which is mature and feature-complete. graphfast deliberately trades breadth for speed and memory efficiency on a handful of high-volume operations. If you have hundreds of millions of edges and only need components / connectivity / hop-distance / grouping, this package is built for exactly that.",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>graphfast</span>"
+    ]
   },
   {
     "objectID": "index.html#why-it-exists",
     "href": "index.html#why-it-exists",
     "title": "graphfast",
-    "section": "Why it exists",
-    "text": "Why it exists\nThe standard pattern in R is “build an igraph object, then ask a question of it”. For very large edge lists that construction step — and the vertex bookkeeping around it — can dominate runtime and memory. graphfast skips the heavyweight graph object: it consumes a two-column edge list (matrix or data.table) directly and returns plain integer vectors, so it composes naturally with a data.table pipeline:\nlibrary(graphfast)\nlibrary(data.table)\n\ndt &lt;- data.table(from = c(1, 2, 5), to = c(2, 3, 6))\n\n# Component id per edge, added by reference — no graph object, no copy\ndt[, component := edge_components(.SD, \"from\", \"to\")]"
+    "section": "0.2 Why it exists",
+    "text": "0.2 Why it exists\nThe standard pattern in R is “build an igraph object, then ask a question of it”. For very large edge lists that construction step — and the vertex bookkeeping around it — can dominate runtime and memory. graphfast skips the heavyweight graph object: it consumes a two-column edge list (matrix or data.table) directly and returns plain integer vectors, so it composes naturally with a data.table pipeline:\nlibrary(graphfast)\nlibrary(data.table)\n\ndt &lt;- data.table(from = c(1, 2, 5), to = c(2, 3, 6))\n\n# Component id per edge, added by reference — no graph object, no copy\ndt[, component := edge_components(.SD, \"from\", \"to\")]",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>graphfast</span>"
+    ]
   },
   {
     "objectID": "index.html#installation",
     "href": "index.html#installation",
     "title": "graphfast",
-    "section": "Installation",
-    "text": "Installation\n# Development version from GitHub\n# install.packages(\"remotes\")\nremotes::install_github(\"KyleHaynes/graphfast\")\ngraphfast compiles C++ (Rcpp / C++11), so you need a working toolchain (Rtools on Windows, Xcode CLT on macOS, r-base-dev on Linux)."
+    "section": "0.3 Installation",
+    "text": "0.3 Installation\n# Development version from GitHub\n# install.packages(\"remotes\")\nremotes::install_github(\"KyleHaynes/graphfast\")\ngraphfast compiles C++ (Rcpp / C++11), so you need a working toolchain (Rtools on Windows, Xcode CLT on macOS, r-base-dev on Linux).",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>graphfast</span>"
+    ]
   },
   {
     "objectID": "index.html#a-60-second-tour",
     "href": "index.html#a-60-second-tour",
     "title": "graphfast",
-    "section": "A 60-second tour",
-    "text": "A 60-second tour\n\nlibrary(graphfast)\n\nedges &lt;- matrix(c(\n  1, 2,\n  2, 3,\n  3, 4,   # component A: {1,2,3,4}\n  5, 6,   # component B: {5,6}\n  7, 8,\n  8, 9    # component C: {7,8,9}\n), ncol = 2, byrow = TRUE)\n\n# 1. Connected components\ncc &lt;- find_connected_components(edges)\ncc$n_components       #&gt; 3\ncc$component_sizes    #&gt; 4 2 3\n\n# 2. Are these pairs connected?\nare_connected(edges, matrix(c(1, 4, 1, 5, 7, 9), ncol = 2, byrow = TRUE))\n#&gt; TRUE FALSE TRUE\n\n# 3. Shortest path (hops); -1 means unreachable\nshortest_paths(edges, matrix(c(1, 4, 1, 5), ncol = 2, byrow = TRUE))\n#&gt; 3 -1\n\n# 4. Graph statistics\ngraph_statistics(edges)$density"
+    "section": "0.4 A 60-second tour",
+    "text": "0.4 A 60-second tour\n\nlibrary(graphfast)\n\nedges &lt;- matrix(c(\n  1, 2,\n  2, 3,\n  3, 4,   # component A: {1,2,3,4}\n  5, 6,   # component B: {5,6}\n  7, 8,\n  8, 9    # component C: {7,8,9}\n), ncol = 2, byrow = TRUE)\n\n# 1. Connected components\ncc &lt;- find_connected_components(edges)\ncc$n_components       #&gt; 3\ncc$component_sizes    #&gt; 4 2 3\n\n# 2. Are these pairs connected?\nare_connected(edges, matrix(c(1, 4, 1, 5, 7, 9), ncol = 2, byrow = TRUE))\n#&gt; TRUE FALSE TRUE\n\n# 3. Shortest path (hops); -1 means unreachable\nshortest_paths(edges, matrix(c(1, 4, 1, 5), ncol = 2, byrow = TRUE))\n#&gt; 3 -1\n\n# 4. Graph statistics\ngraph_statistics(edges)$density",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>graphfast</span>"
+    ]
   },
   {
-    "objectID": "index.html#how-the-manual-is-organised",
-    "href": "index.html#how-the-manual-is-organised",
+    "objectID": "index.html#how-the-book-is-organised",
+    "href": "index.html#how-the-book-is-organised",
     "title": "graphfast",
-    "section": "How the manual is organised",
-    "text": "How the manual is organised\n\n\n\nPage\nWhat you’ll find\n\n\n\n\nTheory\nThe data structures and algorithms, complexity, and the design choices behind the speed.\n\n\nExamples\nEvery exported function demonstrated with small, runnable snippets.\n\n\nBenchmarks\nComparison against igraph / network / sna at 1M, 10M, and 100M edges.\n\n\nReference\nCompact API documentation — signatures, arguments, return values."
+    "section": "0.5 How the book is organised",
+    "text": "0.5 How the book is organised\n\n\n\nChapter\nWhat you’ll find\n\n\n\n\nTheory\nThe data structures and algorithms, complexity, and the design choices behind the speed.\n\n\nExamples\nEvery exported function demonstrated with small, runnable snippets.\n\n\nBenchmarks\nLive, measured comparison against igraph at 1M, 10M, and 100M edges.\n\n\nReference\nCompact API documentation — signatures, arguments, return values.",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>graphfast</span>"
+    ]
   },
   {
     "objectID": "index.html#at-a-glance",
     "href": "index.html#at-a-glance",
     "title": "graphfast",
-    "section": "At a glance",
-    "text": "At a glance\n\n\n\n\n\n\n\nFunction\nPurpose\n\n\n\n\nfind_connected_components()\nAll components for a dense, small-integer node space.\n\n\nfind_connected_components_safe()\nSame, with automatic node-ID remapping for sparse/large IDs.\n\n\nfind_connected_components_large()\nSame, supporting IDs beyond 32-bit integers.\n\n\nget_edge_components()\nComponent id for each edge (from/to).\n\n\ngroup_edges() / edge_components()\nOne component id per edge row — ideal for data.table.\n\n\nadd_component_column()\nAdd a component column to a data.table by reference.\n\n\nare_connected()\nBatched pairwise connectivity queries.\n\n\nshortest_paths()\nBatched BFS hop-distances between node pairs.\n\n\ngraph_statistics()\nEdges, nodes, density, degree summary.\n\n\ngroup_id() / add_group_ids() / set_group_id()\nMulti-column entity resolution via Union–Find.\n\n\n\nLicense: MIT. Source on GitHub."
+    "section": "0.6 At a glance",
+    "text": "0.6 At a glance\n\n\n\n\n\n\n\nFunction\nPurpose\n\n\n\n\nfind_connected_components()\nAll components for a dense, small-integer node space.\n\n\nfind_connected_components_safe()\nSame, with automatic node-ID remapping for sparse/large IDs.\n\n\nfind_connected_components_large()\nSame, supporting IDs beyond 32-bit integers.\n\n\nget_edge_components()\nComponent id for each edge (from/to).\n\n\ngroup_edges() / edge_components()\nOne component id per edge row — ideal for data.table.\n\n\nadd_component_column()\nAdd a component column to a data.table by reference.\n\n\nare_connected()\nBatched pairwise connectivity queries.\n\n\nshortest_paths()\nBatched BFS hop-distances between node pairs.\n\n\ngraph_statistics()\nEdges, nodes, density, degree summary.\n\n\ngroup_id() / add_group_ids() / set_group_id()\nMulti-column entity resolution via Union–Find.\n\n\n\nLicense: MIT. Source on GitHub.",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>graphfast</span>"
+    ]
   },
   {
     "objectID": "theory.html",
     "href": "theory.html",
-    "title": "Theory",
+    "title": "2  Theory",
     "section": "",
-    "text": "Almost everything graphfast does reduces to one question: which things are transitively connected? That question is answered by a disjoint-set (Union–Find) structure, so it is worth understanding it well — the rest of the package is engineering around it."
+    "text": "2.1 Connected components\nAlmost everything graphfast does reduces to one question: which things are transitively connected? That question is answered by a disjoint-set (Union–Find) structure, so it is worth understanding it well — the rest of the package is engineering around it.\nA graph is a set of nodes joined by edges. A connected component is a maximal set of nodes such that there is a path between any two of them. Computing components is the canonical “group the related things” operation:",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Theory</span>"
+    ]
   },
   {
     "objectID": "theory.html#connected-components",
     "href": "theory.html#connected-components",
-    "title": "Theory",
-    "section": "Connected components",
-    "text": "Connected components\nA graph is a set of nodes joined by edges. A connected component is a maximal set of nodes such that there is a path between any two of them. Computing components is the canonical “group the related things” operation:\n\nIn a social graph, components are isolated friend circles.\nIn record linkage, a component is one real-world entity assembled from many rows that share phone numbers, emails, etc.\nIn infrastructure, a component is a sub-network that can still reach itself after some links are removed.\n\n\nUnion–Find (disjoint sets)\nUnion–Find maintains a forest where each tree is one component. Every node has a parent; following parents leads to a root that names the component. Two operations:\n\nfind(x) — return the root of x’s tree.\nunion(x, y) — merge the trees containing x and y.\n\nBuilding components is then trivial: start with every node as its own root, then union the endpoints of every edge. Afterwards, two nodes are in the same component iff they share a root.\nedges: 1-2, 2-3, 5-6\n\n  1        becomes      3\n  |                    / \\\n  2          -&gt;       2   1        (one tree = {1,2,3})\n  |\n  3                    6\n                       |\n  5 - 6                5            (another tree = {5,6})\n\n\nTwo optimisations that make it fast\nA naive forest can degrade to a linked list (O(n) per find). Two classic tricks keep it almost flat:\n\nUnion by rank — when merging, hang the shorter tree under the taller one, so trees stay shallow. graphfast tracks a rank per root for this.\nPath compression / halving — while walking up to the root, point nodes closer to the root so future walks are shorter. graphfast uses path halving (parent[x] = parent[parent[x]]) inside an iterative find:\nint find(int x) {\n    while (parent[x] != x) {\n        parent[x] = parent[parent[x]];  // halve the path\n        x = parent[x];\n    }\n    return x;\n}\nIterative (rather than recursive) matters at scale: a recursive find on a graph with a long chain can overflow the C call stack on hundreds of millions of nodes. Path halving gives the same asymptotics as full compression while touching each node at most once per call.\n\n\n\nComplexity\nWith both optimisations, a sequence of m operations over n elements runs in\n\\[\nO\\!\\big(m \\cdot \\alpha(n)\\big)\n\\]\nwhere \\(\\alpha\\) is the inverse Ackermann function. \\(\\alpha(n) \\le 4\\) for any \\(n\\) that fits in this universe, so component construction is effectively linear in the number of edges. Memory is \\(O(n)\\): two integer arrays (parent, rank) of length n_nodes.\n\n\nRelabelling roots\nRoots are arbitrary integers in [0, n_nodes). To return tidy, consecutive component ids 1..k, graphfast makes a single pass assigning each new root the next id. Because roots live in a known bounded range, this uses a flat vector&lt;int&gt; of size n_nodes (an O(n) lookup) rather than a hash map or a balanced tree (std::map, O(n log n) plus per-node allocations). This is the kind of constant-factor decision that dominates wall-clock time once you are in the tens-of-millions regime."
+    "title": "2  Theory",
+    "section": "",
+    "text": "In a social graph, components are isolated friend circles.\nIn record linkage, a component is one real-world entity assembled from many rows that share phone numbers, emails, etc.\nIn infrastructure, a component is a sub-network that can still reach itself after some links are removed.\n\n\n2.1.1 Union–Find (disjoint sets)\nUnion–Find maintains a forest where each tree is one component. Every node has a parent; following parents leads to a root that names the component. Two operations:\n\nfind(x) — return the root of x’s tree.\nunion(x, y) — merge the trees containing x and y.\n\nBuilding components is then trivial: start with every node as its own root, then union the endpoints of every edge. Afterwards, two nodes are in the same component iff they share a root.\nedges: 1-2, 2-3, 5-6\n\n  1        becomes      3\n  |                    / \\\n  2          -&gt;       2   1        (one tree = {1,2,3})\n  |\n  3                    6\n                       |\n  5 - 6                5            (another tree = {5,6})\n\n\n2.1.2 Two optimisations that make it fast\nA naive forest can degrade to a linked list (O(n) per find). Two classic tricks keep it almost flat:\n\nUnion by rank — when merging, hang the shorter tree under the taller one, so trees stay shallow. graphfast tracks a rank per root for this.\nPath compression / halving — while walking up to the root, point nodes closer to the root so future walks are shorter. graphfast uses path halving (parent[x] = parent[parent[x]]) inside an iterative find:\nint find(int x) {\n    while (parent[x] != x) {\n        parent[x] = parent[parent[x]];  // halve the path\n        x = parent[x];\n    }\n    return x;\n}\nIterative (rather than recursive) matters at scale: a recursive find on a graph with a long chain can overflow the C call stack on hundreds of millions of nodes. Path halving gives the same asymptotics as full compression while touching each node at most once per call.\n\n\n\n2.1.3 Complexity\nWith both optimisations, a sequence of m operations over n elements runs in\n\\[\nO\\!\\big(m \\cdot \\alpha(n)\\big)\n\\]\nwhere \\(\\alpha\\) is the inverse Ackermann function. \\(\\alpha(n) \\le 4\\) for any \\(n\\) that fits in this universe, so component construction is effectively linear in the number of edges. Memory is \\(O(n)\\): two integer arrays (parent, rank) of length n_nodes.\n\n\n2.1.4 Relabelling roots\nRoots are arbitrary integers in [0, n_nodes). To return tidy, consecutive component ids 1..k, graphfast makes a single pass assigning each new root the next id. Because roots live in a known bounded range, this uses a flat vector&lt;int&gt; of size n_nodes (an O(n) lookup) rather than a hash map or a balanced tree (std::map, O(n log n) plus per-node allocations). This is the kind of constant-factor decision that dominates wall-clock time once you are in the tens-of-millions regime.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Theory</span>"
+    ]
   },
   {
     "objectID": "theory.html#shortest-paths",
     "href": "theory.html#shortest-paths",
-    "title": "Theory",
-    "section": "Shortest paths",
-    "text": "Shortest paths\nFor unweighted graphs the shortest path (in hops) between two nodes is found by breadth-first search (BFS). From the source, explore all neighbours at distance 1, then distance 2, and so on; the first time you reach the target you have the shortest distance. BFS is O(n + m) per query.\ngraphfast is optimised for many queries against one graph:\n\nThe adjacency list is built once, with each node’s neighbour vector pre-reserved to its exact degree (counted in a first pass), avoiding repeated reallocations.\nA single distance buffer is reused across all queries. Instead of re-zeroing an n_nodes-length array per query (which alone is O(n_nodes) per query and dominates when queries are short), nodes carry a visited “version” stamp; bumping the version invalidates the previous query’s marks in O(1).\nAn optional max_distance lets BFS terminate early once the frontier exceeds the depth you care about.\n\nUnreachable pairs return -1. The algorithm stores no full distance matrix, so memory stays at O(n + m).\n\n\n\n\n\n\nTipComponents first, paths second\n\n\n\nIf you only need to know whether two nodes are connected (not how far apart), use are_connected() — it builds Union–Find once and answers each query in near-constant time, far cheaper than a BFS per pair."
+    "title": "2  Theory",
+    "section": "2.2 Shortest paths",
+    "text": "2.2 Shortest paths\nFor unweighted graphs the shortest path (in hops) between two nodes is found by breadth-first search (BFS). From the source, explore all neighbours at distance 1, then distance 2, and so on; the first time you reach the target you have the shortest distance. BFS is O(n + m) per query.\ngraphfast is optimised for many queries against one graph:\n\nThe adjacency list is built once, with each node’s neighbour vector pre-reserved to its exact degree (counted in a first pass), avoiding repeated reallocations.\nA single distance buffer is reused across all queries. Instead of re-zeroing an n_nodes-length array per query (which alone is O(n_nodes) per query and dominates when queries are short), nodes carry a visited “version” stamp; bumping the version invalidates the previous query’s marks in O(1).\nAn optional max_distance lets BFS terminate early once the frontier exceeds the depth you care about.\n\nUnreachable pairs return -1. The algorithm stores no full distance matrix, so memory stays at O(n + m).\n\n\n\n\n\n\nTipComponents first, paths second\n\n\n\nIf you only need to know whether two nodes are connected (not how far apart), use are_connected() — it builds Union–Find once and answers each query in near-constant time, far cheaper than a BFS per pair.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Theory</span>"
+    ]
   },
   {
     "objectID": "theory.html#graph-statistics",
     "href": "theory.html#graph-statistics",
-    "title": "Theory",
-    "section": "Graph statistics",
-    "text": "Graph statistics\ngraph_statistics() computes degree per node in a single O(m) pass over the edges, then derives min/mean/max degree and density. Density for an undirected simple graph is\n\\[\n\\text{density} = \\frac{m}{\\binom{n}{2}} = \\frac{2m}{n(n-1)}.\n\\]\nNo adjacency matrix is materialised, so this is safe on graphs where an \\(n \\times n\\) matrix would be impossible."
+    "title": "2  Theory",
+    "section": "2.3 Graph statistics",
+    "text": "2.3 Graph statistics\ngraph_statistics() computes degree per node in a single O(m) pass over the edges, then derives min/mean/max degree and density. Density for an undirected simple graph is\n\\[\n\\text{density} = \\frac{m}{\\binom{n}{2}} = \\frac{2m}{n(n-1)}.\n\\]\nNo adjacency matrix is materialised, so this is safe on graphs where an \\(n \\times n\\) matrix would be impossible.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Theory</span>"
+    ]
   },
   {
     "objectID": "theory.html#entity-resolution-as-a-graph-problem",
     "href": "theory.html#entity-resolution-as-a-graph-problem",
-    "title": "Theory",
-    "section": "Entity resolution as a graph problem",
-    "text": "Entity resolution as a graph problem\n“Group all records that share a phone number, or an email, or any value across these columns” is a connected-components problem in disguise. Two equivalent reductions are used:\n\n1. Value-keyed Union–Find (group_id())\nTreat each row as a node. For every column value, collect the rows that carry it; union those rows together. Rows end up in the same component exactly when a chain of shared values links them. Incomparable values (\"\", \"NA\", \"Unknown\", …) are skipped so they never glue unrelated rows. This runs in \\(O(N \\cdot \\alpha(N))\\) over the N total cell values and is the default engine, with a specialised numeric-only fast path.\n\n\n2. Bipartite edge reduction (set_group_id())\nBuild a bipartite graph with two kinds of node — row ids and values — and an edge for every (row, value) pair. The connected components of this graph are the entity groups. This phrasing lets the same component machinery (edge_components()) and data.table::melt() do the work, which can be the faster route when columns are very wide.\nBoth are the same idea: shared value ⇒ edge ⇒ same component."
+    "title": "2  Theory",
+    "section": "2.4 Entity resolution as a graph problem",
+    "text": "2.4 Entity resolution as a graph problem\n“Group all records that share a phone number, or an email, or any value across these columns” is a connected-components problem in disguise. Two equivalent reductions are used:\n\n2.4.1 1. Value-keyed Union–Find (group_id())\nTreat each row as a node. For every column value, collect the rows that carry it; union those rows together. Rows end up in the same component exactly when a chain of shared values links them. Incomparable values (\"\", \"NA\", \"Unknown\", …) are skipped so they never glue unrelated rows. This runs in \\(O(N \\cdot \\alpha(N))\\) over the N total cell values and is the default engine, with a specialised numeric-only fast path.\n\n\n2.4.2 2. Bipartite edge reduction (set_group_id())\nBuild a bipartite graph with two kinds of node — row ids and values — and an edge for every (row, value) pair. The connected components of this graph are the entity groups. This phrasing lets the same component machinery (edge_components()) and data.table::melt() do the work, which can be the faster route when columns are very wide.\nBoth are the same idea: shared value ⇒ edge ⇒ same component.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Theory</span>"
+    ]
   },
   {
     "objectID": "theory.html#why-node-id-remapping-matters",
     "href": "theory.html#why-node-id-remapping-matters",
-    "title": "Theory",
-    "section": "Why node-ID remapping matters",
-    "text": "Why node-ID remapping matters\nThe core C++ routines index a parent array directly by node id, so they want a dense id space 1..n_nodes. If your ids are sparse or huge (e.g. account numbers up to \\(10^{12}\\)), allocating an array up to the maximum id is wasteful or impossible.\n\nfind_connected_components() assumes a reasonably dense space and warns/stops if the implied allocation is large.\nfind_connected_components_safe() and add_component_column() remap the observed ids to 1..(unique nodes) first, using fastmatch::fmatch(). fmatch builds a hash once and reuses it, so mapping millions of ids is fast and light — far better than coercing every id as.character() and doing named-vector lookups.\nfind_connected_components_large() extends this to ids beyond the 32-bit integer range by keeping them as doubles until after remapping."
+    "title": "2  Theory",
+    "section": "2.5 Why node-ID remapping matters",
+    "text": "2.5 Why node-ID remapping matters\nThe core C++ routines index a parent array directly by node id, so they want a dense id space 1..n_nodes. If your ids are sparse or huge (e.g. account numbers up to \\(10^{12}\\)), allocating an array up to the maximum id is wasteful or impossible.\n\nfind_connected_components() assumes a reasonably dense space and warns/stops if the implied allocation is large.\nfind_connected_components_safe() and add_component_column() remap the observed ids to 1..(unique nodes) first, using fastmatch::fmatch(). fmatch builds a hash once and reuses it, so mapping millions of ids is fast and light — far better than coercing every id as.character() and doing named-vector lookups.\nfind_connected_components_large() extends this to ids beyond the 32-bit integer range by keeping them as doubles until after remapping.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Theory</span>"
+    ]
   },
   {
     "objectID": "theory.html#why-c-rcpp",
     "href": "theory.html#why-c-rcpp",
-    "title": "Theory",
-    "section": "Why C++ / Rcpp",
-    "text": "Why C++ / Rcpp\nThe hot loops — one pass per edge for union, one pass per node for relabelling, BFS frontier expansion — are tight integer work. In interpreted R each iteration carries per-element overhead; in compiled C++ they are a few machine instructions over contiguous memory. Rcpp lets the package keep R’s ergonomic interface (matrices, data.table, named lists) while the inner loops run at native speed, and .registration = TRUE exposes the compiled routines safely."
+    "title": "2  Theory",
+    "section": "2.6 Why C++ / Rcpp",
+    "text": "2.6 Why C++ / Rcpp\nThe hot loops — one pass per edge for union, one pass per node for relabelling, BFS frontier expansion — are tight integer work. In interpreted R each iteration carries per-element overhead; in compiled C++ they are a few machine instructions over contiguous memory. Rcpp lets the package keep R’s ergonomic interface (matrices, data.table, named lists) while the inner loops run at native speed, and .registration = TRUE exposes the compiled routines safely.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Theory</span>"
+    ]
   },
   {
     "objectID": "theory.html#design-principles-summarised",
     "href": "theory.html#design-principles-summarised",
-    "title": "Theory",
-    "section": "Design principles, summarised",
-    "text": "Design principles, summarised\n\nOne idea, done well. Union–Find + BFS cover components, connectivity, grouping, and distance.\nNo heavyweight graph object. Consume edge lists; return plain vectors.\nKeep the R glue cheap. data.table for I/O by reference, fastmatch for id mapping, minimal copying.\nMind the constant factors. Flat arrays over maps, iterative over recursive, reuse buffers, reserve capacity. At 100M edges, constants are the runtime."
+    "title": "2  Theory",
+    "section": "2.7 Design principles, summarised",
+    "text": "2.7 Design principles, summarised\n\nOne idea, done well. Union–Find + BFS cover components, connectivity, grouping, and distance.\nNo heavyweight graph object. Consume edge lists; return plain vectors.\nKeep the R glue cheap. data.table for I/O by reference, fastmatch for id mapping, minimal copying.\nMind the constant factors. Flat arrays over maps, iterative over recursive, reuse buffers, reserve capacity. At 100M edges, constants are the runtime.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Theory</span>"
+    ]
+  },
+  {
+    "objectID": "examples.html",
+    "href": "examples.html",
+    "title": "3  Examples",
+    "section": "",
+    "text": "4 Connected components\nThis page walks through every exported function with small, self-contained examples. The chunks are live — the output you see is produced when the site is rendered.\nA graph in graphfast is just a two-column edge list: a matrix or data.table where each row is an edge from -&gt; to. We’ll reuse this little graph with three components throughout:",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Examples</span>"
+    ]
+  },
+  {
+    "objectID": "examples.html#find_connected_components",
+    "href": "examples.html#find_connected_components",
+    "title": "3  Examples",
+    "section": "4.1 find_connected_components()",
+    "text": "4.1 find_connected_components()\nThe workhorse. Returns one component id per node, the size of each component, and the total count.\n\ncc &lt;- find_connected_components(edges)\ncc$n_components\n\n[1] 3\n\ncc$component_sizes\n\n[1] 4 2 3\n\ncc$components          # component id for node 1, 2, 3, ...\n\n[1] 1 1 1 1 2 2 3 3 3\n\n\nNode 5 and node 6 share component 2; node 1 is in component 1:\n\ncc$components[c(1, 5, 6)]\n\n[1] 1 2 2\n\n\ncompress = FALSE keeps the raw Union–Find root labels instead of tidy consecutive ids (the counts are still correct):\n\nraw &lt;- find_connected_components(edges, compress = FALSE)\nraw$n_components\n\n[1] 3\n\nhead(raw$components)\n\n[1] 0 0 0 0 4 4\n\n\nYou can pass n_nodes explicitly to skip the scan for the maximum id (handy when you already know it, or to include isolated nodes with no edges):\n\nfind_connected_components(edges, n_nodes = 12)$n_components   # nodes 10,11,12 are singletons\n\n[1] 6",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Examples</span>"
+    ]
+  },
+  {
+    "objectID": "examples.html#find_connected_components_safe",
+    "href": "examples.html#find_connected_components_safe",
+    "title": "3  Examples",
+    "section": "4.2 find_connected_components_safe()",
+    "text": "4.2 find_connected_components_safe()\nWhen node ids are sparse or large, a dense parent array up to the maximum id would waste memory. This version remaps ids to 1..(unique nodes) with fastmatch, runs the algorithm, then maps the answer back. The returned components vector is named by the original ids.\n\nsparse_edges &lt;- matrix(c(\n  1000, 2000,\n  2000, 3000,\n  9000, 9001\n), ncol = 2, byrow = TRUE)\n\nres &lt;- find_connected_components_safe(sparse_edges, verbose = FALSE)\nres$n_components\n\n[1] 2\n\nres$components            # names are the original node ids\n\n1000 2000 3000 9000 9001 \n   1    1    1    2    2 \n\nres$memory_info$memory_saved_gb\n\n[1] 0.0001005381",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Examples</span>"
+    ]
+  },
+  {
+    "objectID": "examples.html#find_connected_components_large",
+    "href": "examples.html#find_connected_components_large",
+    "title": "3  Examples",
+    "section": "4.3 find_connected_components_large()",
+    "text": "4.3 find_connected_components_large()\nHandles ids beyond the 32-bit integer limit (≈ 2.1e9) by keeping them as doubles until after remapping. Set verbose = TRUE to see what it decided.\n\nbig_edges &lt;- matrix(c(\n  1e10, 2e10,\n  2e10, 3e10,\n  7e10, 8e10\n), ncol = 2, byrow = TRUE)\n\nbig &lt;- find_connected_components_large(big_edges, verbose = FALSE)\nbig$n_components\n\n[1] 2\n\nbig$components\n\n1e+10 2e+10 3e+10 7e+10 8e+10 \n    1     1     1     2     2",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Examples</span>"
+    ]
+  },
+  {
+    "objectID": "examples.html#get_edge_components",
+    "href": "examples.html#get_edge_components",
+    "title": "3  Examples",
+    "section": "5.1 get_edge_components()",
+    "text": "5.1 get_edge_components()\n\nec &lt;- get_edge_components(edges)\nec$from_components       # component of each edge's 'from' node\n\n[1] 1 1 1 2 3 3\n\nec$to_components         # ... and its 'to' node (always equal for a real edge)\n\n[1] 1 1 1 2 3 3\n\nec$n_components\n\n[1] 3\n\n\nreturn_type = \"combined\" returns just the from_components vector (same length as the number of edges):\n\nget_edge_components(edges, return_type = \"combined\")\n\n[1] 1 1 1 2 3 3",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Examples</span>"
+    ]
+  },
+  {
+    "objectID": "examples.html#group_edges-and-edge_components",
+    "href": "examples.html#group_edges-and-edge_components",
+    "title": "3  Examples",
+    "section": "5.2 group_edges() and edge_components()",
+    "text": "5.2 group_edges() and edge_components()\ngroup_edges() is the convenience alias returning one component id per edge row. edge_components() does the same but takes a data.table and column names, so it drops straight into a data.table expression.\n\n# Matrix in -&gt; vector out\ngroup_edges(edges)\n\n[1] 1 1 1 2 3 3\n\n\n\ndt &lt;- data.table(from = c(1, 2, 5), to = c(2, 3, 6))\ndt[, component := edge_components(.SD, \"from\", \"to\")]\ndt\n\n\n\n\n\nfrom\nto\ncomponent\n\n\n\n\n1\n2\n1\n\n\n2\n3\n1\n\n\n5\n6\n3",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Examples</span>"
+    ]
+  },
+  {
+    "objectID": "examples.html#add_component_column",
+    "href": "examples.html#add_component_column",
+    "title": "3  Examples",
+    "section": "5.3 add_component_column()",
+    "text": "5.3 add_component_column()\nAdds a component column to a data.table by reference (no copy), mapping node ids with fastmatch internally. Works with any column names.\n\ndt2 &lt;- data.table(source = c(1, 2, 5, 7), target = c(2, 3, 6, 8), weight = runif(4))\nadd_component_column(dt2, from_col = \"source\", to_col = \"target\")\n\n\n\n\n\nsource\ntarget\nweight\ncomponent\n\n\n\n\n1\n2\n0.2655087\n1\n\n\n2\n3\n0.3721239\n1\n\n\n5\n6\n0.5728534\n2\n\n\n7\n8\n0.9082078\n3\n\n\n\n\n\ndt2\n\n\n\n\n\nsource\ntarget\nweight\ncomponent\n\n\n\n\n1\n2\n0.2655087\n1\n\n\n2\n3\n0.3721239\n1\n\n\n5\n6\n0.5728534\n2\n\n\n7\n8\n0.9082078\n3\n\n\n\n\n\n\nUse in_place = FALSE to leave the original untouched and get a copy back, and verbose = TRUE for per-step timing on large data:\n\nout &lt;- add_component_column(dt2, from_col = \"source\", to_col = \"target\",\n                            component_col = \"grp\", in_place = FALSE)\nout\n\n\n\n\n\nsource\ntarget\nweight\ncomponent\ngrp\n\n\n\n\n1\n2\n0.2655087\n1\n1\n\n\n2\n3\n0.3721239\n1\n1\n\n\n5\n6\n0.5728534\n2\n2\n\n\n7\n8\n0.9082078\n3\n3",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Examples</span>"
+    ]
+  },
+  {
+    "objectID": "examples.html#are_connected",
+    "href": "examples.html#are_connected",
+    "title": "3  Examples",
+    "section": "6.1 are_connected()",
+    "text": "6.1 are_connected()\nBatched “are these two nodes in the same component?” queries. Builds Union–Find once, then answers each pair in near-constant time.\n\nqueries &lt;- matrix(c(\n  1, 4,   # same component A\n  1, 5,   # A vs B\n  7, 9    # same component C\n), ncol = 2, byrow = TRUE)\n\nare_connected(edges, queries)\n\n[1]  TRUE FALSE  TRUE",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Examples</span>"
+    ]
+  },
+  {
+    "objectID": "examples.html#shortest_paths",
+    "href": "examples.html#shortest_paths",
+    "title": "3  Examples",
+    "section": "6.2 shortest_paths()",
+    "text": "6.2 shortest_paths()\nHop-distance (unweighted BFS) for each query pair. -1 means no path exists.\n\nshortest_paths(edges, queries)     # 1-&gt;4 is 3 hops; 1-&gt;5 unreachable; 7-&gt;9 is 2 hops\n\n[1]  3 -1  2\n\n\nmax_distance stops the search early — anything farther returns -1:\n\nshortest_paths(edges, matrix(c(1, 4), ncol = 2), max_distance = 2)   # 1-&gt;4 needs 3 hops\n\n[1] -1",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Examples</span>"
+    ]
+  },
+  {
+    "objectID": "examples.html#graph_statistics",
+    "href": "examples.html#graph_statistics",
+    "title": "3  Examples",
+    "section": "6.3 graph_statistics()",
+    "text": "6.3 graph_statistics()\nDegree summary and density in a single pass — no adjacency matrix.\n\nstats &lt;- graph_statistics(edges)\nstats$n_nodes\n\n[1] 9\n\nstats$n_edges\n\n[1] 6\n\nstats$density\n\n[1] 0.1666667\n\nstats$degree_stats\n\n$min\n[1] 1\n\n$max\n[1] 2\n\n$mean\n[1] 1.333333",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Examples</span>"
+    ]
+  },
+  {
+    "objectID": "examples.html#group_id",
+    "href": "examples.html#group_id",
+    "title": "3  Examples",
+    "section": "7.1 group_id()",
+    "text": "7.1 group_id()\nThe general engine. Give it a data.frame/data.table and the columns to match on (regex by default), plus values that should never glue rows together (incomparables).\n\ncustomers &lt;- data.frame(\n  id     = 1:6,\n  phone1 = c(\"123-456-7890\", \"987-654-3210\", \"123-456-7890\", \"\",            \"555-0123\", \"\"),\n  phone2 = c(\"\",             \"987-654-3210\", \"555-1234\",     \"123-456-7890\",\"\",         \"555-0123\"),\n  email  = c(\"a@x.com\",      \"b@x.com\",      \"c@x.com\",      \"a@x.com\",     \"d@x.com\",  \"d@x.com\"),\n  stringsAsFactors = FALSE\n)\n\n# cols = \"phone\" matches phone1 + phone2 by regex; \"\" is incomparable\ngroup_id(customers, cols = \"phone\", incomparables = c(\"\"))\n\n[1] 1 2 1 1 3 3\n\n\nMatch across all three columns by passing exact names (use_regex = FALSE):\n\ngroup_id(customers, cols = c(\"phone1\", \"phone2\", \"email\"),\n         use_regex = FALSE, incomparables = c(\"\"))\n\n[1] 1 2 1 1 3 3\n\n\nreturn_details = TRUE returns a rich object with a print method showing which shared values created which groups:\n\nres &lt;- group_id(customers, cols = c(\"phone1\", \"phone2\", \"email\"),\n                use_regex = FALSE, incomparables = c(\"\"), return_details = TRUE)\nres\n\nMulti-Column Group ID Results\n=============================\nTotal rows: 6 \nNumber of groups: 3 \nGroup sizes: 3, 1, 2 \nColumns used: 3 \nCase sensitive: TRUE \nMin group size: 1 \nIncomparables:  \n\nGroup IDs (first 20):\n[1] 1 2 1 1 3 3\n\nShared values creating groups (first 10):\n'd@x.com': rows 5, 6\n'123-456-7890': rows 1, 3, 4\n'987-654-3210': rows 2, 2\n'555-0123': rows 5, 6\n'a@x.com': rows 1, 4\n\n\nOther useful arguments:\n\n# Only keep groups of at least 2 (singletons get id 0)\ngroup_id(customers, cols = \"phone\", incomparables = c(\"\"), min_group_size = 2)\n\n[1] 1 0 1 1 2 2\n\n# Case-insensitive matching\ngroup_id(data.frame(a = c(\"ABC\", \"abc\", \"xyz\")), case_sensitive = FALSE)\n\n[1] 1 1 2",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Examples</span>"
+    ]
+  },
+  {
+    "objectID": "examples.html#add_group_ids",
+    "href": "examples.html#add_group_ids",
+    "title": "3  Examples",
+    "section": "7.2 add_group_ids()",
+    "text": "7.2 add_group_ids()\nThe data.table wrapper for group_id() — adds the group column by reference.\n\ndt_cust &lt;- as.data.table(customers)\nadd_group_ids(dt_cust, cols = c(\"phone1\", \"phone2\", \"email\"),\n              group_col = \"entity_id\", use_regex = FALSE, incomparables = c(\"\"))\ndt_cust\n\n\n\n\n\nid\nphone1\nphone2\nemail\nentity_id\n\n\n\n\n1\n123-456-7890\n\na@x.com\n1\n\n\n2\n987-654-3210\n987-654-3210\nb@x.com\n2\n\n\n3\n123-456-7890\n555-1234\nc@x.com\n1\n\n\n4\n\n123-456-7890\na@x.com\n1\n\n\n5\n555-0123\n\nd@x.com\n3\n\n\n6\n\n555-0123\nd@x.com\n3",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Examples</span>"
+    ]
+  },
+  {
+    "objectID": "examples.html#set_group_id",
+    "href": "examples.html#set_group_id",
+    "title": "3  Examples",
+    "section": "7.3 set_group_id()",
+    "text": "7.3 set_group_id()\nAn alternative grouping engine using the bipartite edge reduction (melt → edges → components). It requires an id column and writes the group id back by reference.\n\ndt_sg &lt;- data.table(\n  id     = 1:5,\n  phone1 = c(\"123\", \"456\", \"123\", \"789\", \"456\"),\n  phone2 = c(\"111\", \"222\", \"333\", \"111\", \"222\")\n)\nset_group_id(dt_sg, cols = \"phone\", var_output_name = \"gid\")\n\n\n\n\n\nid\nphone1\nphone2\ngid\n\n\n\n\n1\n123\n111\n1\n\n\n2\n456\n222\n2\n\n\n3\n123\n333\n1\n\n\n4\n789\n111\n1\n\n\n5\n456\n222\n2\n\n\n\n\n\ndt_sg\n\n\n\n\n\nid\nphone1\nphone2\ngid\n\n\n\n\n1\n123\n111\n1\n\n\n2\n456\n222\n2\n\n\n3\n123\n333\n1\n\n\n4\n789\n111\n1\n\n\n5\n456\n222\n2",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Examples</span>"
+    ]
   },
   {
     "objectID": "benchmarks.html",
     "href": "benchmarks.html",
-    "title": "Benchmarks",
+    "title": "4  Benchmarks",
     "section": "",
-    "text": "ImportantAbout the numbers on this page\n\n\n\nThe result tables below are indicative — they show the shape and order of magnitude you should expect, not measurements from this render. Absolute timings depend heavily on CPU, memory bandwidth, and BLAS/threading. Reproduce them on your own hardware with the script in benchmark.R or the extended harness below, and replace these tables with your output."
+    "text": "4.1 What we compare, and why\nThis render was produced on:\nigraph is the right tool for breadth; the comparison here is narrow on purpose — the operations graphfast actually implements. network/sna build dense geodesic structures and are not designed for the edge counts targeted here, so they are omitted from the timed runs below (they fall over well before 10⁷ edges); they remain in the table above only to place graphfast in context.\nThe key structural difference: graphfast consumes a two-column edge list directly and returns plain vectors, while igraph first builds a graph object (vertex tables, attribute storage). At small sizes that overhead is irrelevant; at 10M–100M edges it becomes a large share of total time and memory.",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Benchmarks</span>"
+    ]
   },
   {
     "objectID": "benchmarks.html#what-we-compare-and-why",
     "href": "benchmarks.html#what-we-compare-and-why",
-    "title": "Benchmarks",
-    "section": "What we compare, and why",
-    "text": "What we compare, and why\n\n\n\nPackage\nComponents\nShortest paths\nCore implementation\nTypical ceiling\n\n\n\n\ngraphfast\n✓\n✓ (BFS)\nC++ Union–Find on an edge list\n100M+ edges\n\n\nigraph\n✓\n✓\nC library, full graph object\n10M–100M edges\n\n\nnetwork + sna\n✓\n✓ (geodesics)\nR/S4, often dense structures\n~10⁵–10⁶ edges\n\n\n\nigraph is the right tool for breadth; the comparison here is narrow on purpose — the four operations graphfast actually implements. network/sna are included because they are common in the social-network world, but they are not designed for the edge counts targeted here and drop out of the large runs.\nThe key structural difference: graphfast consumes a two-column edge list directly and returns plain vectors, while igraph/network first build a graph object (vertex tables, attribute storage). At small sizes that overhead is irrelevant; at 10M–100M edges it becomes a large share of total time and memory."
+    "title": "4  Benchmarks",
+    "section": "",
+    "text": "Package\nComponents\nShortest paths\nCore implementation\nTypical ceiling\n\n\n\n\ngraphfast\n✓\n✓ (BFS)\nC++ Union–Find on an edge list\n100M+ edges\n\n\nigraph\n✓\n✓\nC library, full graph object\n10M–100M edges\n\n\nnetwork + sna\n✓\n✓ (geodesics)\nR/S4, often dense structures\n~10⁵–10⁶ edges",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Benchmarks</span>"
+    ]
   },
   {
     "objectID": "benchmarks.html#methodology",
     "href": "benchmarks.html#methodology",
-    "title": "Benchmarks",
-    "section": "Methodology",
-    "text": "Methodology\n\nGraphs: random edge lists generated with a fixed seed, self-loops removed. Node count scales with edge count, producing many medium components — a realistic, slightly sparse regime.\nTimed operations: (1) connected components on the whole graph; (2) hop-distance for a batch of query pairs.\nCorrectness: every run validates that graphfast agrees with the other packages on a sample of pairs (same component? same distance?) — speed is meaningless if the answers differ.\nSizes: 1M, 10M, and 100M edges. network/sna are only attempted at the smallest sizes.\nSingle pass: one timing per method (wall clock). For publication-grade numbers, wrap the calls in microbenchmark and report medians."
+    "title": "4  Benchmarks",
+    "section": "4.2 Methodology",
+    "text": "4.2 Methodology\n\nGraphs: random edge lists generated with a fixed seed, self-loops removed. Node count scales with edge count, producing many medium components — a realistic, slightly sparse regime.\nTimed operations: (1) connected components on the whole graph; (2) hop-distance for a batch of query pairs.\nCorrectness: each run validates that graphfast agrees with igraph on a sample of pairs (same component?) — speed is meaningless if the answers differ.\nSizes: 1M, 10M, and 100M edges. graphfast is measured at all three; igraph is measured up to 10M and deliberately skipped at 100M, where building a full graph object needs far more RAM than graphfast (raise igraph_max_edges in the harness if your machine has the headroom).\nSingle pass: one timing per method (wall clock). For publication-grade numbers, wrap the calls in microbenchmark and report medians.",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Benchmarks</span>"
+    ]
   },
   {
     "objectID": "benchmarks.html#the-harness",
     "href": "benchmarks.html#the-harness",
-    "title": "Benchmarks",
-    "section": "The harness",
-    "text": "The harness\nThis is the extended version of the bundled benchmark.R, parameterised over sizes and emitting a tidy table you can render or plot.\n\nlibrary(graphfast)\nlibrary(data.table)\n\nmake_graph &lt;- function(n_edges, sparsity = 5L, seed = 42L) {\n  set.seed(seed)\n  n_nodes &lt;- as.integer(max(1e5, floor(n_edges / sparsity)))\n  from &lt;- sample.int(n_nodes, n_edges, replace = TRUE)\n  to   &lt;- sample.int(n_nodes, n_edges, replace = TRUE)\n  keep &lt;- from != to                       # drop self-loops\n  matrix(c(from[keep], to[keep]), ncol = 2)\n}\n\ntime_it &lt;- function(expr) system.time(expr)[[\"elapsed\"]]\n\nbench_one &lt;- function(n_edges) {\n  edges   &lt;- make_graph(n_edges)\n  n_nodes &lt;- max(edges)\n  queries &lt;- edges[seq_len(min(50L, nrow(edges))), , drop = FALSE]\n\n  # ---- graphfast ----\n  gf_cc &lt;- time_it(cc &lt;- find_connected_components(edges, n_nodes = n_nodes))\n  gf_sp &lt;- time_it(shortest_paths(edges, queries, n_nodes = n_nodes))\n\n  out &lt;- data.table(\n    edges = n_edges, package = \"graphfast\",\n    components_s = gf_cc, shortest_paths_s = gf_sp,\n    n_components = cc$n_components\n  )\n\n  # ---- igraph (if installed) ----\n  if (requireNamespace(\"igraph\", quietly = TRUE)) {\n    ig_cc &lt;- time_it({\n      g &lt;- igraph::graph_from_edgelist(edges, directed = FALSE)\n      comp &lt;- igraph::components(g)\n    })\n    ig_sp &lt;- time_it({\n      for (i in seq_len(nrow(queries)))\n        igraph::distances(g, v = queries[i, 1], to = queries[i, 2])\n    })\n    out &lt;- rbind(out, data.table(\n      edges = n_edges, package = \"igraph\",\n      components_s = ig_cc, shortest_paths_s = ig_sp,\n      n_components = comp$no\n    ))\n  }\n  out\n}\n\nsizes   &lt;- c(1e6, 1e7, 1e8)            # 1M, 10M, 100M edges\nresults &lt;- rbindlist(lapply(sizes, bench_one))\nresults[]\n\n\n\n\n\n\n\nWarning\n\n\n\nThe 100M-edge run needs a machine with plenty of RAM. The graphfast Union–Find itself is ~2 integer arrays of length n_nodes (a few GB at most), but building an igraph object at that scale needs considerably more. Start at 1M, watch your memory, and step up."
+    "title": "4  Benchmarks",
+    "section": "4.3 The harness",
+    "text": "4.3 The harness\nThis is the live benchmark. It is parameterised over sizes and emits a tidy table; everything downstream is derived from results.\n\nlibrary(graphfast)\nlibrary(data.table)\n\n# Edit this vector to change what gets measured. graphfast is measured at every\n# size; igraph is only attempted up to `igraph_max_edges`, because building a\n# full igraph object at 100M edges needs far more RAM than graphfast and can\n# exhaust memory mid-render. Raise it if your machine has the headroom.\nsizes           &lt;- c(1e6, 1e7, 1e8)\nigraph_max_edges &lt;- 1e7\n\nmake_graph &lt;- function(n_edges, sparsity = 5L, seed = 42L) {\n  set.seed(seed)\n  n_nodes &lt;- as.integer(max(1e5, floor(n_edges / sparsity)))\n  from &lt;- sample.int(n_nodes, n_edges, replace = TRUE)\n  to   &lt;- sample.int(n_nodes, n_edges, replace = TRUE)\n  keep &lt;- from != to                       # drop self-loops\n  matrix(c(from[keep], to[keep]), ncol = 2)\n}\n\ntime_it &lt;- function(expr) system.time(expr)[[\"elapsed\"]]\n\nbench_one &lt;- function(n_edges) {\n  edges   &lt;- make_graph(n_edges)\n  n_nodes &lt;- max(edges)\n  queries &lt;- edges[seq_len(min(50L, nrow(edges))), , drop = FALSE]\n\n  # ---- graphfast ----\n  gf_cc &lt;- time_it(cc &lt;- find_connected_components(edges, n_nodes = n_nodes))\n  gf_sp &lt;- time_it(shortest_paths(edges, queries, n_nodes = n_nodes))\n\n  out &lt;- data.table(\n    edges = n_edges, package = \"graphfast\",\n    components_s = gf_cc, shortest_paths_s = gf_sp,\n    n_components = cc$n_components\n  )\n\n  # ---- igraph (capped by igraph_max_edges; also guarded against allocation errors) ----\n  if (requireNamespace(\"igraph\", quietly = TRUE) && n_edges &lt;= igraph_max_edges) {\n    ig &lt;- tryCatch({\n      g &lt;- igraph::graph_from_edgelist(edges, directed = FALSE)\n      ig_cc &lt;- time_it(comp &lt;- igraph::components(g))\n      ig_sp &lt;- time_it({\n        for (i in seq_len(nrow(queries)))\n          igraph::distances(g, v = queries[i, 1], to = queries[i, 2])\n      })\n      # correctness spot-check: do the two agree on component membership?\n      ok &lt;- comp$membership[queries[, 1]] == comp$membership[queries[, 2]]\n      gf_ok &lt;- cc$components[queries[, 1]] == cc$components[queries[, 2]]\n      stopifnot(all(ok == gf_ok))\n      data.table(\n        edges = n_edges, package = \"igraph\",\n        components_s = ig_cc, shortest_paths_s = ig_sp,\n        n_components = comp$no\n      )\n    }, error = function(e) {\n      message(sprintf(\"igraph skipped at %g edges: %s\", n_edges, conditionMessage(e)))\n      NULL\n    })\n    out &lt;- rbind(out, ig)\n  }\n  out\n}\n\nresults &lt;- rbindlist(lapply(sizes, bench_one), use.names = TRUE)\nresults[]\n\n\n\n\n\nedges\npackage\ncomponents_s\nshortest_paths_s\nn_components\n\n\n\n\n1e+06\ngraphfast\n0.04\n0.04\n12\n\n\n1e+06\nigraph\n0.09\n3.59\n12\n\n\n1e+07\ngraphfast\n1.13\n1.30\n81\n\n\n1e+07\nigraph\n1.20\n42.91\n81\n\n\n1e+08\ngraphfast\n10.14\n16.71\n910",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Benchmarks</span>"
+    ]
   },
   {
-    "objectID": "benchmarks.html#indicative-results-connected-components",
-    "href": "benchmarks.html#indicative-results-connected-components",
-    "title": "Benchmarks",
-    "section": "Indicative results — connected components",
-    "text": "Indicative results — connected components\nWall-clock seconds to compute all connected components. Lower is better. (Replace with your own measurements.)\n\n\n\nEdges\ngraphfast\nigraph\nnetwork + sna\n\n\n\n\n1M\n~0.1 s\n~0.6 s\n~minutes\n\n\n10M\n~1 s\n~7 s\n— (infeasible)\n\n\n100M\n~12 s\n~90 s\n— (infeasible)\n\n\n\nWhat to read into it: both libraries are near-linear in edges, so the curves are roughly straight on a log–log plot. The gap is the constant factor — graphfast avoids constructing and populating a full graph object, so it tends to land several× ahead on the same hardware. network/sna are not built for this regime and are omitted past ~10⁶."
+    "objectID": "benchmarks.html#measured-results-connected-components",
+    "href": "benchmarks.html#measured-results-connected-components",
+    "title": "4  Benchmarks",
+    "section": "4.4 Measured results — connected components",
+    "text": "4.4 Measured results — connected components\nWall-clock seconds to compute all connected components, on the graphs generated above. Lower is better.\n\n\n\n\nTable 4.1\n\n\n\n\n\n\nEdges\ngraphfast\nigraph\n\n\n\n\n1M\n0.040 s\n0.090 s\n\n\n10M\n1.130 s\n1.200 s\n\n\n100M\n10.140 s\n—\n\n\n\n\n\n\n\n\nOn this render graphfast computed components 1.1×–2.2× faster than igraph across the sizes where both ran.\nBoth libraries are near-linear in edges, so the curves are roughly straight on a log–log plot. The gap is the constant factor — graphfast avoids constructing and populating a full graph object.",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Benchmarks</span>"
+    ]
   },
   {
-    "objectID": "benchmarks.html#indicative-results-shortest-paths-batch-of-pairs",
-    "href": "benchmarks.html#indicative-results-shortest-paths-batch-of-pairs",
-    "title": "Benchmarks",
-    "section": "Indicative results — shortest paths (batch of pairs)",
-    "text": "Indicative results — shortest paths (batch of pairs)\nWall-clock seconds for a batch of pairwise hop-distance queries on the same graphs. (Replace with your own measurements.)\n\n\n\nEdges\ngraphfast\nigraph\n\n\n\n\n1M\n~0.05 s\n~0.2 s\n\n\n10M\n~0.5 s\n~2 s\n\n\n100M\n~6 s\n~25 s\n\n\n\ngraphfast builds the adjacency list once (degrees pre-reserved) and reuses a single distance buffer across queries via a visited-version stamp, so per-query overhead is small — the win grows with the number of queries."
+    "objectID": "benchmarks.html#measured-results-shortest-paths-batch-of-pairs",
+    "href": "benchmarks.html#measured-results-shortest-paths-batch-of-pairs",
+    "title": "4  Benchmarks",
+    "section": "4.5 Measured results — shortest paths (batch of pairs)",
+    "text": "4.5 Measured results — shortest paths (batch of pairs)\nWall-clock seconds for a batch of pairwise hop-distance queries on the same graphs.\n\n\n\n\nTable 4.2\n\n\n\n\n\n\nEdges\ngraphfast\nigraph\n\n\n\n\n1M\n0.040 s\n3.590 s\n\n\n10M\n1.300 s\n42.910 s\n\n\n100M\n16.710 s\n—\n\n\n\n\n\n\n\n\ngraphfast builds the adjacency list once (degrees pre-reserved) and reuses a single distance buffer across queries via a visited-version stamp, so per-query overhead is small — the win grows with the number of queries.",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Benchmarks</span>"
+    ]
   },
   {
     "objectID": "benchmarks.html#varying-the-graph-shape",
     "href": "benchmarks.html#varying-the-graph-shape",
-    "title": "Benchmarks",
-    "section": "Varying the graph shape",
-    "text": "Varying the graph shape\nRuntime is not just a function of edge count; structure matters. Worth profiling across:\n\nSparsity — many small components (few edges per node) vs. one giant component (dense). Union–Find cost is dominated by the number of union calls (= edges) either way, but cache behaviour differs.\nComponent count — the relabelling pass is O(n_nodes); graphs with huge node spaces pay more there.\nQuery depth (shortest paths) — distant or unreachable pairs explore more of the graph; use max_distance to bound it.\n\n\n# Sweep sparsity at a fixed edge count to see structural effects\nlibrary(graphfast); library(data.table)\nfixed_edges &lt;- 1e7\nsweep &lt;- rbindlist(lapply(c(2L, 5L, 20L, 100L), function(s) {\n  edges &lt;- make_graph(fixed_edges, sparsity = s)\n  data.table(\n    sparsity = s,\n    nodes = max(edges),\n    seconds = system.time(\n      find_connected_components(edges, n_nodes = max(edges))\n    )[[\"elapsed\"]]\n  )\n}))\nsweep[]"
+    "title": "4  Benchmarks",
+    "section": "4.6 Varying the graph shape",
+    "text": "4.6 Varying the graph shape\nRuntime is not just a function of edge count; structure matters. The sweep below holds the edge count fixed and varies sparsity (edges per node), measured live.\n\nfixed_edges &lt;- 1e7\nsweep &lt;- rbindlist(lapply(c(2L, 5L, 20L, 100L), function(s) {\n  edges &lt;- make_graph(fixed_edges, sparsity = s)\n  data.table(\n    sparsity = s,\n    nodes = max(edges),\n    seconds = system.time(\n      find_connected_components(edges, n_nodes = max(edges))\n    )[[\"elapsed\"]]\n  )\n}))\nsweep[]\n\n\n\n\n\nsparsity\nnodes\nseconds\n\n\n\n\n2\n5e+06\n0.93\n\n\n5\n2e+06\n0.52\n\n\n20\n5e+05\n0.38\n\n\n100\n1e+05\n0.34\n\n\n\n\n\n\nWhat to watch for across the sweep:\n\nSparsity — many small components (few edges per node) vs. one giant component (dense). Union–Find cost is dominated by the number of union calls (= edges) either way, but cache behaviour differs.\nComponent count — the relabelling pass is O(n_nodes); graphs with huge node spaces pay more there.\nQuery depth (shortest paths) — distant or unreachable pairs explore more of the graph; use max_distance to bound it.",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Benchmarks</span>"
+    ]
   },
   {
     "objectID": "benchmarks.html#memory",
     "href": "benchmarks.html#memory",
-    "title": "Benchmarks",
-    "section": "Memory",
-    "text": "Memory\ngraphfast’s connected-components memory is essentially:\n\\[\n\\underbrace{2 \\times 4\\text{ bytes} \\times n_{\\text{nodes}}}_{\\text{parent + rank}}\n\\; + \\; \\underbrace{8\\text{ bytes} \\times n_{\\text{edges}}}_{\\text{the edge list itself}}\n\\]\nso ~12 bytes per node plus the input. For sparse/large id spaces, prefer find_connected_components_safe(), which remaps ids so the arrays are sized by the number of distinct nodes, not the maximum id — the function reports the memory it saved in $memory_info. No adjacency matrix is ever formed, which is what makes 100M-edge graphs tractable on commodity hardware."
+    "title": "4  Benchmarks",
+    "section": "4.7 Memory",
+    "text": "4.7 Memory\ngraphfast’s connected-components memory is essentially:\n\\[\n\\underbrace{2 \\times 4\\text{ bytes} \\times n_{\\text{nodes}}}_{\\text{parent + rank}}\n\\; + \\; \\underbrace{8\\text{ bytes} \\times n_{\\text{edges}}}_{\\text{the edge list itself}}\n\\]\nso ~12 bytes per node plus the input. For sparse/large id spaces, prefer find_connected_components_safe(), which remaps ids so the arrays are sized by the number of distinct nodes, not the maximum id — the function reports the memory it saved in $memory_info. No adjacency matrix is ever formed, which is what makes 100M-edge graphs tractable on commodity hardware.",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Benchmarks</span>"
+    ]
   },
   {
     "objectID": "benchmarks.html#reproducing",
     "href": "benchmarks.html#reproducing",
-    "title": "Benchmarks",
-    "section": "Reproducing",
-    "text": "Reproducing\n# Install comparison packages as needed\ninstall.packages(c(\"igraph\", \"network\", \"sna\", \"microbenchmark\"))\n\n# Bundled single-file benchmark (1e5, 1e6, 1e7 by default)\nsource(\"benchmark.R\")\n\n# Or the parameterised harness above, then write your real tables:\n# fwrite(results, \"graphfast-benchmarks.csv\")\nIf you publish numbers, note your CPU, RAM, OS, R version, and whether comparison packages used multiple threads — it makes the figures comparable."
+    "title": "4  Benchmarks",
+    "section": "4.8 Reproducing",
+    "text": "4.8 Reproducing\n# Install comparison packages as needed\ninstall.packages(c(\"igraph\", \"microbenchmark\"))\n\n# Bundled single-file benchmark (1e5, 1e6, 1e7 by default)\nsource(\"benchmark.R\")\nTo regenerate the tables on this page, just re-render the book — the chunks above run automatically. Edit the sizes vector in the harness to push to 100M+ (and note your CPU, RAM, OS, R version, and threading, so the figures are comparable). ```",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Benchmarks</span>"
+    ]
+  },
+  {
+    "objectID": "reference.html",
+    "href": "reference.html",
+    "title": "5  Reference",
+    "section": "",
+    "text": "6 Connected components\nCompact reference for every exported function. Conventions:",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Reference</span>"
+    ]
+  },
+  {
+    "objectID": "reference.html#find_connected_componentsedges-n_nodes-null-compress-true",
+    "href": "reference.html#find_connected_componentsedges-n_nodes-null-compress-true",
+    "title": "5  Reference",
+    "section": "6.1 find_connected_components(edges, n_nodes = NULL, compress = TRUE)",
+    "text": "6.1 find_connected_components(edges, n_nodes = NULL, compress = TRUE)\nAll connected components for a dense, small-integer node space.\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nedges\nTwo-column edge list.\n\n\nn_nodes\nTotal node count. If NULL, inferred as max(edges). Set it to include isolated nodes or to skip the max scan.\n\n\ncompress\nTRUE: tidy ids 1..k. FALSE: raw Union–Find root labels.\n\n\n\nReturns a list: components (component id per node, length n_nodes), component_sizes (size of each component), n_components (count).\nNotes — errors if node ids exceed the 32-bit integer limit or if the implied allocation would exceed 32 GB; warns above ~8 GB. For sparse/huge ids use find_connected_components_safe().\n\ncc &lt;- find_connected_components(matrix(c(1,2, 2,3, 5,6), ncol = 2, byrow = TRUE))\ncc$n_components   # 2",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Reference</span>"
+    ]
+  },
+  {
+    "objectID": "reference.html#find_connected_components_safeedges-compress-true-verbose-true",
+    "href": "reference.html#find_connected_components_safeedges-compress-true-verbose-true",
+    "title": "5  Reference",
+    "section": "6.2 find_connected_components_safe(edges, compress = TRUE, verbose = TRUE)",
+    "text": "6.2 find_connected_components_safe(edges, compress = TRUE, verbose = TRUE)\nSame result, but remaps node ids to a dense 1..(unique nodes) space with fastmatch first — safe and memory-efficient for sparse or large ids.\n\n\n\nArgument\nDescription\n\n\n\n\nedges\nTwo-column edge list (kept numeric to tolerate large ids).\n\n\ncompress\nAs above.\n\n\nverbose\nPrint a memory analysis. Default TRUE.\n\n\n\nReturns components (named by original node ids), component_sizes, n_components, node_mapping (original ↔︎ mapped), and memory_info (naive_memory_gb, efficient_memory_gb, memory_saved_gb).",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Reference</span>"
+    ]
+  },
+  {
+    "objectID": "reference.html#find_connected_components_largeedges-compress-true-verbose-false",
+    "href": "reference.html#find_connected_components_largeedges-compress-true-verbose-false",
+    "title": "5  Reference",
+    "section": "6.3 find_connected_components_large(edges, compress = TRUE, verbose = FALSE)",
+    "text": "6.3 find_connected_components_large(edges, compress = TRUE, verbose = FALSE)\nFor node ids beyond the 32-bit integer range. Ids are held as doubles and remapped to consecutive integers internally.\nReturns components (named by original ids), component_sizes, n_components, and (when remapping occurs) node_mapping.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Reference</span>"
+    ]
+  },
+  {
+    "objectID": "reference.html#get_edge_componentsedges-n_nodes-null-compress-true-return_type-list",
+    "href": "reference.html#get_edge_componentsedges-n_nodes-null-compress-true-return_type-list",
+    "title": "5  Reference",
+    "section": "7.1 get_edge_components(edges, n_nodes = NULL, compress = TRUE, return_type = \"list\")",
+    "text": "7.1 get_edge_components(edges, n_nodes = NULL, compress = TRUE, return_type = \"list\")\nComponent assignment for each edge rather than each node.\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nreturn_type\n\"list\": from_components, to_components, n_components. \"combined\": just the from_components vector.\n\n\n\nFor a genuine edge, from and to are always in the same component, so the combined vector is the natural “component id per row”.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Reference</span>"
+    ]
+  },
+  {
+    "objectID": "reference.html#group_edgesedges-n_nodes-null-compress-true",
+    "href": "reference.html#group_edgesedges-n_nodes-null-compress-true",
+    "title": "5  Reference",
+    "section": "7.2 group_edges(edges, n_nodes = NULL, compress = TRUE)",
+    "text": "7.2 group_edges(edges, n_nodes = NULL, compress = TRUE)\nConvenience alias returning one component id per edge row (get_edge_components(..., return_type = \"combined\")).\n\ngroup_edges(matrix(c(1,2, 2,3, 5,6), ncol = 2, byrow = TRUE))   # 1 1 2",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Reference</span>"
+    ]
+  },
+  {
+    "objectID": "reference.html#edge_componentsdt-from_col-to_col-compress-true",
+    "href": "reference.html#edge_componentsdt-from_col-to_col-compress-true",
+    "title": "5  Reference",
+    "section": "7.3 edge_components(dt, from_col, to_col, compress = TRUE)",
+    "text": "7.3 edge_components(dt, from_col, to_col, compress = TRUE)\nSame as group_edges() but takes a data.table/data.frame and column names — designed for inline data.table use.\n\ndt[, component := edge_components(.SD, \"from\", \"to\")]",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Reference</span>"
+    ]
+  },
+  {
+    "objectID": "reference.html#add_component_columndt-from_col-from-to_col-to-component_col-component-n_nodes-null-compress-true-in_place-true-verbose-false",
+    "href": "reference.html#add_component_columndt-from_col-from-to_col-to-component_col-component-n_nodes-null-compress-true-in_place-true-verbose-false",
+    "title": "5  Reference",
+    "section": "7.4 add_component_column(dt, from_col = \"from\", to_col = \"to\", component_col = \"component\", n_nodes = NULL, compress = TRUE, in_place = TRUE, verbose = FALSE)",
+    "text": "7.4 add_component_column(dt, from_col = \"from\", to_col = \"to\", component_col = \"component\", n_nodes = NULL, compress = TRUE, in_place = TRUE, verbose = FALSE)\nAdd a component column to a data.table. Node ids are mapped with fastmatch.\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nfrom_col, to_col\nEdge endpoint columns.\n\n\ncomponent_col\nName of the new column.\n\n\nin_place\nTRUE: modify dt by reference. FALSE: return a modified copy.\n\n\nverbose\nPrint per-step timing.\n\n\n\nReturns the data.table (invisibly when in_place = TRUE).",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Reference</span>"
+    ]
+  },
+  {
+    "objectID": "reference.html#are_connectededges-query_pairs-n_nodes-null",
+    "href": "reference.html#are_connectededges-query_pairs-n_nodes-null",
+    "title": "5  Reference",
+    "section": "8.1 are_connected(edges, query_pairs, n_nodes = NULL)",
+    "text": "8.1 are_connected(edges, query_pairs, n_nodes = NULL)\nAre the two nodes in each pair in the same component? Builds Union–Find once.\nReturns a logical vector, one element per query pair.\n\nare_connected(edges, matrix(c(1,3, 1,5), ncol = 2, byrow = TRUE))   # TRUE FALSE",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Reference</span>"
+    ]
+  },
+  {
+    "objectID": "reference.html#shortest_pathsedges-query_pairs-n_nodes-null-max_distance--1",
+    "href": "reference.html#shortest_pathsedges-query_pairs-n_nodes-null-max_distance--1",
+    "title": "5  Reference",
+    "section": "8.2 shortest_paths(edges, query_pairs, n_nodes = NULL, max_distance = -1)",
+    "text": "8.2 shortest_paths(edges, query_pairs, n_nodes = NULL, max_distance = -1)\nUnweighted shortest hop distance per query pair, via BFS.\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nmax_distance\nStop searching beyond this depth; farther pairs return -1. -1 (default) = no limit.\n\n\n\nReturns an integer vector; 0 for identical source/target, -1 if no path (or beyond max_distance).",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Reference</span>"
+    ]
+  },
+  {
+    "objectID": "reference.html#graph_statisticsedges-n_nodes-null",
+    "href": "reference.html#graph_statisticsedges-n_nodes-null",
+    "title": "5  Reference",
+    "section": "8.3 graph_statistics(edges, n_nodes = NULL)",
+    "text": "8.3 graph_statistics(edges, n_nodes = NULL)\nSingle-pass degree and density summary; no adjacency matrix.\nReturns n_edges, n_nodes, density, and degree_stats (min, max, mean).",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Reference</span>"
+    ]
+  },
+  {
+    "objectID": "reference.html#group_iddata-cols-null-use_regex-true-incomparables-c-na-unknown-case_sensitive-true-min_group_size-1-return_details-false-verbose-false",
+    "href": "reference.html#group_iddata-cols-null-use_regex-true-incomparables-c-na-unknown-case_sensitive-true-min_group_size-1-return_details-false-verbose-false",
+    "title": "5  Reference",
+    "section": "9.1 group_id(data, cols = NULL, use_regex = TRUE, incomparables = c(\"\", \"NA\", \"Unknown\"), case_sensitive = TRUE, min_group_size = 1, return_details = FALSE, verbose = FALSE)",
+    "text": "9.1 group_id(data, cols = NULL, use_regex = TRUE, incomparables = c(\"\", \"NA\", \"Unknown\"), case_sensitive = TRUE, min_group_size = 1, return_details = FALSE, verbose = FALSE)\nGroup rows that share any value across the chosen columns (Union–Find over rows).\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\ndata\nA data.frame/data.table, or a list of equal-length columns.\n\n\ncols\nColumn names, or regex patterns when use_regex = TRUE. NULL uses all columns.\n\n\nuse_regex\nTreat cols as regex patterns matched against column names.\n\n\nincomparables\nValues that never link rows (empty, \"NA\", etc.).\n\n\ncase_sensitive\nCase-sensitive string comparison.\n\n\nmin_group_size\nGroups smaller than this get id 0.\n\n\nreturn_details\nReturn a rich group_id_result object instead of a bare vector.\n\n\nverbose\nPrint timing/progress.\n\n\n\nReturns an integer vector of group ids (one per row); or, with return_details = TRUE, a group_id_result list with group_ids, n_groups, group_sizes, and value_map (which shared values formed each group).\nNote — an all-numeric, no-incomparables, case-sensitive call dispatches to a specialised fast numeric path automatically.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Reference</span>"
+    ]
+  },
+  {
+    "objectID": "reference.html#printx-...-for-group_id_result",
+    "href": "reference.html#printx-...-for-group_id_result",
+    "title": "5  Reference",
+    "section": "9.2 print(x, ...) for group_id_result",
+    "text": "9.2 print(x, ...) for group_id_result\nS3 print method summarising counts, settings, the first group ids, and the shared values that created groups.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Reference</span>"
+    ]
+  },
+  {
+    "objectID": "reference.html#add_group_idsdt-cols-group_col-group_id-use_regex-true-...",
+    "href": "reference.html#add_group_idsdt-cols-group_col-group_id-use_regex-true-...",
+    "title": "5  Reference",
+    "section": "9.3 add_group_ids(dt, cols, group_col = \"group_id\", use_regex = TRUE, ...)",
+    "text": "9.3 add_group_ids(dt, cols, group_col = \"group_id\", use_regex = TRUE, ...)\ndata.table wrapper for group_id() — adds the group column by reference. Extra ... are passed through to group_id().\nReturns dt (invisibly).",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Reference</span>"
+    ]
+  },
+  {
+    "objectID": "reference.html#set_group_iddt-cols-phone-var_output_name-gid-incomparables-cna",
+    "href": "reference.html#set_group_iddt-cols-phone-var_output_name-gid-incomparables-cna",
+    "title": "5  Reference",
+    "section": "9.4 set_group_id(dt, cols = \"phone\", var_output_name = \"gid\", incomparables = c(NA, \"\"))",
+    "text": "9.4 set_group_id(dt, cols = \"phone\", var_output_name = \"gid\", incomparables = c(NA, \"\"))\nAlternative grouping engine using the bipartite edge reduction (melt → edges → edge_components).\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\ndt\nA data.table that must contain an id column.\n\n\ncols\nRegex matched against column names to choose the value columns.\n\n\nvar_output_name\nName of the group-id column to add.\n\n\nincomparables\nValues excluded from linking.\n\n\n\nReturns dt, modified by reference with the new group column.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Reference</span>"
+    ]
+  },
+  {
+    "objectID": "reference.html#see-also",
+    "href": "reference.html#see-also",
+    "title": "5  Reference",
+    "section": "9.5 See also",
+    "text": "9.5 See also\n\nTheory — how these algorithms work and why they are fast.\nExamples — runnable demonstrations of every function.\nBenchmarks — scaling against igraph, network, sna.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Reference</span>"
+    ]
   }
 ]

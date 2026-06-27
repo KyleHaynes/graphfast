@@ -6,6 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="Fast graph connectivity analysis and entity resolution in R, powered by C++.">
 
 <title>graphfast</title>
 <style>
@@ -68,6 +69,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./theory.html" rel="next">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -77,13 +79,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-cfca05be01d3419732a5879cfde5cf21.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-8b2de8cf835f6beefff61e77268666f7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
-  "location": "navbar",
+  "location": "sidebar",
   "copy-button": false,
   "collapse-after": 3,
-  "panel-placement": "end",
-  "type": "overlay",
+  "panel-placement": "start",
+  "type": "textbox",
   "limit": 50,
   "keyboard-shortcut": [
     "f",
@@ -109,74 +111,91 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-sidebar docked quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
-      <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">graphfast</span>
-    </a>
-  </div>
-            <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-  <span class="navbar-toggler-icon"></span>
-</button>
-          <div class="collapse navbar-collapse" id="navbarCollapse">
-            <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
-<span class="menu-text">Overview</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./theory.html"> 
-<span class="menu-text">Theory</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./examples.html"> 
-<span class="menu-text">Examples</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./benchmarks.html"> 
-<span class="menu-text">Benchmarks</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./reference.html"> 
-<span class="menu-text">Reference</span></a>
-  </li>  
-</ul>
-            <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/KyleHaynes/graphfast"> <i class="bi bi-github" role="img">
-</i> 
-<span class="menu-text">Source</span></a>
-  </li>  
-</ul>
-          </div> <!-- /navcollapse -->
-            <div class="quarto-navbar-tools">
-</div>
-      </div> <!-- /container-fluid -->
-    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">graphfast</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">graphfast</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/KyleHaynes/graphfast" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">graphfast</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Theory</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./examples.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Examples</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./benchmarks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Benchmarks</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Reference</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
+    <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#what-is-graphfast" id="toc-what-is-graphfast" class="nav-link active" data-scroll-target="#what-is-graphfast">What is graphfast?</a></li>
-  <li><a href="#why-it-exists" id="toc-why-it-exists" class="nav-link" data-scroll-target="#why-it-exists">Why it exists</a></li>
-  <li><a href="#installation" id="toc-installation" class="nav-link" data-scroll-target="#installation">Installation</a></li>
-  <li><a href="#a-60-second-tour" id="toc-a-60-second-tour" class="nav-link" data-scroll-target="#a-60-second-tour">A 60-second tour</a></li>
-  <li><a href="#how-the-manual-is-organised" id="toc-how-the-manual-is-organised" class="nav-link" data-scroll-target="#how-the-manual-is-organised">How the manual is organised</a></li>
-  <li><a href="#at-a-glance" id="toc-at-a-glance" class="nav-link" data-scroll-target="#at-a-glance">At a glance</a></li>
+  <li><a href="#what-is-graphfast" id="toc-what-is-graphfast" class="nav-link active" data-scroll-target="#what-is-graphfast"><span class="header-section-number">0.1</span> What is graphfast?</a></li>
+  <li><a href="#why-it-exists" id="toc-why-it-exists" class="nav-link" data-scroll-target="#why-it-exists"><span class="header-section-number">0.2</span> Why it exists</a></li>
+  <li><a href="#installation" id="toc-installation" class="nav-link" data-scroll-target="#installation"><span class="header-section-number">0.3</span> Installation</a></li>
+  <li><a href="#a-60-second-tour" id="toc-a-60-second-tour" class="nav-link" data-scroll-target="#a-60-second-tour"><span class="header-section-number">0.4</span> A 60-second tour</a></li>
+  <li><a href="#how-the-book-is-organised" id="toc-how-the-book-is-organised" class="nav-link" data-scroll-target="#how-the-book-is-organised"><span class="header-section-number">0.5</span> How the book is organised</a></li>
+  <li><a href="#at-a-glance" id="toc-at-a-glance" class="nav-link" data-scroll-target="#at-a-glance"><span class="header-section-number">0.6</span> At a glance</a></li>
   </ul>
-</nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/KyleHaynes/graphfast/blob/main/index.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/KyleHaynes/graphfast/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -187,6 +206,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p class="subtitle lead">Fast graph connectivity analysis and entity resolution in R, powered by C++</p>
 </div>
 
+<div>
+  <div class="description">
+    Fast graph connectivity analysis and entity resolution in R, powered by C++.
+  </div>
+</div>
 
 
 <div class="quarto-title-meta">
@@ -201,8 +225,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="what-is-graphfast" class="level2">
-<h2 class="anchored" data-anchor-id="what-is-graphfast">What is graphfast?</h2>
+<section id="what-is-graphfast" class="level2" data-number="0.1">
+<h2 data-number="0.1" class="anchored" data-anchor-id="what-is-graphfast"><span class="header-section-number">0.1</span> What is graphfast?</h2>
 <p><code>graphfast</code> is a small, focused R package for the operations that dominate real-world graph work on <strong>large</strong> data:</p>
 <ul>
 <li><strong>Connected components</strong> — which nodes/edges belong to the same blob?</li>
@@ -226,8 +250,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="why-it-exists" class="level2">
-<h2 class="anchored" data-anchor-id="why-it-exists">Why it exists</h2>
+<section id="why-it-exists" class="level2" data-number="0.2">
+<h2 data-number="0.2" class="anchored" data-anchor-id="why-it-exists"><span class="header-section-number">0.2</span> Why it exists</h2>
 <p>The standard pattern in R is “build an <code>igraph</code> object, then ask a question of it”. For very large edge lists that construction step — and the vertex bookkeeping around it — can dominate runtime and memory. <code>graphfast</code> skips the heavyweight graph object: it consumes a <strong>two-column edge list</strong> (matrix or <code>data.table</code>) directly and returns plain integer vectors, so it composes naturally with a <code>data.table</code> pipeline:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(graphfast)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
@@ -237,15 +261,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Component id per edge, added by reference — no graph object, no copy</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>dt[, component <span class="sc">:</span><span class="er">=</span> <span class="fu">edge_components</span>(.SD, <span class="st">"from"</span>, <span class="st">"to"</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="installation" class="level2">
-<h2 class="anchored" data-anchor-id="installation">Installation</h2>
+<section id="installation" class="level2" data-number="0.3">
+<h2 data-number="0.3" class="anchored" data-anchor-id="installation"><span class="header-section-number">0.3</span> Installation</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Development version from GitHub</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("remotes")</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"KyleHaynes/graphfast"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>graphfast</code> compiles C++ (Rcpp / C++11), so you need a working toolchain (Rtools on Windows, Xcode CLT on macOS, <code>r-base-dev</code> on Linux).</p>
 </section>
-<section id="a-60-second-tour" class="level2">
-<h2 class="anchored" data-anchor-id="a-60-second-tour">A 60-second tour</h2>
+<section id="a-60-second-tour" class="level2" data-number="0.4">
+<h2 data-number="0.4" class="anchored" data-anchor-id="a-60-second-tour"><span class="header-section-number">0.4</span> A 60-second tour</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(graphfast)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -275,12 +299,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="fu">graph_statistics</span>(edges)<span class="sc">$</span>density</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="how-the-manual-is-organised" class="level2">
-<h2 class="anchored" data-anchor-id="how-the-manual-is-organised">How the manual is organised</h2>
+<section id="how-the-book-is-organised" class="level2" data-number="0.5">
+<h2 data-number="0.5" class="anchored" data-anchor-id="how-the-book-is-organised"><span class="header-section-number">0.5</span> How the book is organised</h2>
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th>Page</th>
+<th>Chapter</th>
 <th>What you’ll find</th>
 </tr>
 </thead>
@@ -295,7 +319,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td><a href="./benchmarks.html">Benchmarks</a></td>
-<td>Comparison against <code>igraph</code> / <code>network</code> / <code>sna</code> at 1M, 10M, and 100M edges.</td>
+<td>Live, measured comparison against <code>igraph</code> at 1M, 10M, and 100M edges.</td>
 </tr>
 <tr class="even">
 <td><a href="./reference.html">Reference</a></td>
@@ -304,8 +328,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tbody>
 </table>
 </section>
-<section id="at-a-glance" class="level2">
-<h2 class="anchored" data-anchor-id="at-a-glance">At a glance</h2>
+<section id="at-a-glance" class="level2" data-number="0.6">
+<h2 data-number="0.6" class="anchored" data-anchor-id="at-a-glance"><span class="header-section-number">0.6</span> At a glance</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 52%">
@@ -766,9 +790,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     }
   });
   </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./theory.html" class="pagination-link" aria-label="Theory">
+        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Theory</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
 </div> <!-- /content -->
 
 
 
 
-</body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/KyleHaynes/graphfast/blob/main/index.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/KyleHaynes/graphfast/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

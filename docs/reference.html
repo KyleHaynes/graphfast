@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="Fast graph connectivity analysis and entity resolution in R, powered by C++.">
 
-<title>Reference – graphfast</title>
+<title>5&nbsp; Reference – graphfast</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -68,6 +69,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./benchmarks.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -77,13 +79,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-cfca05be01d3419732a5879cfde5cf21.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-8b2de8cf835f6beefff61e77268666f7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
-  "location": "navbar",
+  "location": "sidebar",
   "copy-button": false,
   "collapse-after": 3,
-  "panel-placement": "end",
-  "type": "overlay",
+  "panel-placement": "start",
+  "type": "textbox",
   "limit": 50,
   "keyboard-shortcut": [
     "f",
@@ -109,102 +111,119 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-sidebar docked quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
-      <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">graphfast</span>
-    </a>
-  </div>
-            <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-  <span class="navbar-toggler-icon"></span>
-</button>
-          <div class="collapse navbar-collapse" id="navbarCollapse">
-            <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="./index.html"> 
-<span class="menu-text">Overview</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./theory.html"> 
-<span class="menu-text">Theory</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./examples.html"> 
-<span class="menu-text">Examples</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./benchmarks.html"> 
-<span class="menu-text">Benchmarks</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link active" href="./reference.html" aria-current="page"> 
-<span class="menu-text">Reference</span></a>
-  </li>  
-</ul>
-            <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/KyleHaynes/graphfast"> <i class="bi bi-github" role="img">
-</i> 
-<span class="menu-text">Source</span></a>
-  </li>  
-</ul>
-          </div> <!-- /navcollapse -->
-            <div class="quarto-navbar-tools">
-</div>
-      </div> <!-- /container-fluid -->
-    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./reference.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Reference</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">graphfast</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/KyleHaynes/graphfast" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">graphfast</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Theory</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./examples.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Examples</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./benchmarks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Benchmarks</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reference.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Reference</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
+    <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#connected-components" id="toc-connected-components" class="nav-link active" data-scroll-target="#connected-components">Connected components</a>
+  <li><a href="#connected-components" id="toc-connected-components" class="nav-link active" data-scroll-target="#connected-components"><span class="header-section-number">6</span> Connected components</a>
   <ul class="collapse">
-  <li><a href="#find_connected_componentsedges-n_nodes-null-compress-true" id="toc-find_connected_componentsedges-n_nodes-null-compress-true" class="nav-link" data-scroll-target="#find_connected_componentsedges-n_nodes-null-compress-true"><code>find_connected_components(edges, n_nodes = NULL, compress = TRUE)</code></a></li>
-  <li><a href="#find_connected_components_safeedges-compress-true-verbose-true" id="toc-find_connected_components_safeedges-compress-true-verbose-true" class="nav-link" data-scroll-target="#find_connected_components_safeedges-compress-true-verbose-true"><code>find_connected_components_safe(edges, compress = TRUE, verbose = TRUE)</code></a></li>
-  <li><a href="#find_connected_components_largeedges-compress-true-verbose-false" id="toc-find_connected_components_largeedges-compress-true-verbose-false" class="nav-link" data-scroll-target="#find_connected_components_largeedges-compress-true-verbose-false"><code>find_connected_components_large(edges, compress = TRUE, verbose = FALSE)</code></a></li>
+  <li><a href="#find_connected_componentsedges-n_nodes-null-compress-true" id="toc-find_connected_componentsedges-n_nodes-null-compress-true" class="nav-link" data-scroll-target="#find_connected_componentsedges-n_nodes-null-compress-true"><span class="header-section-number">6.1</span> <code>find_connected_components(edges, n_nodes = NULL, compress = TRUE)</code></a></li>
+  <li><a href="#find_connected_components_safeedges-compress-true-verbose-true" id="toc-find_connected_components_safeedges-compress-true-verbose-true" class="nav-link" data-scroll-target="#find_connected_components_safeedges-compress-true-verbose-true"><span class="header-section-number">6.2</span> <code>find_connected_components_safe(edges, compress = TRUE, verbose = TRUE)</code></a></li>
+  <li><a href="#find_connected_components_largeedges-compress-true-verbose-false" id="toc-find_connected_components_largeedges-compress-true-verbose-false" class="nav-link" data-scroll-target="#find_connected_components_largeedges-compress-true-verbose-false"><span class="header-section-number">6.3</span> <code>find_connected_components_large(edges, compress = TRUE, verbose = FALSE)</code></a></li>
   </ul></li>
-  <li><a href="#per-edge-components" id="toc-per-edge-components" class="nav-link" data-scroll-target="#per-edge-components">Per-edge components</a>
+  <li><a href="#per-edge-components" id="toc-per-edge-components" class="nav-link" data-scroll-target="#per-edge-components"><span class="header-section-number">7</span> Per-edge components</a>
   <ul class="collapse">
-  <li><a href="#get_edge_componentsedges-n_nodes-null-compress-true-return_type-list" id="toc-get_edge_componentsedges-n_nodes-null-compress-true-return_type-list" class="nav-link" data-scroll-target="#get_edge_componentsedges-n_nodes-null-compress-true-return_type-list"><code>get_edge_components(edges, n_nodes = NULL, compress = TRUE, return_type = "list")</code></a></li>
-  <li><a href="#group_edgesedges-n_nodes-null-compress-true" id="toc-group_edgesedges-n_nodes-null-compress-true" class="nav-link" data-scroll-target="#group_edgesedges-n_nodes-null-compress-true"><code>group_edges(edges, n_nodes = NULL, compress = TRUE)</code></a></li>
-  <li><a href="#edge_componentsdt-from_col-to_col-compress-true" id="toc-edge_componentsdt-from_col-to_col-compress-true" class="nav-link" data-scroll-target="#edge_componentsdt-from_col-to_col-compress-true"><code>edge_components(dt, from_col, to_col, compress = TRUE)</code></a></li>
-  <li><a href="#add_component_columndt-from_col-from-to_col-to-component_col-component-n_nodes-null-compress-true-in_place-true-verbose-false" id="toc-add_component_columndt-from_col-from-to_col-to-component_col-component-n_nodes-null-compress-true-in_place-true-verbose-false" class="nav-link" data-scroll-target="#add_component_columndt-from_col-from-to_col-to-component_col-component-n_nodes-null-compress-true-in_place-true-verbose-false"><code>add_component_column(dt, from_col = "from", to_col = "to", component_col = "component", n_nodes = NULL, compress = TRUE, in_place = TRUE, verbose = FALSE)</code></a></li>
+  <li><a href="#get_edge_componentsedges-n_nodes-null-compress-true-return_type-list" id="toc-get_edge_componentsedges-n_nodes-null-compress-true-return_type-list" class="nav-link" data-scroll-target="#get_edge_componentsedges-n_nodes-null-compress-true-return_type-list"><span class="header-section-number">7.1</span> <code>get_edge_components(edges, n_nodes = NULL, compress = TRUE, return_type = "list")</code></a></li>
+  <li><a href="#group_edgesedges-n_nodes-null-compress-true" id="toc-group_edgesedges-n_nodes-null-compress-true" class="nav-link" data-scroll-target="#group_edgesedges-n_nodes-null-compress-true"><span class="header-section-number">7.2</span> <code>group_edges(edges, n_nodes = NULL, compress = TRUE)</code></a></li>
+  <li><a href="#edge_componentsdt-from_col-to_col-compress-true" id="toc-edge_componentsdt-from_col-to_col-compress-true" class="nav-link" data-scroll-target="#edge_componentsdt-from_col-to_col-compress-true"><span class="header-section-number">7.3</span> <code>edge_components(dt, from_col, to_col, compress = TRUE)</code></a></li>
+  <li><a href="#add_component_columndt-from_col-from-to_col-to-component_col-component-n_nodes-null-compress-true-in_place-true-verbose-false" id="toc-add_component_columndt-from_col-from-to_col-to-component_col-component-n_nodes-null-compress-true-in_place-true-verbose-false" class="nav-link" data-scroll-target="#add_component_columndt-from_col-from-to_col-to-component_col-component-n_nodes-null-compress-true-in_place-true-verbose-false"><span class="header-section-number">7.4</span> <code>add_component_column(dt, from_col = "from", to_col = "to", component_col = "component", n_nodes = NULL, compress = TRUE, in_place = TRUE, verbose = FALSE)</code></a></li>
   </ul></li>
-  <li><a href="#connectivity-distance-statistics" id="toc-connectivity-distance-statistics" class="nav-link" data-scroll-target="#connectivity-distance-statistics">Connectivity, distance, statistics</a>
+  <li><a href="#connectivity-distance-statistics" id="toc-connectivity-distance-statistics" class="nav-link" data-scroll-target="#connectivity-distance-statistics"><span class="header-section-number">8</span> Connectivity, distance, statistics</a>
   <ul class="collapse">
-  <li><a href="#are_connectededges-query_pairs-n_nodes-null" id="toc-are_connectededges-query_pairs-n_nodes-null" class="nav-link" data-scroll-target="#are_connectededges-query_pairs-n_nodes-null"><code>are_connected(edges, query_pairs, n_nodes = NULL)</code></a></li>
-  <li><a href="#shortest_pathsedges-query_pairs-n_nodes-null-max_distance--1" id="toc-shortest_pathsedges-query_pairs-n_nodes-null-max_distance--1" class="nav-link" data-scroll-target="#shortest_pathsedges-query_pairs-n_nodes-null-max_distance--1"><code>shortest_paths(edges, query_pairs, n_nodes = NULL, max_distance = -1)</code></a></li>
-  <li><a href="#graph_statisticsedges-n_nodes-null" id="toc-graph_statisticsedges-n_nodes-null" class="nav-link" data-scroll-target="#graph_statisticsedges-n_nodes-null"><code>graph_statistics(edges, n_nodes = NULL)</code></a></li>
+  <li><a href="#are_connectededges-query_pairs-n_nodes-null" id="toc-are_connectededges-query_pairs-n_nodes-null" class="nav-link" data-scroll-target="#are_connectededges-query_pairs-n_nodes-null"><span class="header-section-number">8.1</span> <code>are_connected(edges, query_pairs, n_nodes = NULL)</code></a></li>
+  <li><a href="#shortest_pathsedges-query_pairs-n_nodes-null-max_distance--1" id="toc-shortest_pathsedges-query_pairs-n_nodes-null-max_distance--1" class="nav-link" data-scroll-target="#shortest_pathsedges-query_pairs-n_nodes-null-max_distance--1"><span class="header-section-number">8.2</span> <code>shortest_paths(edges, query_pairs, n_nodes = NULL, max_distance = -1)</code></a></li>
+  <li><a href="#graph_statisticsedges-n_nodes-null" id="toc-graph_statisticsedges-n_nodes-null" class="nav-link" data-scroll-target="#graph_statisticsedges-n_nodes-null"><span class="header-section-number">8.3</span> <code>graph_statistics(edges, n_nodes = NULL)</code></a></li>
   </ul></li>
-  <li><a href="#entity-resolution-grouping" id="toc-entity-resolution-grouping" class="nav-link" data-scroll-target="#entity-resolution-grouping">Entity resolution / grouping</a>
+  <li><a href="#entity-resolution-grouping" id="toc-entity-resolution-grouping" class="nav-link" data-scroll-target="#entity-resolution-grouping"><span class="header-section-number">9</span> Entity resolution / grouping</a>
   <ul class="collapse">
-  <li><a href="#group_iddata-cols-null-use_regex-true-incomparables-c-na-unknown-case_sensitive-true-min_group_size-1-return_details-false-verbose-false" id="toc-group_iddata-cols-null-use_regex-true-incomparables-c-na-unknown-case_sensitive-true-min_group_size-1-return_details-false-verbose-false" class="nav-link" data-scroll-target="#group_iddata-cols-null-use_regex-true-incomparables-c-na-unknown-case_sensitive-true-min_group_size-1-return_details-false-verbose-false"><code>group_id(data, cols = NULL, use_regex = TRUE, incomparables = c("", "NA", "Unknown"), case_sensitive = TRUE, min_group_size = 1, return_details = FALSE, verbose = FALSE)</code></a></li>
-  <li><a href="#printx-...-for-group_id_result" id="toc-printx-...-for-group_id_result" class="nav-link" data-scroll-target="#printx-...-for-group_id_result"><code>print(x, ...)</code> for <code>group_id_result</code></a></li>
-  <li><a href="#add_group_idsdt-cols-group_col-group_id-use_regex-true-..." id="toc-add_group_idsdt-cols-group_col-group_id-use_regex-true-..." class="nav-link" data-scroll-target="#add_group_idsdt-cols-group_col-group_id-use_regex-true-..."><code>add_group_ids(dt, cols, group_col = "group_id", use_regex = TRUE, ...)</code></a></li>
-  <li><a href="#set_group_iddt-cols-phone-var_output_name-gid-incomparables-cna" id="toc-set_group_iddt-cols-phone-var_output_name-gid-incomparables-cna" class="nav-link" data-scroll-target="#set_group_iddt-cols-phone-var_output_name-gid-incomparables-cna"><code>set_group_id(dt, cols = "phone", var_output_name = "gid", incomparables = c(NA, ""))</code></a></li>
-  <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also">See also</a></li>
+  <li><a href="#group_iddata-cols-null-use_regex-true-incomparables-c-na-unknown-case_sensitive-true-min_group_size-1-return_details-false-verbose-false" id="toc-group_iddata-cols-null-use_regex-true-incomparables-c-na-unknown-case_sensitive-true-min_group_size-1-return_details-false-verbose-false" class="nav-link" data-scroll-target="#group_iddata-cols-null-use_regex-true-incomparables-c-na-unknown-case_sensitive-true-min_group_size-1-return_details-false-verbose-false"><span class="header-section-number">9.1</span> <code>group_id(data, cols = NULL, use_regex = TRUE, incomparables = c("", "NA", "Unknown"), case_sensitive = TRUE, min_group_size = 1, return_details = FALSE, verbose = FALSE)</code></a></li>
+  <li><a href="#printx-...-for-group_id_result" id="toc-printx-...-for-group_id_result" class="nav-link" data-scroll-target="#printx-...-for-group_id_result"><span class="header-section-number">9.2</span> <code>print(x, ...)</code> for <code>group_id_result</code></a></li>
+  <li><a href="#add_group_idsdt-cols-group_col-group_id-use_regex-true-..." id="toc-add_group_idsdt-cols-group_col-group_id-use_regex-true-..." class="nav-link" data-scroll-target="#add_group_idsdt-cols-group_col-group_id-use_regex-true-..."><span class="header-section-number">9.3</span> <code>add_group_ids(dt, cols, group_col = "group_id", use_regex = TRUE, ...)</code></a></li>
+  <li><a href="#set_group_iddt-cols-phone-var_output_name-gid-incomparables-cna" id="toc-set_group_iddt-cols-phone-var_output_name-gid-incomparables-cna" class="nav-link" data-scroll-target="#set_group_iddt-cols-phone-var_output_name-gid-incomparables-cna"><span class="header-section-number">9.4</span> <code>set_group_id(dt, cols = "phone", var_output_name = "gid", incomparables = c(NA, ""))</code></a></li>
+  <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also"><span class="header-section-number">9.5</span> See also</a></li>
   </ul></li>
   </ul>
-</nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/KyleHaynes/graphfast/blob/main/reference.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/KyleHaynes/graphfast/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Reference</h1>
+<h1 class="title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Reference</span></h1>
 <p class="subtitle lead">API documentation</p>
 </div>
 
@@ -229,10 +248,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Component / group ids are 1-based and consecutive when <code>compress = TRUE</code> (the default). <code>0</code> denotes “no group” where applicable.</li>
 </ul>
 <hr>
-<section id="connected-components" class="level1">
-<h1>Connected components</h1>
-<section id="find_connected_componentsedges-n_nodes-null-compress-true" class="level2">
-<h2 class="anchored" data-anchor-id="find_connected_componentsedges-n_nodes-null-compress-true"><code>find_connected_components(edges, n_nodes = NULL, compress = TRUE)</code></h2>
+<section id="connected-components" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Connected components</h1>
+<section id="find_connected_componentsedges-n_nodes-null-compress-true" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="find_connected_componentsedges-n_nodes-null-compress-true"><span class="header-section-number">6.1</span> <code>find_connected_components(edges, n_nodes = NULL, compress = TRUE)</code></h2>
 <p>All connected components for a dense, small-integer node space.</p>
 <table class="caption-top table">
 <colgroup>
@@ -267,8 +286,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>cc<span class="sc">$</span>n_components   <span class="co"># 2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="find_connected_components_safeedges-compress-true-verbose-true" class="level2">
-<h2 class="anchored" data-anchor-id="find_connected_components_safeedges-compress-true-verbose-true"><code>find_connected_components_safe(edges, compress = TRUE, verbose = TRUE)</code></h2>
+<section id="find_connected_components_safeedges-compress-true-verbose-true" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="find_connected_components_safeedges-compress-true-verbose-true"><span class="header-section-number">6.2</span> <code>find_connected_components_safe(edges, compress = TRUE, verbose = TRUE)</code></h2>
 <p>Same result, but <strong>remaps node ids</strong> to a dense <code>1..(unique nodes)</code> space with <code>fastmatch</code> first — safe and memory-efficient for sparse or large ids.</p>
 <table class="caption-top table">
 <thead>
@@ -294,17 +313,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 <p><strong>Returns</strong> <code>components</code> (named by original node ids), <code>component_sizes</code>, <code>n_components</code>, <code>node_mapping</code> (original ↔︎ mapped), and <code>memory_info</code> (<code>naive_memory_gb</code>, <code>efficient_memory_gb</code>, <code>memory_saved_gb</code>).</p>
 </section>
-<section id="find_connected_components_largeedges-compress-true-verbose-false" class="level2">
-<h2 class="anchored" data-anchor-id="find_connected_components_largeedges-compress-true-verbose-false"><code>find_connected_components_large(edges, compress = TRUE, verbose = FALSE)</code></h2>
+<section id="find_connected_components_largeedges-compress-true-verbose-false" class="level2" data-number="6.3">
+<h2 data-number="6.3" class="anchored" data-anchor-id="find_connected_components_largeedges-compress-true-verbose-false"><span class="header-section-number">6.3</span> <code>find_connected_components_large(edges, compress = TRUE, verbose = FALSE)</code></h2>
 <p>For node ids <strong>beyond the 32-bit integer range</strong>. Ids are held as doubles and remapped to consecutive integers internally.</p>
 <p><strong>Returns</strong> <code>components</code> (named by original ids), <code>component_sizes</code>, <code>n_components</code>, and (when remapping occurs) <code>node_mapping</code>.</p>
 <hr>
 </section>
 </section>
-<section id="per-edge-components" class="level1">
-<h1>Per-edge components</h1>
-<section id="get_edge_componentsedges-n_nodes-null-compress-true-return_type-list" class="level2">
-<h2 class="anchored" data-anchor-id="get_edge_componentsedges-n_nodes-null-compress-true-return_type-list"><code>get_edge_components(edges, n_nodes = NULL, compress = TRUE, return_type = "list")</code></h2>
+<section id="per-edge-components" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Per-edge components</h1>
+<section id="get_edge_componentsedges-n_nodes-null-compress-true-return_type-list" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="get_edge_componentsedges-n_nodes-null-compress-true-return_type-list"><span class="header-section-number">7.1</span> <code>get_edge_components(edges, n_nodes = NULL, compress = TRUE, return_type = "list")</code></h2>
 <p>Component assignment for each <strong>edge</strong> rather than each node.</p>
 <table class="caption-top table">
 <colgroup>
@@ -326,22 +345,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 <p>For a genuine edge, <code>from</code> and <code>to</code> are always in the same component, so the combined vector is the natural “component id per row”.</p>
 </section>
-<section id="group_edgesedges-n_nodes-null-compress-true" class="level2">
-<h2 class="anchored" data-anchor-id="group_edgesedges-n_nodes-null-compress-true"><code>group_edges(edges, n_nodes = NULL, compress = TRUE)</code></h2>
+<section id="group_edgesedges-n_nodes-null-compress-true" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="group_edgesedges-n_nodes-null-compress-true"><span class="header-section-number">7.2</span> <code>group_edges(edges, n_nodes = NULL, compress = TRUE)</code></h2>
 <p>Convenience alias returning one component id per edge row (<code>get_edge_components(..., return_type = "combined")</code>).</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">group_edges</span>(<span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>, <span class="dv">2</span>,<span class="dv">3</span>, <span class="dv">5</span>,<span class="dv">6</span>), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>))   <span class="co"># 1 1 2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="edge_componentsdt-from_col-to_col-compress-true" class="level2">
-<h2 class="anchored" data-anchor-id="edge_componentsdt-from_col-to_col-compress-true"><code>edge_components(dt, from_col, to_col, compress = TRUE)</code></h2>
+<section id="edge_componentsdt-from_col-to_col-compress-true" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="edge_componentsdt-from_col-to_col-compress-true"><span class="header-section-number">7.3</span> <code>edge_components(dt, from_col, to_col, compress = TRUE)</code></h2>
 <p>Same as <code>group_edges()</code> but takes a <code>data.table</code>/<code>data.frame</code> and column names — designed for inline <code>data.table</code> use.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>dt[, component <span class="sc">:</span><span class="er">=</span> <span class="fu">edge_components</span>(.SD, <span class="st">"from"</span>, <span class="st">"to"</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="add_component_columndt-from_col-from-to_col-to-component_col-component-n_nodes-null-compress-true-in_place-true-verbose-false" class="level2">
-<h2 class="anchored" data-anchor-id="add_component_columndt-from_col-from-to_col-to-component_col-component-n_nodes-null-compress-true-in_place-true-verbose-false"><code>add_component_column(dt, from_col = "from", to_col = "to", component_col = "component", n_nodes = NULL, compress = TRUE, in_place = TRUE, verbose = FALSE)</code></h2>
+<section id="add_component_columndt-from_col-from-to_col-to-component_col-component-n_nodes-null-compress-true-in_place-true-verbose-false" class="level2" data-number="7.4">
+<h2 data-number="7.4" class="anchored" data-anchor-id="add_component_columndt-from_col-from-to_col-to-component_col-component-n_nodes-null-compress-true-in_place-true-verbose-false"><span class="header-section-number">7.4</span> <code>add_component_column(dt, from_col = "from", to_col = "to", component_col = "component", n_nodes = NULL, compress = TRUE, in_place = TRUE, verbose = FALSE)</code></h2>
 <p>Add a component column to a <code>data.table</code>. Node ids are mapped with <code>fastmatch</code>.</p>
 <table class="caption-top table">
 <colgroup>
@@ -377,18 +396,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <hr>
 </section>
 </section>
-<section id="connectivity-distance-statistics" class="level1">
-<h1>Connectivity, distance, statistics</h1>
-<section id="are_connectededges-query_pairs-n_nodes-null" class="level2">
-<h2 class="anchored" data-anchor-id="are_connectededges-query_pairs-n_nodes-null"><code>are_connected(edges, query_pairs, n_nodes = NULL)</code></h2>
+<section id="connectivity-distance-statistics" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Connectivity, distance, statistics</h1>
+<section id="are_connectededges-query_pairs-n_nodes-null" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="are_connectededges-query_pairs-n_nodes-null"><span class="header-section-number">8.1</span> <code>are_connected(edges, query_pairs, n_nodes = NULL)</code></h2>
 <p>Are the two nodes in each pair in the same component? Builds Union–Find once.</p>
 <p><strong>Returns</strong> a logical vector, one element per query pair.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">are_connected</span>(edges, <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>, <span class="dv">1</span>,<span class="dv">5</span>), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>))   <span class="co"># TRUE FALSE</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="shortest_pathsedges-query_pairs-n_nodes-null-max_distance--1" class="level2">
-<h2 class="anchored" data-anchor-id="shortest_pathsedges-query_pairs-n_nodes-null-max_distance--1"><code>shortest_paths(edges, query_pairs, n_nodes = NULL, max_distance = -1)</code></h2>
+<section id="shortest_pathsedges-query_pairs-n_nodes-null-max_distance--1" class="level2" data-number="8.2">
+<h2 data-number="8.2" class="anchored" data-anchor-id="shortest_pathsedges-query_pairs-n_nodes-null-max_distance--1"><span class="header-section-number">8.2</span> <code>shortest_paths(edges, query_pairs, n_nodes = NULL, max_distance = -1)</code></h2>
 <p>Unweighted shortest <strong>hop</strong> distance per query pair, via BFS.</p>
 <table class="caption-top table">
 <colgroup>
@@ -410,17 +429,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 <p><strong>Returns</strong> an integer vector; <code>0</code> for identical source/target, <code>-1</code> if no path (or beyond <code>max_distance</code>).</p>
 </section>
-<section id="graph_statisticsedges-n_nodes-null" class="level2">
-<h2 class="anchored" data-anchor-id="graph_statisticsedges-n_nodes-null"><code>graph_statistics(edges, n_nodes = NULL)</code></h2>
+<section id="graph_statisticsedges-n_nodes-null" class="level2" data-number="8.3">
+<h2 data-number="8.3" class="anchored" data-anchor-id="graph_statisticsedges-n_nodes-null"><span class="header-section-number">8.3</span> <code>graph_statistics(edges, n_nodes = NULL)</code></h2>
 <p>Single-pass degree and density summary; no adjacency matrix.</p>
 <p><strong>Returns</strong> <code>n_edges</code>, <code>n_nodes</code>, <code>density</code>, and <code>degree_stats</code> (<code>min</code>, <code>max</code>, <code>mean</code>).</p>
 <hr>
 </section>
 </section>
-<section id="entity-resolution-grouping" class="level1">
-<h1>Entity resolution / grouping</h1>
-<section id="group_iddata-cols-null-use_regex-true-incomparables-c-na-unknown-case_sensitive-true-min_group_size-1-return_details-false-verbose-false" class="level2">
-<h2 class="anchored" data-anchor-id="group_iddata-cols-null-use_regex-true-incomparables-c-na-unknown-case_sensitive-true-min_group_size-1-return_details-false-verbose-false"><code>group_id(data, cols = NULL, use_regex = TRUE, incomparables = c("", "NA", "Unknown"), case_sensitive = TRUE, min_group_size = 1, return_details = FALSE, verbose = FALSE)</code></h2>
+<section id="entity-resolution-grouping" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Entity resolution / grouping</h1>
+<section id="group_iddata-cols-null-use_regex-true-incomparables-c-na-unknown-case_sensitive-true-min_group_size-1-return_details-false-verbose-false" class="level2" data-number="9.1">
+<h2 data-number="9.1" class="anchored" data-anchor-id="group_iddata-cols-null-use_regex-true-incomparables-c-na-unknown-case_sensitive-true-min_group_size-1-return_details-false-verbose-false"><span class="header-section-number">9.1</span> <code>group_id(data, cols = NULL, use_regex = TRUE, incomparables = c("", "NA", "Unknown"), case_sensitive = TRUE, min_group_size = 1, return_details = FALSE, verbose = FALSE)</code></h2>
 <p>Group rows that share any value across the chosen columns (Union–Find over rows).</p>
 <table class="caption-top table">
 <colgroup>
@@ -471,17 +490,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong>Returns</strong> an integer vector of group ids (one per row); or, with <code>return_details = TRUE</code>, a <code>group_id_result</code> list with <code>group_ids</code>, <code>n_groups</code>, <code>group_sizes</code>, and <code>value_map</code> (which shared values formed each group).</p>
 <p><strong>Note</strong> — an all-numeric, no-incomparables, case-sensitive call dispatches to a specialised fast numeric path automatically.</p>
 </section>
-<section id="printx-...-for-group_id_result" class="level2">
-<h2 class="anchored" data-anchor-id="printx-...-for-group_id_result"><code>print(x, ...)</code> for <code>group_id_result</code></h2>
+<section id="printx-...-for-group_id_result" class="level2" data-number="9.2">
+<h2 data-number="9.2" class="anchored" data-anchor-id="printx-...-for-group_id_result"><span class="header-section-number">9.2</span> <code>print(x, ...)</code> for <code>group_id_result</code></h2>
 <p>S3 print method summarising counts, settings, the first group ids, and the shared values that created groups.</p>
 </section>
-<section id="add_group_idsdt-cols-group_col-group_id-use_regex-true-..." class="level2">
-<h2 class="anchored" data-anchor-id="add_group_idsdt-cols-group_col-group_id-use_regex-true-..."><code>add_group_ids(dt, cols, group_col = "group_id", use_regex = TRUE, ...)</code></h2>
+<section id="add_group_idsdt-cols-group_col-group_id-use_regex-true-..." class="level2" data-number="9.3">
+<h2 data-number="9.3" class="anchored" data-anchor-id="add_group_idsdt-cols-group_col-group_id-use_regex-true-..."><span class="header-section-number">9.3</span> <code>add_group_ids(dt, cols, group_col = "group_id", use_regex = TRUE, ...)</code></h2>
 <p><code>data.table</code> wrapper for <code>group_id()</code> — adds the group column <strong>by reference</strong>. Extra <code>...</code> are passed through to <code>group_id()</code>.</p>
 <p><strong>Returns</strong> <code>dt</code> (invisibly).</p>
 </section>
-<section id="set_group_iddt-cols-phone-var_output_name-gid-incomparables-cna" class="level2">
-<h2 class="anchored" data-anchor-id="set_group_iddt-cols-phone-var_output_name-gid-incomparables-cna"><code>set_group_id(dt, cols = "phone", var_output_name = "gid", incomparables = c(NA, ""))</code></h2>
+<section id="set_group_iddt-cols-phone-var_output_name-gid-incomparables-cna" class="level2" data-number="9.4">
+<h2 data-number="9.4" class="anchored" data-anchor-id="set_group_iddt-cols-phone-var_output_name-gid-incomparables-cna"><span class="header-section-number">9.4</span> <code>set_group_id(dt, cols = "phone", var_output_name = "gid", incomparables = c(NA, ""))</code></h2>
 <p>Alternative grouping engine using the <strong>bipartite edge reduction</strong> (<code>melt</code> → edges → <code>edge_components</code>).</p>
 <table class="caption-top table">
 <colgroup>
@@ -516,8 +535,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong>Returns</strong> <code>dt</code>, modified by reference with the new group column.</p>
 <hr>
 </section>
-<section id="see-also" class="level2">
-<h2 class="anchored" data-anchor-id="see-also">See also</h2>
+<section id="see-also" class="level2" data-number="9.5">
+<h2 data-number="9.5" class="anchored" data-anchor-id="see-also"><span class="header-section-number">9.5</span> See also</h2>
 <ul>
 <li><a href="./theory.html">Theory</a> — how these algorithms work and why they are fast.</li>
 <li><a href="./examples.html">Examples</a> — runnable demonstrations of every function.</li>
@@ -929,9 +948,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     }
   });
   </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./benchmarks.html" class="pagination-link" aria-label="Benchmarks">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Benchmarks</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
 </div> <!-- /content -->
 
 
 
 
-</body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/KyleHaynes/graphfast/blob/main/reference.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/KyleHaynes/graphfast/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

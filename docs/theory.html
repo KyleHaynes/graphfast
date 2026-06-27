@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="Fast graph connectivity analysis and entity resolution in R, powered by C++.">
 
-<title>Theory – graphfast</title>
+<title>2&nbsp; Theory – graphfast</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -68,6 +69,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./examples.html" rel="next">
+<link href="./index.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -77,13 +80,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-cfca05be01d3419732a5879cfde5cf21.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-8b2de8cf835f6beefff61e77268666f7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
-  "location": "navbar",
+  "location": "sidebar",
   "copy-button": false,
   "collapse-after": 3,
-  "panel-placement": "end",
-  "type": "overlay",
+  "panel-placement": "start",
+  "type": "textbox",
   "limit": 50,
   "keyboard-shortcut": [
     "f",
@@ -138,92 +141,109 @@ window.Quarto = {
 
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-sidebar docked quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
-      <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">graphfast</span>
-    </a>
-  </div>
-            <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-  <span class="navbar-toggler-icon"></span>
-</button>
-          <div class="collapse navbar-collapse" id="navbarCollapse">
-            <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="./index.html"> 
-<span class="menu-text">Overview</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link active" href="./theory.html" aria-current="page"> 
-<span class="menu-text">Theory</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./examples.html"> 
-<span class="menu-text">Examples</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./benchmarks.html"> 
-<span class="menu-text">Benchmarks</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./reference.html"> 
-<span class="menu-text">Reference</span></a>
-  </li>  
-</ul>
-            <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/KyleHaynes/graphfast"> <i class="bi bi-github" role="img">
-</i> 
-<span class="menu-text">Source</span></a>
-  </li>  
-</ul>
-          </div> <!-- /navcollapse -->
-            <div class="quarto-navbar-tools">
-</div>
-      </div> <!-- /container-fluid -->
-    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./theory.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Theory</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">graphfast</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/KyleHaynes/graphfast" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">graphfast</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./theory.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Theory</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./examples.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Examples</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./benchmarks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Benchmarks</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Reference</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
+    <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#connected-components" id="toc-connected-components" class="nav-link active" data-scroll-target="#connected-components">Connected components</a>
+  <li><a href="#connected-components" id="toc-connected-components" class="nav-link active" data-scroll-target="#connected-components"><span class="header-section-number">2.1</span> Connected components</a>
   <ul class="collapse">
-  <li><a href="#unionfind-disjoint-sets" id="toc-unionfind-disjoint-sets" class="nav-link" data-scroll-target="#unionfind-disjoint-sets">Union–Find (disjoint sets)</a></li>
-  <li><a href="#two-optimisations-that-make-it-fast" id="toc-two-optimisations-that-make-it-fast" class="nav-link" data-scroll-target="#two-optimisations-that-make-it-fast">Two optimisations that make it fast</a></li>
-  <li><a href="#complexity" id="toc-complexity" class="nav-link" data-scroll-target="#complexity">Complexity</a></li>
-  <li><a href="#relabelling-roots" id="toc-relabelling-roots" class="nav-link" data-scroll-target="#relabelling-roots">Relabelling roots</a></li>
+  <li><a href="#unionfind-disjoint-sets" id="toc-unionfind-disjoint-sets" class="nav-link" data-scroll-target="#unionfind-disjoint-sets"><span class="header-section-number">2.1.1</span> Union–Find (disjoint sets)</a></li>
+  <li><a href="#two-optimisations-that-make-it-fast" id="toc-two-optimisations-that-make-it-fast" class="nav-link" data-scroll-target="#two-optimisations-that-make-it-fast"><span class="header-section-number">2.1.2</span> Two optimisations that make it fast</a></li>
+  <li><a href="#complexity" id="toc-complexity" class="nav-link" data-scroll-target="#complexity"><span class="header-section-number">2.1.3</span> Complexity</a></li>
+  <li><a href="#relabelling-roots" id="toc-relabelling-roots" class="nav-link" data-scroll-target="#relabelling-roots"><span class="header-section-number">2.1.4</span> Relabelling roots</a></li>
   </ul></li>
-  <li><a href="#shortest-paths" id="toc-shortest-paths" class="nav-link" data-scroll-target="#shortest-paths">Shortest paths</a></li>
-  <li><a href="#graph-statistics" id="toc-graph-statistics" class="nav-link" data-scroll-target="#graph-statistics">Graph statistics</a></li>
-  <li><a href="#entity-resolution-as-a-graph-problem" id="toc-entity-resolution-as-a-graph-problem" class="nav-link" data-scroll-target="#entity-resolution-as-a-graph-problem">Entity resolution as a graph problem</a>
+  <li><a href="#shortest-paths" id="toc-shortest-paths" class="nav-link" data-scroll-target="#shortest-paths"><span class="header-section-number">2.2</span> Shortest paths</a></li>
+  <li><a href="#graph-statistics" id="toc-graph-statistics" class="nav-link" data-scroll-target="#graph-statistics"><span class="header-section-number">2.3</span> Graph statistics</a></li>
+  <li><a href="#entity-resolution-as-a-graph-problem" id="toc-entity-resolution-as-a-graph-problem" class="nav-link" data-scroll-target="#entity-resolution-as-a-graph-problem"><span class="header-section-number">2.4</span> Entity resolution as a graph problem</a>
   <ul class="collapse">
-  <li><a href="#value-keyed-unionfind-group_id" id="toc-value-keyed-unionfind-group_id" class="nav-link" data-scroll-target="#value-keyed-unionfind-group_id">1. Value-keyed Union–Find (<code>group_id()</code>)</a></li>
-  <li><a href="#bipartite-edge-reduction-set_group_id" id="toc-bipartite-edge-reduction-set_group_id" class="nav-link" data-scroll-target="#bipartite-edge-reduction-set_group_id">2. Bipartite edge reduction (<code>set_group_id()</code>)</a></li>
+  <li><a href="#value-keyed-unionfind-group_id" id="toc-value-keyed-unionfind-group_id" class="nav-link" data-scroll-target="#value-keyed-unionfind-group_id"><span class="header-section-number">2.4.1</span> 1. Value-keyed Union–Find (<code>group_id()</code>)</a></li>
+  <li><a href="#bipartite-edge-reduction-set_group_id" id="toc-bipartite-edge-reduction-set_group_id" class="nav-link" data-scroll-target="#bipartite-edge-reduction-set_group_id"><span class="header-section-number">2.4.2</span> 2. Bipartite edge reduction (<code>set_group_id()</code>)</a></li>
   </ul></li>
-  <li><a href="#why-node-id-remapping-matters" id="toc-why-node-id-remapping-matters" class="nav-link" data-scroll-target="#why-node-id-remapping-matters">Why node-ID remapping matters</a></li>
-  <li><a href="#why-c-rcpp" id="toc-why-c-rcpp" class="nav-link" data-scroll-target="#why-c-rcpp">Why C++ / Rcpp</a></li>
-  <li><a href="#design-principles-summarised" id="toc-design-principles-summarised" class="nav-link" data-scroll-target="#design-principles-summarised">Design principles, summarised</a></li>
+  <li><a href="#why-node-id-remapping-matters" id="toc-why-node-id-remapping-matters" class="nav-link" data-scroll-target="#why-node-id-remapping-matters"><span class="header-section-number">2.5</span> Why node-ID remapping matters</a></li>
+  <li><a href="#why-c-rcpp" id="toc-why-c-rcpp" class="nav-link" data-scroll-target="#why-c-rcpp"><span class="header-section-number">2.6</span> Why C++ / Rcpp</a></li>
+  <li><a href="#design-principles-summarised" id="toc-design-principles-summarised" class="nav-link" data-scroll-target="#design-principles-summarised"><span class="header-section-number">2.7</span> Design principles, summarised</a></li>
   </ul>
-</nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/KyleHaynes/graphfast/blob/main/theory.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/KyleHaynes/graphfast/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Theory</h1>
+<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Theory</span></h1>
 <p class="subtitle lead">The data structures and algorithms behind graphfast</p>
 </div>
 
@@ -242,16 +262,16 @@ window.Quarto = {
 
 
 <p>Almost everything <code>graphfast</code> does reduces to one question: <em>which things are transitively connected?</em> That question is answered by a <strong>disjoint-set (Union–Find)</strong> structure, so it is worth understanding it well — the rest of the package is engineering around it.</p>
-<section id="connected-components" class="level2">
-<h2 class="anchored" data-anchor-id="connected-components">Connected components</h2>
+<section id="connected-components" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="connected-components"><span class="header-section-number">2.1</span> Connected components</h2>
 <p>A graph is a set of nodes joined by edges. A <strong>connected component</strong> is a maximal set of nodes such that there is a path between any two of them. Computing components is the canonical “group the related things” operation:</p>
 <ul>
 <li>In a social graph, components are isolated friend circles.</li>
 <li>In record linkage, a component is one real-world entity assembled from many rows that share phone numbers, emails, etc.</li>
 <li>In infrastructure, a component is a sub-network that can still reach itself after some links are removed.</li>
 </ul>
-<section id="unionfind-disjoint-sets" class="level3">
-<h3 class="anchored" data-anchor-id="unionfind-disjoint-sets">Union–Find (disjoint sets)</h3>
+<section id="unionfind-disjoint-sets" class="level3" data-number="2.1.1">
+<h3 data-number="2.1.1" class="anchored" data-anchor-id="unionfind-disjoint-sets"><span class="header-section-number">2.1.1</span> Union–Find (disjoint sets)</h3>
 <p>Union–Find maintains a forest where each tree is one component. Every node has a <code>parent</code>; following parents leads to a <strong>root</strong> that names the component. Two operations:</p>
 <ul>
 <li><code>find(x)</code> — return the root of <code>x</code>’s tree.</li>
@@ -268,8 +288,8 @@ window.Quarto = {
                        |
   5 - 6                5            (another tree = {5,6})</code></pre>
 </section>
-<section id="two-optimisations-that-make-it-fast" class="level3">
-<h3 class="anchored" data-anchor-id="two-optimisations-that-make-it-fast">Two optimisations that make it fast</h3>
+<section id="two-optimisations-that-make-it-fast" class="level3" data-number="2.1.2">
+<h3 data-number="2.1.2" class="anchored" data-anchor-id="two-optimisations-that-make-it-fast"><span class="header-section-number">2.1.2</span> Two optimisations that make it fast</h3>
 <p>A naive forest can degrade to a linked list (O(n) per <code>find</code>). Two classic tricks keep it almost flat:</p>
 <ol type="1">
 <li><p><strong>Union by rank</strong> — when merging, hang the shorter tree under the taller one, so trees stay shallow. <code>graphfast</code> tracks a <code>rank</code> per root for this.</p></li>
@@ -284,21 +304,21 @@ window.Quarto = {
 <p>Iterative (rather than recursive) matters at scale: a recursive <code>find</code> on a graph with a long chain can overflow the C call stack on hundreds of millions of nodes. Path halving gives the same asymptotics as full compression while touching each node at most once per call.</p></li>
 </ol>
 </section>
-<section id="complexity" class="level3">
-<h3 class="anchored" data-anchor-id="complexity">Complexity</h3>
+<section id="complexity" class="level3" data-number="2.1.3">
+<h3 data-number="2.1.3" class="anchored" data-anchor-id="complexity"><span class="header-section-number">2.1.3</span> Complexity</h3>
 <p>With both optimisations, a sequence of <em>m</em> operations over <em>n</em> elements runs in</p>
 <p><span class="math display">\[
 O\!\big(m \cdot \alpha(n)\big)
 \]</span></p>
 <p>where <span class="math inline">\(\alpha\)</span> is the <strong>inverse Ackermann function</strong>. <span class="math inline">\(\alpha(n) \le 4\)</span> for any <span class="math inline">\(n\)</span> that fits in this universe, so component construction is <em>effectively linear</em> in the number of edges. Memory is <span class="math inline">\(O(n)\)</span>: two integer arrays (<code>parent</code>, <code>rank</code>) of length <em>n_nodes</em>.</p>
 </section>
-<section id="relabelling-roots" class="level3">
-<h3 class="anchored" data-anchor-id="relabelling-roots">Relabelling roots</h3>
+<section id="relabelling-roots" class="level3" data-number="2.1.4">
+<h3 data-number="2.1.4" class="anchored" data-anchor-id="relabelling-roots"><span class="header-section-number">2.1.4</span> Relabelling roots</h3>
 <p>Roots are arbitrary integers in <code>[0, n_nodes)</code>. To return tidy, consecutive component ids <code>1..k</code>, <code>graphfast</code> makes a single pass assigning each new root the next id. Because roots live in a known bounded range, this uses a flat <code>vector&lt;int&gt;</code> of size <em>n_nodes</em> (an <strong>O(n)</strong> lookup) rather than a hash map or a balanced tree (<code>std::map</code>, O(n log n) plus per-node allocations). This is the kind of constant-factor decision that dominates wall-clock time once you are in the tens-of-millions regime.</p>
 </section>
 </section>
-<section id="shortest-paths" class="level2">
-<h2 class="anchored" data-anchor-id="shortest-paths">Shortest paths</h2>
+<section id="shortest-paths" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="shortest-paths"><span class="header-section-number">2.2</span> Shortest paths</h2>
 <p>For unweighted graphs the shortest path (in <strong>hops</strong>) between two nodes is found by <strong>breadth-first search (BFS)</strong>. From the source, explore all neighbours at distance 1, then distance 2, and so on; the first time you reach the target you have the shortest distance. BFS is O(<em>n</em> + <em>m</em>) per query.</p>
 <p><code>graphfast</code> is optimised for <strong>many queries against one graph</strong>:</p>
 <ul>
@@ -321,29 +341,29 @@ O\!\big(m \cdot \alpha(n)\big)
 </div>
 </div>
 </section>
-<section id="graph-statistics" class="level2">
-<h2 class="anchored" data-anchor-id="graph-statistics">Graph statistics</h2>
+<section id="graph-statistics" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="graph-statistics"><span class="header-section-number">2.3</span> Graph statistics</h2>
 <p><code>graph_statistics()</code> computes degree per node in a single O(<em>m</em>) pass over the edges, then derives min/mean/max degree and density. Density for an undirected simple graph is</p>
 <p><span class="math display">\[
 \text{density} = \frac{m}{\binom{n}{2}} = \frac{2m}{n(n-1)}.
 \]</span></p>
 <p>No adjacency matrix is materialised, so this is safe on graphs where an <span class="math inline">\(n \times n\)</span> matrix would be impossible.</p>
 </section>
-<section id="entity-resolution-as-a-graph-problem" class="level2">
-<h2 class="anchored" data-anchor-id="entity-resolution-as-a-graph-problem">Entity resolution as a graph problem</h2>
+<section id="entity-resolution-as-a-graph-problem" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="entity-resolution-as-a-graph-problem"><span class="header-section-number">2.4</span> Entity resolution as a graph problem</h2>
 <p>“Group all records that share a phone number, or an email, or any value across these columns” <em>is</em> a connected-components problem in disguise. Two equivalent reductions are used:</p>
-<section id="value-keyed-unionfind-group_id" class="level3">
-<h3 class="anchored" data-anchor-id="value-keyed-unionfind-group_id">1. Value-keyed Union–Find (<code>group_id()</code>)</h3>
+<section id="value-keyed-unionfind-group_id" class="level3" data-number="2.4.1">
+<h3 data-number="2.4.1" class="anchored" data-anchor-id="value-keyed-unionfind-group_id"><span class="header-section-number">2.4.1</span> 1. Value-keyed Union–Find (<code>group_id()</code>)</h3>
 <p>Treat each <strong>row</strong> as a node. For every column value, collect the rows that carry it; <code>union</code> those rows together. Rows end up in the same component exactly when a chain of shared values links them. Incomparable values (<code>""</code>, <code>"NA"</code>, <code>"Unknown"</code>, …) are skipped so they never glue unrelated rows. This runs in <span class="math inline">\(O(N \cdot \alpha(N))\)</span> over the <em>N</em> total cell values and is the default engine, with a specialised numeric-only fast path.</p>
 </section>
-<section id="bipartite-edge-reduction-set_group_id" class="level3">
-<h3 class="anchored" data-anchor-id="bipartite-edge-reduction-set_group_id">2. Bipartite edge reduction (<code>set_group_id()</code>)</h3>
+<section id="bipartite-edge-reduction-set_group_id" class="level3" data-number="2.4.2">
+<h3 data-number="2.4.2" class="anchored" data-anchor-id="bipartite-edge-reduction-set_group_id"><span class="header-section-number">2.4.2</span> 2. Bipartite edge reduction (<code>set_group_id()</code>)</h3>
 <p>Build a bipartite graph with two kinds of node — <strong>row ids</strong> and <strong>values</strong> — and an edge for every (row, value) pair. The connected components of this graph are the entity groups. This phrasing lets the same component machinery (<code>edge_components()</code>) and <code>data.table::melt()</code> do the work, which can be the faster route when columns are very wide.</p>
 <p>Both are the same idea: <em>shared value ⇒ edge ⇒ same component.</em></p>
 </section>
 </section>
-<section id="why-node-id-remapping-matters" class="level2">
-<h2 class="anchored" data-anchor-id="why-node-id-remapping-matters">Why node-ID remapping matters</h2>
+<section id="why-node-id-remapping-matters" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="why-node-id-remapping-matters"><span class="header-section-number">2.5</span> Why node-ID remapping matters</h2>
 <p>The core C++ routines index a <code>parent</code> array directly by node id, so they want a <strong>dense</strong> id space <code>1..n_nodes</code>. If your ids are sparse or huge (e.g.&nbsp;account numbers up to <span class="math inline">\(10^{12}\)</span>), allocating an array up to the maximum id is wasteful or impossible.</p>
 <ul>
 <li><code>find_connected_components()</code> assumes a reasonably dense space and <em>warns/stops</em> if the implied allocation is large.</li>
@@ -351,12 +371,12 @@ O\!\big(m \cdot \alpha(n)\big)
 <li><code>find_connected_components_large()</code> extends this to ids beyond the 32-bit integer range by keeping them as doubles until after remapping.</li>
 </ul>
 </section>
-<section id="why-c-rcpp" class="level2">
-<h2 class="anchored" data-anchor-id="why-c-rcpp">Why C++ / Rcpp</h2>
+<section id="why-c-rcpp" class="level2" data-number="2.6">
+<h2 data-number="2.6" class="anchored" data-anchor-id="why-c-rcpp"><span class="header-section-number">2.6</span> Why C++ / Rcpp</h2>
 <p>The hot loops — one pass per edge for <code>union</code>, one pass per node for relabelling, BFS frontier expansion — are tight integer work. In interpreted R each iteration carries per-element overhead; in compiled C++ they are a few machine instructions over contiguous memory. Rcpp lets the package keep R’s ergonomic interface (matrices, <code>data.table</code>, named lists) while the inner loops run at native speed, and <code>.registration = TRUE</code> exposes the compiled routines safely.</p>
 </section>
-<section id="design-principles-summarised" class="level2">
-<h2 class="anchored" data-anchor-id="design-principles-summarised">Design principles, summarised</h2>
+<section id="design-principles-summarised" class="level2" data-number="2.7">
+<h2 data-number="2.7" class="anchored" data-anchor-id="design-principles-summarised"><span class="header-section-number">2.7</span> Design principles, summarised</h2>
 <ul>
 <li><strong>One idea, done well.</strong> Union–Find + BFS cover components, connectivity, grouping, and distance.</li>
 <li><strong>No heavyweight graph object.</strong> Consume edge lists; return plain vectors.</li>
@@ -768,9 +788,21 @@ O\!\big(m \cdot \alpha(n)\big)
     }
   });
   </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./index.html" class="pagination-link" aria-label="graphfast">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">graphfast</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./examples.html" class="pagination-link" aria-label="Examples">
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Examples</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
 </div> <!-- /content -->
 
 
 
 
-</body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/KyleHaynes/graphfast/blob/main/theory.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/KyleHaynes/graphfast/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
