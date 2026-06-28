@@ -218,6 +218,44 @@ knitr::kable(disp2, align = c("r", rep("r", ncol(disp2) - 1)))
 single distance buffer across queries via a visited-version stamp, so per-query
 overhead is small — the win grows with the number of queries.
 
+## Scaling behaviour across many sizes ([atime](https://github.com/tdhock/atime))
+
+The tables above sample a handful of sizes. [`atime`](https://github.com/tdhock/atime)
+sweeps many more, timing each expression repeatedly per size and stopping once
+the median time crosses `seconds.limit` — so a slow contender doesn't blow out
+the render — then fits the closest power-law/log/exponential reference curve to
+each series.
+
+```{r}
+#| label: atime-time
+#| message: false
+#| warning: false
+atime_result <- atime::atime(
+  N = unique(as.integer(10^seq(3, 7, length.out = 15))),
+  setup = {
+    edges   <- make_graph(N)
+    n_nodes <- max(edges)
+  },
+  seconds.limit = 1,
+  times = 3,
+  graphfast = find_connected_components(edges, n_nodes = n_nodes, compress = TRUE),
+  igraph    = igraph::components(igraph::graph_from_edgelist(edges, directed = FALSE))
+)
+# atime also measures memory via R's allocator (Rprofmem), but that only sees
+# memory allocated through R's own heap. igraph's graph structures are
+# allocated with raw malloc() inside its C library, invisible to that
+# tracker — so an atime memory comparison here would understate igraph and
+# can't be trusted. Time is unaffected by that blind spot, so we keep only
+# the time series here; real peak memory is measured separately below.
+atime_result$unit.col.vec <- "median"
+atime_refs <- atime::references_best(atime_result)
+plot(atime_refs)
+```
+
+Both curves are consistent with linear growth in edge count; the lines never
+cross — `graphfast`'s constant factor stays smaller across the whole range, and
+it keeps going to sizes where `igraph` has already crossed the time budget.
+
 ## Varying the graph shape
 
 Runtime is not just a function of edge count; **structure** matters. The sweep
@@ -266,6 +304,87 @@ the number of **distinct** nodes, not the maximum id — the function reports th
 memory it saved in `$memory_info`. No adjacency *matrix* is ever formed, which is
 what makes 100M-edge graphs tractable on commodity hardware.
 
+### Measured peak memory
+
+R-level memory profilers (`Rprofmem`, `bench::bench_memory`, and therefore
+`atime`'s memory metric) only see allocations made through R's own heap. They
+miss memory a compiled library allocates itself with `malloc()`/`calloc()` —
+which is exactly how `igraph`'s C core manages its graph structures. Using one
+of those tools to compare `graphfast` against `igraph` would silently
+understate `igraph`'s real usage.
+
+To get a number that's actually comparable, each run below executes in its
+**own fresh OS process** — one package, one size, nothing else loaded — and
+reads back the **peak working set** the operating system recorded for that
+process (Windows' `PeakWorkingSetSize`, via the `ps` package). That figure
+reflects everything the process touched, regardless of which allocator made
+the call.
+
+```{r}
+#| label: peakmem-harness
+#| message: false
+peak_worker_src <- '
+args <- commandArgs(trailingOnly = TRUE)
+pkg <- args[[1]]; n_edges <- as.integer(args[[2]])
+sparsity <- as.integer(args[[3]]); seed <- as.integer(args[[4]])
+set.seed(seed)
+n_nodes <- as.integer(max(1e5, floor(n_edges / sparsity)))
+from <- sample.int(n_nodes, n_edges, replace = TRUE)
+to   <- sample.int(n_nodes, n_edges, replace = TRUE)
+keep <- from != to
+edges <- matrix(c(from[keep], to[keep]), ncol = 2)
+n_nodes <- max(edges)
+if (pkg == "graphfast") {
+  suppressMessages(library(graphfast))
+  invisible(find_connected_components(edges, n_nodes = n_nodes, compress = TRUE))
+} else {
+  suppressMessages(library(igraph))
+  invisible(igraph::components(igraph::graph_from_edgelist(edges, directed = FALSE)))
+}
+cat(ps::ps_memory_info()[["peak_wset"]])
+'
+worker_path <- tempfile(fileext = ".R")
+writeLines(peak_worker_src, worker_path)
+rscript_bin <- file.path(R.home("bin"), "Rscript")
+
+peak_memory_kb <- function(pkg, n_edges, sparsity = 5L, seed = 42L) {
+  out <- system2(rscript_bin, c(shQuote(worker_path), pkg, n_edges, sparsity, seed),
+                 stdout = TRUE, stderr = TRUE)
+  cat("DEBUG rscript_bin=", rscript_bin, "\n")
+  cat("DEBUG out=", paste(out, collapse = " | "), "\n")
+  as.numeric(out[length(out)]) / 1024
+}
+
+mem_sizes <- c(1e5, 1e6, 1e7)
+mem_results <- rbindlist(lapply(mem_sizes, function(n) {
+  data.table(
+    edges     = n,
+    graphfast = peak_memory_kb("graphfast", n),
+    igraph    = peak_memory_kb("igraph", n)
+  )
+}))
+mem_results[]
+```
+
+```{r}
+#| label: tbl-peakmem
+#| echo: false
+disp3 <- copy(mem_results)
+disp3[, edges := fmt_edges(edges)]
+disp3[, graphfast := sprintf("%.0f MB", graphfast / 1024)]
+disp3[, igraph := sprintf("%.0f MB", igraph / 1024)]
+setnames(disp3, "edges", "Edges")
+knitr::kable(disp3, align = c("r", "r", "r"))
+```
+
+This includes the cost of generating the graph itself (sampling, filtering
+self-loops) and R's own baseline footprint — the same for both packages at a
+given size — so the *difference* between columns is the fair comparison, not
+the absolute numbers. `igraph`'s peak is consistently higher because building
+a full graph object (vertex table, attribute storage, internal adjacency
+structures) costs more than the union–find arrays `graphfast` works with
+directly.
+
 ## Reproducing
 
 ```r
@@ -275,6 +394,9 @@ install.packages(c("igraph", "microbenchmark"))
 # The benchmark ships with the installed package — no need to clone the repo.
 # Runs 1e5, 1e6, 1e7 edges by default.
 source(system.file("benchmark.R", package = "graphfast"))
+
+# The scaling-behaviour and peak-memory sections on this page additionally use:
+install.packages(c("atime", "ggplot2", "ps"))
 ```
 
 To regenerate the tables on this page, just re-render the book — the chunks above

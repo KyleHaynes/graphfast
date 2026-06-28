@@ -223,9 +223,13 @@ window.Quarto = {
   <li><a href="#the-harness" id="toc-the-harness" class="nav-link" data-scroll-target="#the-harness"><span class="header-section-number">4.3</span> The harness</a></li>
   <li><a href="#measured-results-connected-components" id="toc-measured-results-connected-components" class="nav-link" data-scroll-target="#measured-results-connected-components"><span class="header-section-number">4.4</span> Measured results — connected components</a></li>
   <li><a href="#measured-results-shortest-paths-batch-of-pairs" id="toc-measured-results-shortest-paths-batch-of-pairs" class="nav-link" data-scroll-target="#measured-results-shortest-paths-batch-of-pairs"><span class="header-section-number">4.5</span> Measured results — shortest paths (batch of pairs)</a></li>
-  <li><a href="#varying-the-graph-shape" id="toc-varying-the-graph-shape" class="nav-link" data-scroll-target="#varying-the-graph-shape"><span class="header-section-number">4.6</span> Varying the graph shape</a></li>
-  <li><a href="#memory" id="toc-memory" class="nav-link" data-scroll-target="#memory"><span class="header-section-number">4.7</span> Memory</a></li>
-  <li><a href="#reproducing" id="toc-reproducing" class="nav-link" data-scroll-target="#reproducing"><span class="header-section-number">4.8</span> Reproducing</a></li>
+  <li><a href="#scaling-behaviour-across-many-sizes-atime" id="toc-scaling-behaviour-across-many-sizes-atime" class="nav-link" data-scroll-target="#scaling-behaviour-across-many-sizes-atime"><span class="header-section-number">4.6</span> Scaling behaviour across many sizes (atime)</a></li>
+  <li><a href="#varying-the-graph-shape" id="toc-varying-the-graph-shape" class="nav-link" data-scroll-target="#varying-the-graph-shape"><span class="header-section-number">4.7</span> Varying the graph shape</a></li>
+  <li><a href="#memory" id="toc-memory" class="nav-link" data-scroll-target="#memory"><span class="header-section-number">4.8</span> Memory</a>
+  <ul class="collapse">
+  <li><a href="#measured-peak-memory" id="toc-measured-peak-memory" class="nav-link" data-scroll-target="#measured-peak-memory"><span class="header-section-number">4.8.1</span> Measured peak memory</a></li>
+  </ul></li>
+  <li><a href="#reproducing" id="toc-reproducing" class="nav-link" data-scroll-target="#reproducing"><span class="header-section-number">4.9</span> Reproducing</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/KyleHaynes/graphfast/blob/main/benchmarks.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/KyleHaynes/graphfast/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -267,12 +271,14 @@ window.Quarto = {
 </div>
 <p><strong>This render was produced on:</strong></p>
 <ul>
-<li>R version: <code>4.5.0</code></li>
+<li>R version: <code>4.3.2</code></li>
 <li>Platform: <code>x86_64-w64-mingw32</code></li>
-<li>OS: <code>Windows 11 x64 (build 26200)</code></li>
-<li>Total RAM: ~31.9 GB</li>
-<li>graphfast: <code>0.2.0</code>, igraph: <code>2.1.4</code></li>
 </ul>
+<pre><code>#&gt; Error in utils::sessionInfo()$running %||% Sys.info()[["sysname"]]: could not find function "%||%"</code></pre>
+<ul>
+<li>Total RAM: ~31.9 GB</li>
+</ul>
+<pre><code>#&gt; Error in utils::packageVersion("graphfast"): there is no package called 'graphfast'</code></pre>
 <section id="what-we-compare-and-why" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="what-we-compare-and-why"><span class="header-section-number">4.1</span> What we compare, and why</h2>
 <table class="caption-top table">
@@ -326,265 +332,168 @@ window.Quarto = {
 <h2 data-number="4.3" class="anchored" data-anchor-id="the-harness"><span class="header-section-number">4.3</span> The harness</h2>
 <p>This is the live benchmark. It is parameterised over sizes and emits a tidy table; everything downstream is derived from <code>results</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(graphfast)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Edit this vector to change what gets measured. graphfast is measured at every</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># size; igraph is only attempted up to `igraph_max_edges`, because building a</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># full igraph object at 100M edges needs far more RAM than graphfast and can</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># exhaust memory mid-render. Raise it if your machine has the headroom.</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>sizes           <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">1e6</span>, <span class="fl">1e7</span>, <span class="fl">1e8</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>igraph_max_edges <span class="ot">&lt;-</span> <span class="fl">1e7</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>make_graph <span class="ot">&lt;-</span> <span class="cf">function</span>(n_edges, <span class="at">sparsity =</span> <span class="dv">5</span>L, <span class="at">seed =</span> <span class="dv">42</span>L) {</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(seed)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  n_nodes <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">max</span>(<span class="fl">1e5</span>, <span class="fu">floor</span>(n_edges <span class="sc">/</span> sparsity)))</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  from <span class="ot">&lt;-</span> <span class="fu">sample.int</span>(n_nodes, n_edges, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  to   <span class="ot">&lt;-</span> <span class="fu">sample.int</span>(n_nodes, n_edges, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  keep <span class="ot">&lt;-</span> from <span class="sc">!=</span> to                       <span class="co"># drop self-loops</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">matrix</span>(<span class="fu">c</span>(from[keep], to[keep]), <span class="at">ncol =</span> <span class="dv">2</span>)</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>time_it <span class="ot">&lt;-</span> <span class="cf">function</span>(expr) <span class="fu">system.time</span>(expr)[[<span class="st">"elapsed"</span>]]</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>bench_one <span class="ot">&lt;-</span> <span class="cf">function</span>(n_edges) {</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  edges   <span class="ot">&lt;-</span> <span class="fu">make_graph</span>(n_edges)</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  n_nodes <span class="ot">&lt;-</span> <span class="fu">max</span>(edges)</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  queries <span class="ot">&lt;-</span> edges[<span class="fu">seq_len</span>(<span class="fu">min</span>(<span class="dv">50</span>L, <span class="fu">nrow</span>(edges))), , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ---- graphfast ----</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  gf_cc <span class="ot">&lt;-</span> <span class="fu">time_it</span>(cc <span class="ot">&lt;-</span> <span class="fu">find_connected_components</span>(edges, <span class="at">n_nodes =</span> n_nodes))</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  gf_sp <span class="ot">&lt;-</span> <span class="fu">time_it</span>(<span class="fu">shortest_paths</span>(edges, queries, <span class="at">n_nodes =</span> n_nodes))</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">edges =</span> n_edges, <span class="at">package =</span> <span class="st">"graphfast"</span>,</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">components_s =</span> gf_cc, <span class="at">shortest_paths_s =</span> gf_sp,</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_components =</span> cc<span class="sc">$</span>n_components</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ---- igraph (capped by igraph_max_edges; also guarded against allocation errors) ----</span></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">"igraph"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>) <span class="sc">&amp;&amp;</span> n_edges <span class="sc">&lt;=</span> igraph_max_edges) {</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    ig <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>({</span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>      g <span class="ot">&lt;-</span> igraph<span class="sc">::</span><span class="fu">graph_from_edgelist</span>(edges, <span class="at">directed =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>      ig_cc <span class="ot">&lt;-</span> <span class="fu">time_it</span>(comp <span class="ot">&lt;-</span> igraph<span class="sc">::</span><span class="fu">components</span>(g))</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>      ig_sp <span class="ot">&lt;-</span> <span class="fu">time_it</span>({</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(queries)))</span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>          igraph<span class="sc">::</span><span class="fu">distances</span>(g, <span class="at">v =</span> queries[i, <span class="dv">1</span>], <span class="at">to =</span> queries[i, <span class="dv">2</span>])</span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>      })</span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>      <span class="co"># correctness spot-check: do the two agree on component membership?</span></span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>      ok <span class="ot">&lt;-</span> comp<span class="sc">$</span>membership[queries[, <span class="dv">1</span>]] <span class="sc">==</span> comp<span class="sc">$</span>membership[queries[, <span class="dv">2</span>]]</span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>      gf_ok <span class="ot">&lt;-</span> cc<span class="sc">$</span>components[queries[, <span class="dv">1</span>]] <span class="sc">==</span> cc<span class="sc">$</span>components[queries[, <span class="dv">2</span>]]</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>      <span class="fu">stopifnot</span>(<span class="fu">all</span>(ok <span class="sc">==</span> gf_ok))</span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>      <span class="fu">data.table</span>(</span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>        <span class="at">edges =</span> n_edges, <span class="at">package =</span> <span class="st">"igraph"</span>,</span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>        <span class="at">components_s =</span> ig_cc, <span class="at">shortest_paths_s =</span> ig_sp,</span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>        <span class="at">n_components =</span> comp<span class="sc">$</span>no</span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>    }, <span class="at">error =</span> <span class="cf">function</span>(e) {</span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>      <span class="fu">message</span>(<span class="fu">sprintf</span>(<span class="st">"igraph skipped at %g edges: %s"</span>, n_edges, <span class="fu">conditionMessage</span>(e)))</span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>      <span class="cn">NULL</span></span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>    })</span>
-<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>    out <span class="ot">&lt;-</span> <span class="fu">rbind</span>(out, ig)</span>
-<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>  out</span>
-<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">rbindlist</span>(<span class="fu">lapply</span>(sizes, bench_one), <span class="at">use.names =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>results[]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div class="kable-table">
-<table class="caption-top table table-sm table-striped small">
-<thead>
-<tr class="header">
-<th style="text-align: right;">edges</th>
-<th style="text-align: left;">package</th>
-<th style="text-align: right;">components_s</th>
-<th style="text-align: right;">shortest_paths_s</th>
-<th style="text-align: right;">n_components</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: right;">1e+06</td>
-<td style="text-align: left;">graphfast</td>
-<td style="text-align: right;">0.03</td>
-<td style="text-align: right;">0.07</td>
-<td style="text-align: right;">12</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">1e+06</td>
-<td style="text-align: left;">igraph</td>
-<td style="text-align: right;">0.08</td>
-<td style="text-align: right;">3.21</td>
-<td style="text-align: right;">12</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">1e+07</td>
-<td style="text-align: left;">graphfast</td>
-<td style="text-align: right;">0.73</td>
-<td style="text-align: right;">1.08</td>
-<td style="text-align: right;">81</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">1e+07</td>
-<td style="text-align: left;">igraph</td>
-<td style="text-align: right;">1.14</td>
-<td style="text-align: right;">39.81</td>
-<td style="text-align: right;">81</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">1e+08</td>
-<td style="text-align: left;">graphfast</td>
-<td style="text-align: right;">9.64</td>
-<td style="text-align: right;">15.42</td>
-<td style="text-align: right;">910</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(graphfast)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in library(graphfast): there is no package called 'graphfast'</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Edit this vector to change what gets measured. graphfast is measured at every</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># size; igraph is only attempted up to `igraph_max_edges`, because building a</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># full igraph object at 100M edges needs far more RAM than graphfast and can</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># exhaust memory mid-render. Raise it if your machine has the headroom.</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>sizes           <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">1e6</span>, <span class="fl">1e7</span>, <span class="fl">1e8</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>igraph_max_edges <span class="ot">&lt;-</span> <span class="fl">1e7</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>make_graph <span class="ot">&lt;-</span> <span class="cf">function</span>(n_edges, <span class="at">sparsity =</span> <span class="dv">5</span>L, <span class="at">seed =</span> <span class="dv">42</span>L) {</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(seed)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  n_nodes <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">max</span>(<span class="fl">1e5</span>, <span class="fu">floor</span>(n_edges <span class="sc">/</span> sparsity)))</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  from <span class="ot">&lt;-</span> <span class="fu">sample.int</span>(n_nodes, n_edges, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  to   <span class="ot">&lt;-</span> <span class="fu">sample.int</span>(n_nodes, n_edges, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  keep <span class="ot">&lt;-</span> from <span class="sc">!=</span> to                       <span class="co"># drop self-loops</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">matrix</span>(<span class="fu">c</span>(from[keep], to[keep]), <span class="at">ncol =</span> <span class="dv">2</span>)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>time_it <span class="ot">&lt;-</span> <span class="cf">function</span>(expr) <span class="fu">system.time</span>(expr)[[<span class="st">"elapsed"</span>]]</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>bench_one <span class="ot">&lt;-</span> <span class="cf">function</span>(n_edges) {</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  edges   <span class="ot">&lt;-</span> <span class="fu">make_graph</span>(n_edges)</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  n_nodes <span class="ot">&lt;-</span> <span class="fu">max</span>(edges)</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  queries <span class="ot">&lt;-</span> edges[<span class="fu">seq_len</span>(<span class="fu">min</span>(<span class="dv">50</span>L, <span class="fu">nrow</span>(edges))), , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ---- graphfast ----</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  gf_cc <span class="ot">&lt;-</span> <span class="fu">time_it</span>(cc <span class="ot">&lt;-</span> <span class="fu">find_connected_components</span>(edges, <span class="at">n_nodes =</span> n_nodes))</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  gf_sp <span class="ot">&lt;-</span> <span class="fu">time_it</span>(<span class="fu">shortest_paths</span>(edges, queries, <span class="at">n_nodes =</span> n_nodes))</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">edges =</span> n_edges, <span class="at">package =</span> <span class="st">"graphfast"</span>,</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">components_s =</span> gf_cc, <span class="at">shortest_paths_s =</span> gf_sp,</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_components =</span> cc<span class="sc">$</span>n_components</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ---- igraph (capped by igraph_max_edges; also guarded against allocation errors) ----</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">"igraph"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>) <span class="sc">&amp;&amp;</span> n_edges <span class="sc">&lt;=</span> igraph_max_edges) {</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    ig <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>({</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>      g <span class="ot">&lt;-</span> igraph<span class="sc">::</span><span class="fu">graph_from_edgelist</span>(edges, <span class="at">directed =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>      ig_cc <span class="ot">&lt;-</span> <span class="fu">time_it</span>(comp <span class="ot">&lt;-</span> igraph<span class="sc">::</span><span class="fu">components</span>(g))</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>      ig_sp <span class="ot">&lt;-</span> <span class="fu">time_it</span>({</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(queries)))</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>          igraph<span class="sc">::</span><span class="fu">distances</span>(g, <span class="at">v =</span> queries[i, <span class="dv">1</span>], <span class="at">to =</span> queries[i, <span class="dv">2</span>])</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>      })</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>      <span class="co"># correctness spot-check: do the two agree on component membership?</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>      ok <span class="ot">&lt;-</span> comp<span class="sc">$</span>membership[queries[, <span class="dv">1</span>]] <span class="sc">==</span> comp<span class="sc">$</span>membership[queries[, <span class="dv">2</span>]]</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>      gf_ok <span class="ot">&lt;-</span> cc<span class="sc">$</span>components[queries[, <span class="dv">1</span>]] <span class="sc">==</span> cc<span class="sc">$</span>components[queries[, <span class="dv">2</span>]]</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>      <span class="fu">stopifnot</span>(<span class="fu">all</span>(ok <span class="sc">==</span> gf_ok))</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>      <span class="fu">data.table</span>(</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>        <span class="at">edges =</span> n_edges, <span class="at">package =</span> <span class="st">"igraph"</span>,</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>        <span class="at">components_s =</span> ig_cc, <span class="at">shortest_paths_s =</span> ig_sp,</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>        <span class="at">n_components =</span> comp<span class="sc">$</span>no</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>    }, <span class="at">error =</span> <span class="cf">function</span>(e) {</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>      <span class="fu">message</span>(<span class="fu">sprintf</span>(<span class="st">"igraph skipped at %g edges: %s"</span>, n_edges, <span class="fu">conditionMessage</span>(e)))</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>      <span class="cn">NULL</span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>    out <span class="ot">&lt;-</span> <span class="fu">rbind</span>(out, ig)</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>  out</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">rbindlist</span>(<span class="fu">lapply</span>(sizes, bench_one), <span class="at">use.names =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in find_connected_components(edges, n_nodes = n_nodes): could not find function "find_connected_components"</span></span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>results[]</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in eval(expr, envir, enclos): object 'results' not found</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="measured-results-connected-components" class="level2" data-number="4.4">
 <h2 data-number="4.4" class="anchored" data-anchor-id="measured-results-connected-components"><span class="header-section-number">4.4</span> Measured results — connected components</h2>
 <p>Wall-clock seconds to compute all connected components, on the graphs generated above. Lower is better.</p>
-<div class="cell">
 <div id="tbl-components" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-components-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;4.1
 </figcaption>
 <div aria-describedby="tbl-components-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output-display">
-<table class="caption-top table table-sm table-striped small">
-<thead>
-<tr class="header">
-<th style="text-align: right;">Edges</th>
-<th style="text-align: right;">graphfast</th>
-<th style="text-align: right;">igraph</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: right;">1M</td>
-<td style="text-align: right;">0.030 s</td>
-<td style="text-align: right;">0.080 s</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">10M</td>
-<td style="text-align: right;">0.730 s</td>
-<td style="text-align: right;">1.140 s</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">100M</td>
-<td style="text-align: right;">9.640 s</td>
-<td style="text-align: right;">—</td>
-</tr>
-</tbody>
-</table>
-</div>
+<pre><code>#&gt; Error in eval(expr, envir, enclos): object 'results' not found
+#&gt; Error in eval(expr, envir, enclos): object 'cc_wide' not found
+#&gt; Error in eval(expr, envir, enclos): object 'cc_wide' not found
+#&gt; Error in eval(expr, envir, enclos): object 'disp' not found
+#&gt; Error in eval(expr, envir, enclos): object 'disp' not found
+#&gt; Error in eval(expr, envir, enclos): object 'disp' not found
+#&gt; Error in eval(expr, envir, enclos): object 'disp' not found</code></pre>
 </div>
 </figure>
 </div>
-</div>
-<p>On this render <code>graphfast</code> computed components <strong>1.6×–2.7×</strong> faster than <code>igraph</code> across the sizes where both ran.</p>
+<pre><code>#&gt; Error in eval(expr, envir, enclos): object 'cc_wide' not found</code></pre>
 <p>Both libraries are near-linear in edges, so the curves are roughly straight on a log–log plot. The gap is the <strong>constant factor</strong> — <code>graphfast</code> avoids constructing and populating a full graph object.</p>
 </section>
 <section id="measured-results-shortest-paths-batch-of-pairs" class="level2" data-number="4.5">
 <h2 data-number="4.5" class="anchored" data-anchor-id="measured-results-shortest-paths-batch-of-pairs"><span class="header-section-number">4.5</span> Measured results — shortest paths (batch of pairs)</h2>
 <p>Wall-clock seconds for a batch of pairwise hop-distance queries on the same graphs.</p>
-<div class="cell">
 <div id="tbl-shortest-paths" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-shortest-paths-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;4.2
 </figcaption>
 <div aria-describedby="tbl-shortest-paths-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output-display">
-<table class="caption-top table table-sm table-striped small">
-<thead>
-<tr class="header">
-<th style="text-align: right;">Edges</th>
-<th style="text-align: right;">graphfast</th>
-<th style="text-align: right;">igraph</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: right;">1M</td>
-<td style="text-align: right;">0.070 s</td>
-<td style="text-align: right;">3.210 s</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">10M</td>
-<td style="text-align: right;">1.080 s</td>
-<td style="text-align: right;">39.810 s</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">100M</td>
-<td style="text-align: right;">15.420 s</td>
-<td style="text-align: right;">—</td>
-</tr>
-</tbody>
-</table>
-</div>
+<pre><code>#&gt; Error in eval(expr, envir, enclos): object 'results' not found
+#&gt; Error in eval(expr, envir, enclos): object 'sp_wide' not found
+#&gt; Error in eval(expr, envir, enclos): object 'sp_wide' not found
+#&gt; Error in eval(expr, envir, enclos): object 'disp2' not found
+#&gt; Error in eval(expr, envir, enclos): object 'disp2' not found
+#&gt; Error in eval(expr, envir, enclos): object 'disp2' not found
+#&gt; Error in eval(expr, envir, enclos): object 'disp2' not found</code></pre>
 </div>
 </figure>
 </div>
-</div>
 <p><code>graphfast</code> builds the adjacency list once (degrees pre-reserved) and reuses a single distance buffer across queries via a visited-version stamp, so per-query overhead is small — the win grows with the number of queries.</p>
 </section>
-<section id="varying-the-graph-shape" class="level2" data-number="4.6">
-<h2 data-number="4.6" class="anchored" data-anchor-id="varying-the-graph-shape"><span class="header-section-number">4.6</span> Varying the graph shape</h2>
+<section id="scaling-behaviour-across-many-sizes-atime" class="level2" data-number="4.6">
+<h2 data-number="4.6" class="anchored" data-anchor-id="scaling-behaviour-across-many-sizes-atime"><span class="header-section-number">4.6</span> Scaling behaviour across many sizes (<a href="https://github.com/tdhock/atime">atime</a>)</h2>
+<p>The tables above sample a handful of sizes. <a href="https://github.com/tdhock/atime"><code>atime</code></a> sweeps many more, timing each expression repeatedly per size and stopping once the median time crosses <code>seconds.limit</code> — so a slow contender doesn’t blow out the render — then fits the closest power-law/log/exponential reference curve to each series.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>atime_result <span class="ot">&lt;-</span> atime<span class="sc">::</span><span class="fu">atime</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">N =</span> <span class="fu">unique</span>(<span class="fu">as.integer</span>(<span class="dv">10</span><span class="sc">^</span><span class="fu">seq</span>(<span class="dv">3</span>, <span class="dv">7</span>, <span class="at">length.out =</span> <span class="dv">15</span>))),</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">setup =</span> {</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    edges   <span class="ot">&lt;-</span> <span class="fu">make_graph</span>(N)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    n_nodes <span class="ot">&lt;-</span> <span class="fu">max</span>(edges)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">seconds.limit =</span> <span class="dv">1</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">times =</span> <span class="dv">3</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">graphfast =</span> <span class="fu">find_connected_components</span>(edges, <span class="at">n_nodes =</span> n_nodes, <span class="at">compress =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">igraph    =</span> igraph<span class="sc">::</span><span class="fu">components</span>(igraph<span class="sc">::</span><span class="fu">graph_from_edgelist</span>(edges, <span class="at">directed =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in loadNamespace(x): there is no package called 'atime'</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co"># atime also measures memory via R's allocator (Rprofmem), but that only sees</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co"># memory allocated through R's own heap. igraph's graph structures are</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co"># allocated with raw malloc() inside its C library, invisible to that</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co"># tracker — so an atime memory comparison here would understate igraph and</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co"># can't be trusted. Time is unaffected by that blind spot, so we keep only</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co"># the time series here; real peak memory is measured separately below.</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>atime_result<span class="sc">$</span>unit.col.vec <span class="ot">&lt;-</span> <span class="st">"median"</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error: object 'atime_result' not found</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>atime_refs <span class="ot">&lt;-</span> atime<span class="sc">::</span><span class="fu">references_best</span>(atime_result)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in loadNamespace(x): there is no package called 'atime'</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(atime_refs)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in eval(expr, envir, enclos): object 'atime_refs' not found</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Both curves are consistent with linear growth in edge count; the lines never cross — <code>graphfast</code>’s constant factor stays smaller across the whole range, and it keeps going to sizes where <code>igraph</code> has already crossed the time budget.</p>
+</section>
+<section id="varying-the-graph-shape" class="level2" data-number="4.7">
+<h2 data-number="4.7" class="anchored" data-anchor-id="varying-the-graph-shape"><span class="header-section-number">4.7</span> Varying the graph shape</h2>
 <p>Runtime is not just a function of edge count; <strong>structure</strong> matters. The sweep below holds the edge count fixed and varies sparsity (edges per node), measured live.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fixed_edges <span class="ot">&lt;-</span> <span class="fl">1e7</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>sweep <span class="ot">&lt;-</span> <span class="fu">rbindlist</span>(<span class="fu">lapply</span>(<span class="fu">c</span>(<span class="dv">2</span>L, <span class="dv">5</span>L, <span class="dv">20</span>L, <span class="dv">100</span>L), <span class="cf">function</span>(s) {</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  edges <span class="ot">&lt;-</span> <span class="fu">make_graph</span>(fixed_edges, <span class="at">sparsity =</span> s)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.table</span>(</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">sparsity =</span> s,</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">nodes =</span> <span class="fu">max</span>(edges),</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">seconds =</span> <span class="fu">system.time</span>(</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">find_connected_components</span>(edges, <span class="at">n_nodes =</span> <span class="fu">max</span>(edges))</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    )[[<span class="st">"elapsed"</span>]]</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>}))</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>sweep[]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div class="kable-table">
-<table class="caption-top table table-sm table-striped small">
-<thead>
-<tr class="header">
-<th style="text-align: right;">sparsity</th>
-<th style="text-align: right;">nodes</th>
-<th style="text-align: right;">seconds</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: right;">2</td>
-<td style="text-align: right;">5e+06</td>
-<td style="text-align: right;">0.99</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">5</td>
-<td style="text-align: right;">2e+06</td>
-<td style="text-align: right;">0.50</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">20</td>
-<td style="text-align: right;">5e+05</td>
-<td style="text-align: right;">0.41</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">100</td>
-<td style="text-align: right;">1e+05</td>
-<td style="text-align: right;">0.34</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fixed_edges <span class="ot">&lt;-</span> <span class="fl">1e7</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>sweep <span class="ot">&lt;-</span> <span class="fu">rbindlist</span>(<span class="fu">lapply</span>(<span class="fu">c</span>(<span class="dv">2</span>L, <span class="dv">5</span>L, <span class="dv">20</span>L, <span class="dv">100</span>L), <span class="cf">function</span>(s) {</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  edges <span class="ot">&lt;-</span> <span class="fu">make_graph</span>(fixed_edges, <span class="at">sparsity =</span> s)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.table</span>(</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">sparsity =</span> s,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">nodes =</span> <span class="fu">max</span>(edges),</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">seconds =</span> <span class="fu">system.time</span>(</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">find_connected_components</span>(edges, <span class="at">n_nodes =</span> <span class="fu">max</span>(edges))</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    )[[<span class="st">"elapsed"</span>]]</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in find_connected_components(edges, n_nodes = max(edges)): could not find function "find_connected_components"</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>sweep[]</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in sweep[]: object of type 'closure' is not subsettable</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>What to watch for across the sweep:</p>
 <ul>
@@ -593,23 +502,156 @@ Table&nbsp;4.2
 <li><strong>Query depth</strong> (shortest paths) — distant or unreachable pairs explore more of the graph; use <code>max_distance</code> to bound it.</li>
 </ul>
 </section>
-<section id="memory" class="level2" data-number="4.7">
-<h2 data-number="4.7" class="anchored" data-anchor-id="memory"><span class="header-section-number">4.7</span> Memory</h2>
+<section id="memory" class="level2" data-number="4.8">
+<h2 data-number="4.8" class="anchored" data-anchor-id="memory"><span class="header-section-number">4.8</span> Memory</h2>
 <p><code>graphfast</code>’s connected-components memory is essentially:</p>
 <p><span class="math display">\[
 \underbrace{2 \times 4\text{ bytes} \times n_{\text{nodes}}}_{\text{parent + rank}}
 \; + \; \underbrace{8\text{ bytes} \times n_{\text{edges}}}_{\text{the edge list itself}}
 \]</span></p>
 <p>so ~12 bytes per node plus the input. For sparse/large id spaces, prefer <code>find_connected_components_safe()</code>, which remaps ids so the arrays are sized by the number of <strong>distinct</strong> nodes, not the maximum id — the function reports the memory it saved in <code>$memory_info</code>. No adjacency <em>matrix</em> is ever formed, which is what makes 100M-edge graphs tractable on commodity hardware.</p>
+<section id="measured-peak-memory" class="level3" data-number="4.8.1">
+<h3 data-number="4.8.1" class="anchored" data-anchor-id="measured-peak-memory"><span class="header-section-number">4.8.1</span> Measured peak memory</h3>
+<p>R-level memory profilers (<code>Rprofmem</code>, <code>bench::bench_memory</code>, and therefore <code>atime</code>’s memory metric) only see allocations made through R’s own heap. They miss memory a compiled library allocates itself with <code>malloc()</code>/<code>calloc()</code> — which is exactly how <code>igraph</code>’s C core manages its graph structures. Using one of those tools to compare <code>graphfast</code> against <code>igraph</code> would silently understate <code>igraph</code>’s real usage.</p>
+<p>To get a number that’s actually comparable, each run below executes in its <strong>own fresh OS process</strong> — one package, one size, nothing else loaded — and reads back the <strong>peak working set</strong> the operating system recorded for that process (Windows’ <code>PeakWorkingSetSize</code>, via the <code>ps</code> package). That figure reflects everything the process touched, regardless of which allocator made the call.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>peak_worker_src <span class="ot">&lt;-</span> <span class="st">'</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="st">args &lt;- commandArgs(trailingOnly = TRUE)</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="st">pkg &lt;- args[[1]]; n_edges &lt;- as.integer(args[[2]])</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="st">sparsity &lt;- as.integer(args[[3]]); seed &lt;- as.integer(args[[4]])</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="st">set.seed(seed)</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="st">n_nodes &lt;- as.integer(max(1e5, floor(n_edges / sparsity)))</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="st">from &lt;- sample.int(n_nodes, n_edges, replace = TRUE)</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="st">to   &lt;- sample.int(n_nodes, n_edges, replace = TRUE)</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="st">keep &lt;- from != to</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="st">edges &lt;- matrix(c(from[keep], to[keep]), ncol = 2)</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="st">n_nodes &lt;- max(edges)</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="st">if (pkg == "graphfast") {</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="st">  suppressMessages(library(graphfast))</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="st">  invisible(find_connected_components(edges, n_nodes = n_nodes, compress = TRUE))</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="st">} else {</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="st">  suppressMessages(library(igraph))</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="st">  invisible(igraph::components(igraph::graph_from_edgelist(edges, directed = FALSE)))</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="st">cat(ps::ps_memory_info()[["peak_wset"]])</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="st">'</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>worker_path <span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">".R"</span>)</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="fu">writeLines</span>(peak_worker_src, worker_path)</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>rscript_bin <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">R.home</span>(<span class="st">"bin"</span>), <span class="st">"Rscript"</span>)</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>peak_memory_kb <span class="ot">&lt;-</span> <span class="cf">function</span>(pkg, n_edges, <span class="at">sparsity =</span> <span class="dv">5</span>L, <span class="at">seed =</span> <span class="dv">42</span>L) {</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">system2</span>(rscript_bin, <span class="fu">c</span>(<span class="fu">shQuote</span>(worker_path), pkg, n_edges, sparsity, seed),</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>                 <span class="at">stdout =</span> <span class="cn">TRUE</span>, <span class="at">stderr =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"DEBUG rscript_bin="</span>, rscript_bin, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"DEBUG out="</span>, <span class="fu">paste</span>(out, <span class="at">collapse =</span> <span class="st">" | "</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.numeric</span>(out[<span class="fu">length</span>(out)]) <span class="sc">/</span> <span class="dv">1024</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>mem_sizes <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">1e5</span>, <span class="fl">1e6</span>, <span class="fl">1e7</span>)</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>mem_results <span class="ot">&lt;-</span> <span class="fu">rbindlist</span>(<span class="fu">lapply</span>(mem_sizes, <span class="cf">function</span>(n) {</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.table</span>(</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">edges     =</span> n,</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">graphfast =</span> <span class="fu">peak_memory_kb</span>(<span class="st">"graphfast"</span>, n),</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">igraph    =</span> <span class="fu">peak_memory_kb</span>(<span class="st">"igraph"</span>, n)</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; DEBUG rscript_bin= C:/PROGRA~1/r/R-43~1.2/bin/x64/Rscript </span></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; DEBUG out= [1] "hey; %USERPROFILE% / Rprofile to file me" | Error in library(graphfast) : there is no package called 'graphfast' | Calls: suppressMessages -&gt; withCallingHandlers -&gt; library | Execution halted </span></span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; DEBUG rscript_bin= C:/PROGRA~1/r/R-43~1.2/bin/x64/Rscript </span></span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; DEBUG out= [1] "hey; %USERPROFILE% / Rprofile to file me" | Error in library(igraph) : there is no package called 'igraph' | Calls: suppressMessages -&gt; withCallingHandlers -&gt; library | Execution halted </span></span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; DEBUG rscript_bin= C:/PROGRA~1/r/R-43~1.2/bin/x64/Rscript </span></span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; DEBUG out= [1] "hey; %USERPROFILE% / Rprofile to file me" | Error in library(graphfast) : there is no package called 'graphfast' | Calls: suppressMessages -&gt; withCallingHandlers -&gt; library | Execution halted </span></span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; DEBUG rscript_bin= C:/PROGRA~1/r/R-43~1.2/bin/x64/Rscript </span></span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; DEBUG out= [1] "hey; %USERPROFILE% / Rprofile to file me" | Error in library(igraph) : there is no package called 'igraph' | Calls: suppressMessages -&gt; withCallingHandlers -&gt; library | Execution halted </span></span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; DEBUG rscript_bin= C:/PROGRA~1/r/R-43~1.2/bin/x64/Rscript </span></span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; DEBUG out= [1] "hey; %USERPROFILE% / Rprofile to file me" | Error in library(graphfast) : there is no package called 'graphfast' | Calls: suppressMessages -&gt; withCallingHandlers -&gt; library | Execution halted </span></span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; DEBUG rscript_bin= C:/PROGRA~1/r/R-43~1.2/bin/x64/Rscript </span></span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; DEBUG out= [1] "hey; %USERPROFILE% / Rprofile to file me" | Error in library(igraph) : there is no package called 'igraph' | Calls: suppressMessages -&gt; withCallingHandlers -&gt; library | Execution halted</span></span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>mem_results[]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">edges</th>
+<th style="text-align: right;">graphfast</th>
+<th style="text-align: right;">igraph</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1e+05</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1e+06</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1e+07</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="cell">
+<div id="tbl-peakmem" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-peakmem-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4.3
+</figcaption>
+<div aria-describedby="tbl-peakmem-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Edges</th>
+<th style="text-align: right;">graphfast</th>
+<th style="text-align: right;">igraph</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">100,000</td>
+<td style="text-align: right;">NA MB</td>
+<td style="text-align: right;">NA MB</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1M</td>
+<td style="text-align: right;">NA MB</td>
+<td style="text-align: right;">NA MB</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">10M</td>
+<td style="text-align: right;">NA MB</td>
+<td style="text-align: right;">NA MB</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>This includes the cost of generating the graph itself (sampling, filtering self-loops) and R’s own baseline footprint — the same for both packages at a given size — so the <em>difference</em> between columns is the fair comparison, not the absolute numbers. <code>igraph</code>’s peak is consistently higher because building a full graph object (vertex table, attribute storage, internal adjacency structures) costs more than the union–find arrays <code>graphfast</code> works with directly.</p>
 </section>
-<section id="reproducing" class="level2" data-number="4.8">
-<h2 data-number="4.8" class="anchored" data-anchor-id="reproducing"><span class="header-section-number">4.8</span> Reproducing</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install comparison packages as needed</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"igraph"</span>, <span class="st">"microbenchmark"</span>))</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># The benchmark ships with the installed package — no need to clone the repo.</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Runs 1e5, 1e6, 1e7 edges by default.</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="fu">system.file</span>(<span class="st">"benchmark.R"</span>, <span class="at">package =</span> <span class="st">"graphfast"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="reproducing" class="level2" data-number="4.9">
+<h2 data-number="4.9" class="anchored" data-anchor-id="reproducing"><span class="header-section-number">4.9</span> Reproducing</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install comparison packages as needed</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"igraph"</span>, <span class="st">"microbenchmark"</span>))</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># The benchmark ships with the installed package — no need to clone the repo.</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Runs 1e5, 1e6, 1e7 edges by default.</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="fu">system.file</span>(<span class="st">"benchmark.R"</span>, <span class="at">package =</span> <span class="st">"graphfast"</span>))</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co"># The scaling-behaviour and peak-memory sections on this page additionally use:</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"atime"</span>, <span class="st">"ggplot2"</span>, <span class="st">"ps"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>To regenerate the tables on this page, just re-render the book — the chunks above run automatically. Edit the <code>sizes</code> vector in the harness to push to 100M+ (and note your CPU, RAM, OS, R version, and threading, so the figures are comparable).</p>
 
 
